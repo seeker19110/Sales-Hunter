@@ -2,31 +2,25 @@
 
 ## 1. Chuẩn bị
 
-Cần Python 3.11+ và `uv`:
+Python 3.11+ và `uv`:
 
 ```bash
 uv sync --locked
 ```
 
-Cài hook tùy chọn:
-
-```bash
-uv tool install pre-commit
-pre-commit install
-```
+Hook tùy chọn: `pre-commit install`.
 
 ## 2. Luồng thay đổi
 
-1. Đọc `AGENTS.md`, `TRAPS.md`, `ARCHITECTURE.md` và `CODEMAP.md`.
-2. Với việc nhiều file / phase: đọc `docs/SUBAGENT-TASK-CONVENTION.md`, điền task pack, **tách subtask** và gán `model_tier` (T0–T4) trước khi code.
-3. Tạo nhánh riêng theo `docs/QUY-TRINH-GIT.md` (một subtask hoặc nhóm subtask review được / PR).
-4. Nếu đổi kiến trúc/schema/quyền xuất bản/nguồn ngoài, viết ADR trước (tier T4 + người duyệt).
-5. Viết test đỏ cho hành vi mới hoặc lỗi tái hiện được.
-6. Viết code tối thiểu để xanh; sau đó mới refactor.
-7. Chạy cổng, tự đọc diff, cập nhật tài liệu và changelog.
-8. Push, mở PR, chờ `quality` và `metadata` xanh; chỉ squash merge sau đó.
+1. Đọc `AGENTS.md`, `TRAPS.md`, `ARCHITECTURE.md`, `CODEMAP.md`.
+2. Việc lớn / phase: `docs/SUBAGENT-TASK-CONVENTION.md` — tách subtask + `model_tier`; **mô hình nhánh A** (1 việc lớn = 1 remote branch; subtask = commit tuần tự).
+3. Tạo **một** nhánh việc lớn theo `docs/QUY-TRINH-GIT.md`.
+4. ADR trước nếu đổi kiến trúc/schema/nguồn/publish (T4 + người).
+5. Từng subtask: test đỏ → code → xanh → commit trên cùng nhánh.
+6. `make check`, changelog, PR **một lần** cho việc lớn (body: danh sách subtask + tier).
+7. CI xanh → squash merge.
 
-**Cấm:** giao cả phase cho một agent một lần; subagent tự mở rộng phạm vi hoặc tự bật publish.
+**Cấm:** mỗi subtask một remote branch khi chỉ làm tuần tự; giao cả phase không tách subtask; overlap parallel.
 
 ## 3. Cổng chất lượng
 
@@ -41,35 +35,17 @@ uv run pip-audit
 
 Hoặc `make check`.
 
-CI jobs:
-
-| Job | Việc |
-|-----|------|
-| `static` | ruff lint + ruff format --check |
-| `schema` | `tools/validate_repo.py` (file bắt buộc, link markdown, schema + examples) |
-| `unit` | unittest trên Ubuntu/Windows × Python 3.11/3.12 |
-| `audit` | gitleaks toàn lịch sử |
-| `quality` | tất cả job trên phải `success` |
-| `metadata` (PR policy) | Conventional Commits title + CHANGELOG |
-
-CD hiện là **placeholder dry-run** (`.github/workflows/cd.yml`). Không publish/deploy cho tới khi có ADR.
-
-Khi đã có mã ứng dụng, PR thêm stack phải đồng thời bổ sung typecheck, unit/integration test, build và audit phụ thuộc vào `quality`; không thay các cổng hiện có bằng cổng yếu hơn.
-
 ## 4. Thay đổi hợp đồng
 
-- Thêm trường optional tương thích: có thể cập nhật cùng version nếu semantics không đổi.
-- Xóa/đổi tên/đổi nghĩa/siết kiểu: tạo file schema version mới và kế hoạch chuyển đổi.
-- Mỗi adapter có contract test với fixture đã khử dữ liệu nhạy cảm.
-- Mọi công thức giá/giảm giá/hoa hồng phải có test biên và không dùng float.
+- Optional tương thích: có thể cùng version schema nếu semantics không đổi.
+- Breaking: schema version mới + kế hoạch chuyển.
+- Không float cho tiền; contract test fixture đã khử nhạy cảm.
 
 ## 5. Definition of Done
 
-- [ ] Phạm vi khớp task pack **và** subtask (nếu có); không có sửa dọn ngoài lề.
-- [ ] Subtask có `model_tier`; T4 đã qua người duyệt khi liên quan.
-- [ ] Test từng đỏ đúng lý do rồi xanh với bản sửa.
-- [ ] Lint, format, test, repository contract và CI xanh.
-- [ ] Không có secret, payload thật, log debug hoặc file sinh ngoài ý muốn.
-- [ ] Hành động ngoài hệ thống có dry-run, idempotency và read-back khi áp dụng.
-- [ ] `README.md`, `ARCHITECTURE.md`, `CODEMAP.md`, schema và changelog được cập nhật khi liên quan.
-- [ ] PR nêu phần chưa kiểm được thay vì suy đoán.
+- [ ] Khớp task pack + subtask; branching A (hoặc B đã khai)
+- [ ] Commit trên đúng parent_branch
+- [ ] Test đỏ→xanh; CI xanh
+- [ ] Không secret / payload thật
+- [ ] Side effect dry-run / approval khi cần
+- [ ] CHANGELOG / CODEMAP khi liên quan

@@ -10,10 +10,10 @@
 Mỗi **phase** hoặc **việc lớn** phải được:
 
 1. **Chia** thành các **task nhỏ** (subtask) có phạm vi rõ, nghiệm thu rõ.
-2. **Giao** từng subtask cho **một subagent** (một phiên làm việc độc lập).
-3. **Chọn model** theo **mức độ phức tạp** của subtask — không dùng model mạnh nhất cho mọi việc, không dùng model yếu cho việc rủi ro cao.
+2. **Giao** từng subtask theo thứ tự (một subagent / một subtask tại một thời điểm trên cùng việc lớn — trừ parallel hợp lệ ở §8).
+3. **Chọn model** theo **mức độ phức tạp** (`model_tier` T0–T4).
 
-Orchestrator (người hoặc agent điều phối) chịu trách nhiệm chia việc, chọn tier, thu kết quả và merge — **không** để subagent tự mở rộng phạm vi.
+Orchestrator chịu trách nhiệm chia việc, chọn tier, thu kết quả và mở PR — **không** để subagent tự mở rộng phạm vi.
 
 ---
 
@@ -21,180 +21,200 @@ Orchestrator (người hoặc agent điều phối) chịu trách nhiệm chia v
 
 ```text
 Phase (ROADMAP / PHASES.md)
-  └── Việc lớn / epic (task-pack phase, ví dụ 0003, 0004…)
-        └── Subtask (TEMPLATE-SUBTASK)  ← đơn vị giao subagent
-              └── Commit / PR nhỏ (một logic review được)
+  └── Việc lớn / epic (task-pack phase)  ← 1 remote branch + 1 PR (mặc định)
+        └── Subtask (TEMPLATE-SUBTASK)   ← 1 commit (hoặc vài commit nhỏ) trên CÙNG nhánh
+              └── Không mở remote branch riêng cho mỗi subtask (mặc định)
 ```
 
 | Cấp | Ai sở hữu | Đầu ra |
 |-----|-----------|--------|
 | Phase | Owner / ROADMAP | DoD phase trong `docs/impl/PHASE-x-IMPLEMENTATION.md` |
-| Việc lớn | Task pack phase | PR hoặc chuỗi PR hoàn thành pack |
-| **Subtask** | **Subagent** | Diff + test + báo cáo ngắn theo template |
-| Commit | Subagent / orchestrator | Conventional commit, một ý |
+| Việc lớn | Task pack phase | **Một** nhánh remote + **một** PR (sau khi đủ subtask) |
+| **Subtask** | Subagent / phiên tuần tự | Commit Conventional trên nhánh việc lớn + báo cáo |
+| Commit | — | Một ý review được; message có thể ghi `subtask_id` |
+
+---
+
+## 2.1. Mô hình nhánh **A** (mặc định toàn cục)
+
+**Phương án A — bắt buộc trừ khi thỏa ngoại lệ §2.2:**
+
+| Quy tắc | Chi tiết |
+|---------|----------|
+| 1 việc lớn → 1 remote branch | Ví dụ `feat/1.5-publication-candidate`, `feat/2-manual-adapter` |
+| Nhiều subtask trên **cùng** nhánh | `1.5.a` → commit; `1.5.b` → commit; … rồi **một** PR |
+| Subagent tuần tự | Giao subtask k+1 sau khi k xong (cùng worktree/nhánh) |
+| Tiết kiệm token | Không cold-start N agent × full AGENTS/spec nếu không cần parallel |
+| Nhiều việc lớn | Nhiều nhánh song song **được**, rồi **rebase/merge tuần tự** theo phụ thuộc kế hoạch |
+
+```text
+origin/<base>
+  └── feat/viec-lon-X          ← remote branch duy nhất cho X
+        commit subtask X.a
+        commit subtask X.b
+        commit subtask X.c
+        └── PR → squash merge vào base
+```
+
+**Không** mặc định tạo `feat/1.5.a`, `feat/1.5.b`, … trừ khi §2.2.
+
+---
+
+## 2.2. Ngoại lệ — mô hình **B** (nhánh theo subtask)
+
+Chỉ khi **tất cả** đúng:
+
+1. Hai (trở lên) agent/người chạy **song song thật**, và
+2. **Không overlap** path/module, và
+3. Orchestrator ghi rõ trong task pack / session: `branching: B` + bảng path.
+
+Khi đó mỗi subtask parallel có thể có remote branch riêng, merge/rebase vào nhánh việc lớn hoặc base theo thứ tự phụ thuộc.
+
+Nếu chỉ có **một** agent làm tuần tự → **luôn A**.
 
 ---
 
 ## 3. Mức độ phức tạp (tier) và chọn model
 
-Gán **một tier** cho mỗi subtask trước khi giao. Tier quyết định model tối thiểu và có cần review người hay không.
+Gán **một tier** cho mỗi subtask trước khi giao.
 
 | Tier | Tên | Ví dụ việc | Model khuyến nghị | Review |
 |------|-----|------------|-------------------|--------|
-| **T0** | Cơ học | Sửa typo docs, changelog, rename theo CODEMAP, format | Model nhanh / rẻ | Orchestrator lướt |
-| **T1** | Đơn giản** | Unit test thuần, fixture JSON, validate schema, hàm pure nhỏ | Model nhanh–trung bình | Orchestrator |
-| **T2** | Chuẩn | Implement hàm domain theo spec có sẵn, pipeline glue, contract test | Model trung bình–mạnh | Orchestrator + CI |
-| **T3** | Phức tạp | Thiết kế module mới, canonicalization/hash, ranking formula, adapter interface | Model mạnh | Orchestrator bắt buộc đọc diff |
-| **T4** | Rủi ro cao | ADR, ToS/nguồn hợp pháp, approval/publish invariants, kill switch, secret/auth | Model mạnh nhất + **người** duyệt | **Human required** trước merge |
+| **T0** | Cơ học | Typo docs, changelog, format | Nhanh / rẻ | Orchestrator lướt |
+| **T1** | Đơn giản | Unit test, fixture, schema validate | Nhanh–TB | Orchestrator |
+| **T2** | Chuẩn | Implement theo spec, contract test | TB–mạnh | Orchestrator + CI |
+| **T3** | Phức tạp | Module mới, hash, ranking, adapter interface | Mạnh | Đọc diff bắt buộc |
+| **T4** | Rủi ro cao | ADR, ToS, publish, secret/auth | Mạnh nhất + **người** | **Human** trước merge |
 
 ### Quy tắc chọn tier
 
-- Có **side effect** (`ingest-network`, `affiliate-link-create`, `publish`, `account-change`) → tối thiểu **T3**, thường **T4**.
-- Đụng schema breaking, ADR, GIA-DINH-NEN-TANG, AN-TOAN-AFFILIATE → **T4**.
-- Chỉ đọc/sửa docs không đổi quyết định hệ thống → **T0–T1**.
-- Subagent **không** được tự nâng tier để “làm thêm”; muốn mở rộng phải trả việc về orchestrator.
+- Side effect `ingest-network` / `affiliate-link-create` / `publish` / `account-change` → tối thiểu **T3**, thường **T4**.
+- Schema breaking, ADR, GIA-DINH, AN-TOAN-AFFILIATE → **T4**.
+- Docs không đổi quyết định hệ thống → **T0–T1**.
+- Subagent không tự nâng tier / mở rộng phạm vi.
 
-### Ghi chú model (trừu tượng, không gắn vendor)
-
-Repo **không** hard-code tên model cụ thể (Claude/GPT/… thay đổi theo thời điểm). Orchestrator map tier → model hiện có trong môi trường, ví dụ:
-
-- T0–T1 → model latency thấp, chi phí thấp
-- T2 → model cân bằng
-- T3–T4 → model reasoning mạnh; T4 thêm human gate
-
-Ghi `model_tier: T2` (và optional `model_id` thực tế) trong subtask pack / session log.
+Repo **không** hard-code tên model vendor; chỉ bắt buộc `model_tier` (optional `model_id` trong session log).
 
 ---
 
-## 4. Tiêu chí một subtask “đủ nhỏ”
+## 4. Tiêu chí subtask “đủ nhỏ”
 
-Subtask **hợp lệ** khi thỏa **tất cả**:
+1. Một mục tiêu quan sát được.
+2. Phạm vi path rõ (được / không được chạm).
+3. Làm xong trong một phiên hợp lý (hướng dẫn ≤ ~1–2 giờ agent).
+4. DoD ≤ 7 mục + lệnh kiểm máy được.
+5. Một mức side effect được khai.
+6. Không gộp ADR + implement mạng + deploy trong một subtask.
 
-1. **Một mục tiêu quan sát được** (một hành vi hoặc một artifact).
-2. **Phạm vi path** liệt kê được (được chạm / không được chạm).
-3. **Làm xong trong một phiên** hợp lý (hướng dẫn: ≤ ~1–2 giờ agent; tránh “làm cả Phase 2”).
-4. **DoD checklist** ≤ 7 mục, có lệnh kiểm máy được.
-5. **Side effect** khai báo một mức: `none | ingest-network | affiliate-link-create | publish | account-change`.
-6. **Không** yêu cầu subagent vừa thiết kế ADR vừa implement vừa deploy.
-
-Nếu việc lớn hơn → orchestrator **tách thêm** subtask, không giao một cục.
-
-### Ví dụ tách (Phase 1.5)
+### Ví dụ tách (Phase 1.5) — vẫn **một** nhánh `feat/1.5-…`
 
 | Subtask | Tier | Nội dung |
 |---------|------|----------|
-| 1.5.a | T1 | Test đỏ cho `compute_draft_sha256` (chưa có impl) |
-| 1.5.b | T2 | Implement `compute_draft_sha256` + test xanh |
-| 1.5.c | T1 | Test đỏ cho `build_publication_candidate` happy path |
-| 1.5.d | T2 | Implement builder tối thiểu + default disclosure |
-| 1.5.e | T2 | Validation schema + HTTPS + claim_snapshot từ observation |
-| 1.5.f | T1 | Fixture example + contract test |
-| 1.5.g | T0 | CODEMAP + CHANGELOG + session log |
+| 1.5.a | T1 | Test đỏ `compute_draft_sha256` |
+| 1.5.b | T2 | Implement hash + test xanh |
+| 1.5.c | T1 | Test đỏ builder |
+| 1.5.d | T2 | Implement builder + disclosure |
+| 1.5.e | T2 | Validation schema + HTTPS + claim |
+| 1.5.f | T1 | Fixture + contract |
+| 1.5.g | T0 | CODEMAP + CHANGELOG + session |
 
 ---
 
-## 5. Vai trò Orchestrator vs Subagent
+## 5. Orchestrator vs Subagent
 
-### Orchestrator (bắt buộc)
+### Orchestrator
 
-- Đọc phase impl spec + task pack phase.
-- Tách subtask, gán tier, điền `TEMPLATE-SUBTASK`.
-- Chọn model theo tier.
-- Giao **một** subtask / một subagent / một thời điểm (tránh hai subagent sửa cùng file).
-- Thu kết quả: diff, output test, phần chưa xong.
-- Chạy `make check` trên tích hợp; mở PR hoặc chuỗi PR.
-- Quyết định dừng / hỏi người khi T4 hoặc mơ hồ ToS.
+- Tách subtask + tier; chọn **branching A** (mặc định).
+- Tạo **một** nhánh việc lớn từ base.
+- Giao subtask tuần tự trên nhánh đó; mỗi lần xong → commit (message có `subtask_id` nếu hữu ích).
+- `make check` trước khi mở PR.
+- Một PR cho việc lớn khi DoD các subtask đạt (hoặc PR sớm dạng draft nếu cần review giữa chừng).
 
 ### Subagent
 
-- Chỉ làm đúng subtask đã giao.
-- Đọc đúng danh sách “bối cảnh phải đọc” trong subtask (thường gồm AGENTS.md).
-- TDD nếu có code.
-- **Không** sửa ngoài phạm vi; thấy việc khác → ghi “phát hiện thêm” rồi dừng phần đó.
-- Trả về: tóm tắt, lệnh đã chạy, kết quả, rủi ro, file đụng.
+- Chỉ làm đúng subtask; commit trên nhánh việc lớn đã cho (không tự tạo remote branch mới trừ khi orchestrator ghi `branching: B`).
+- TDD nếu có code; báo cáo theo TEMPLATE-SUBTASK.
 
 ---
 
-## 6. Template giao subtask (bắt buộc)
+## 6. Template subtask
 
-Dùng `docs/task-packs/TEMPLATE-SUBTASK.md`. Mỗi lần giao copy thành file hoặc block trong session, ví dụ:
+`docs/task-packs/TEMPLATE-SUBTASK.md`.
 
-`docs/task-packs/active/1.5.b-compute-draft-sha256.md`
+Thêm trường khuyến nghị:
 
-Trường bắt buộc:
-
-- `subtask_id`, `parent_phase`, `parent_task_pack`
-- `model_tier` (T0–T4)
-- Mục tiêu, DoD, phạm vi, ràng buộc, side effect
-- Lệnh kiểm (đỏ/xanh)
-- “Cấm làm”
-
----
-
-## 7. Luồng chuẩn (gắn QUY-TRINH-GIT)
-
-```text
-1. Orchestrator: phase / việc lớn → danh sách subtask + tier
-2. (Nếu T4 hoặc đổi kiến trúc) ADR / người duyệt trước
-3. Với mỗi subtask:
-     a. Điền TEMPLATE-SUBTASK
-     b. Chọn model theo tier
-     c. Subagent làm (nhánh feat/fix theo slug subtask nếu cần)
-     d. Subagent báo cáo + orchestrator review
-     e. make check (cục bộ)
-4. Gộp logic liên quan → PR (một hoặc vài subtask/PR tùy reviewability)
-5. CI xanh → squash merge
-6. Session log: subtask xong / dở, tier, model_id (nếu có)
-7. Subtask cuối của phase đạt → đánh dấu DoD phase
+```yaml
+branching: "A"   # A = cùng nhánh việc lớn (mặc định); B = nhánh riêng subtask (parallel)
+parent_branch: "feat/1.5-publication-candidate"  # bắt buộc với A
 ```
 
-Vẫn cấm push thẳng `main`. Vẫn Conventional Commits.
+---
+
+## 7. Luồng chuẩn (A + Git)
+
+```text
+1. Orchestrator: việc lớn → bảng subtask + tier + branching A
+2. Tạo nhánh feat/<viec-lon> từ base (một lần)
+3. ADR/human nếu T4 trước code rủi ro
+4. Lặp subtask k = 1..n:
+     a. Giao prompt subtask (cùng nhánh)
+     b. Subagent làm + báo cáo
+     c. Commit trên feat/<viec-lon>
+     d. make check cục bộ
+5. Một PR từ feat/<viec-lon> → base (body liệt kê subtask_id + tier)
+6. CI xanh → squash merge → xóa nhánh
+7. Session log
+```
+
+Nhiều việc lớn: nhiều nhánh song song → **rebase lên base mới** rồi merge **tuần tự theo phụ thuộc** (Phase 1.5 rồi 2…).
 
 ---
 
-## 8. Parallelism (làm song song)
+## 8. Parallelism
 
-Được phép **chỉ khi**:
+- **Trong một việc lớn (A):** mặc định **không** parallel subtask đụng cùng module; tuần tự trên một nhánh.
+- **Giữa các việc lớn:** parallel nhánh được nếu path không đụng nhau.
+- **B trong một việc lớn:** chỉ khi §2.2.
 
-- Không overlap file/module, và
-- Không phụ thuộc dữ liệu lẫn nhau, và
-- Orchestrator đã phân path rõ.
-
-Ví dụ an toàn: subtask docs T0 song song với subtask test T1 ở package khác.  
-Ví dụ **cấm**: hai subagent cùng sửa `pipeline/publication.py`.
+Cấm: hai subagent cùng sửa một file trên hai nhánh không phối hợp.
 
 ---
 
-## 9. Definition of Done cấp subtask
+## 9. DoD subtask
 
-Subtask chỉ “xong” khi:
-
-- [ ] DoD trong template được tick
+- [ ] DoD template đạt
 - [ ] Không vượt phạm vi
-- [ ] Lệnh kiểm đã chạy và kết quả được ghi
-- [ ] Side effect đúng mức đã khai (thường `none`)
-- [ ] Orchestrator chấp nhận báo cáo (T3+ đọc diff; T4 có human)
+- [ ] Có bằng chứng lệnh kiểm
+- [ ] Side effect đúng mức khai
+- [ ] Commit nằm trên `parent_branch` (A) hoặc nhánh B đã khai
+- [ ] T3+ orchestrator đọc diff; T4 human trước merge PR việc lớn
 
 ---
 
-## 10. Liên kết tài liệu
+## 10. Token / chi phí (hệ quả A)
+
+- **A** giảm lặp context (AGENTS, spec) so với mỗi subtask một agent cold-start + remote branch.
+- Chấp nhận B khi cần song song thời gian, không phải để “rẻ token”.
+
+---
+
+## 11. Liên kết
 
 | Tài liệu | Quan hệ |
 |----------|---------|
-| [TASK-PACK.md](TASK-PACK.md) | Gói việc lớn / phase; subtask là cấp dưới |
-| [TEMPLATE-SUBTASK.md](task-packs/TEMPLATE-SUBTASK.md) | Mẫu giao từng subagent |
-| [PHASES.md](PHASES.md) + `docs/impl/*` | Nguồn tách subtask |
-| [QUY-TRINH-GIT.md](QUY-TRINH-GIT.md) | Nhánh, PR, merge |
-| [AGENTS.md](../AGENTS.md) | Luật cấm/bắt buộc mọi subagent |
-| [PROMPT-SHEET.md](PROMPT-SHEET.md) | Câu lệnh chuẩn orchestrator / subagent |
+| [QUY-TRINH-GIT.md](QUY-TRINH-GIT.md) | Nhánh, PR, rebase tuần tự |
+| [TASK-PACK.md](TASK-PACK.md) / [TEMPLATE-SUBTASK.md](task-packs/TEMPLATE-SUBTASK.md) | Gói việc + subtask |
+| [PROMPT-SHEET.md](PROMPT-SHEET.md) / [prompts/](prompts/) | Prompt orchestrator & subagent |
+| [AGENTS.md](../AGENTS.md) | Luật cấm/bắt buộc |
 
 ---
 
-## 11. Vi phạm quy ước
+## 12. Vi phạm
 
-- Giao cả phase cho một subagent một lần.
+- Giao cả phase một lần không tách subtask.
+- Tạo remote branch per subtask khi chỉ có một agent tuần tự (phải dùng A).
 - Không ghi tier / side effect.
-- Subagent tự làm publish/ADR/ToS khi task là T1–T2.
-- Dùng model yếu cho T4 rồi merge không human review.
+- Subagent tự publish/ADR khi không phải T4 + human.
+- Parallel overlap file.
 
-→ Orchestrator từ chối nhận kết quả; tách lại subtask đúng chuẩn.
+→ Orchestrator từ chối; làm lại đúng A hoặc B có kiểm soát.
