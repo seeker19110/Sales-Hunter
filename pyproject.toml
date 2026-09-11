@@ -1,7 +1,7 @@
 [project]
 name = "s-n-sales"
 version = "0.1.0"
-description = "Khung phát triển hệ thống săn sale và affiliate đa nền tảng"
+description = "Khung phát triển hệ thống săn sale và affiliate đa nền tảng (subdomain donghanhcungban.org)"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
@@ -18,7 +18,7 @@ dev = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-src = ["tools", "tests"]
+src = ["src", "tools", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
