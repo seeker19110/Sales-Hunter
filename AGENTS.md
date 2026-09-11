@@ -47,9 +47,12 @@ Trạng thái “đã đăng”, URL bài đăng và mã giao dịch phải do p
 
 ```bash
 uv sync --locked
-uv run ruff check tools tests
+uv run ruff check src tools tests
+uv run ruff format --check src tools tests
+uv run pyright src tools tests
 uv run python -m unittest discover -s tests -v
 uv run python tools/validate_repo.py
+uv run pip-audit
 ```
 
 ## Khi cần dừng hỏi

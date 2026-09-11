@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main, bootstrap/base]
+    branches: [bootstrap/base]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -31,6 +31,23 @@ jobs:
         run: uv run ruff check src tools tests
       - name: Ruff format check
         run: uv run ruff format --check src tools tests
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          enable-cache: true
+          python-version: "3.11"
+      - run: uv sync --locked
+      - run: uv run pyright src tools tests
 
   schema:
     name: schema
@@ -75,6 +92,23 @@ jobs:
           PYTHONPATH: src
         run: uv run python -m unittest discover -s tests -v
 
+  dependency-audit:
+    name: dependency-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          enable-cache: true
+          python-version: "3.11"
+      - run: uv sync --locked
+      - run: uv run pip-audit
+
   audit:
     name: audit
     runs-on: ubuntu-latest
@@ -95,7 +129,7 @@ jobs:
   quality:
     name: quality
     if: always()
-    needs: [static, schema, unit, audit]
+    needs: [static, typecheck, schema, unit, dependency-audit, audit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -103,9 +137,16 @@ jobs:
     steps:
       - name: Mọi cổng con phải thành công
         env:
-          RESULTS: ${{ join(needs.*.result, ',') }}
+          STATIC: ${{ needs.static.result }}
+          TYPECHECK: ${{ needs.typecheck.result }}
+          SCHEMA: ${{ needs.schema.result }}
+          UNIT: ${{ needs.unit.result }}
+          DEPENDENCY_AUDIT: ${{ needs.dependency-audit.result }}
+          AUDIT: ${{ needs.audit.result }}
         run: |
-          if [ "$RESULTS" != "success,success,success,success" ]; then
-            echo "Cổng con chưa xanh: $RESULTS" >&2
-            exit 1
-          fi
+          for result in "$STATIC" "$TYPECHECK" "$SCHEMA" "$UNIT" "$DEPENDENCY_AUDIT" "$AUDIT"; do
+            if [ "$result" != "success" ]; then
+              echo "Cổng con chưa xanh" >&2
+              exit 1
+            fi
+          done

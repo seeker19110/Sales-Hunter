@@ -29,10 +29,12 @@ pre-commit install
 ## 3. Cổng chất lượng
 
 ```bash
-uv run ruff check tools tests
-uv run ruff format --check tools tests
+uv run ruff check src tools tests
+uv run ruff format --check src tools tests
+uv run pyright src tools tests
 uv run python -m unittest discover -s tests -v
 uv run python tools/validate_repo.py
+uv run pip-audit
 ```
 
 Hoặc `make check`.

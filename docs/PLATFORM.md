@@ -8,7 +8,7 @@
 | Learning (prod) | https://en-vi.donghanhcungban.org — `seeker19110/donghanh` |
 | Sales (mục tiêu) | **https://sales.donghanhcungban.org** — repo này |
 
-Chi tiết quyết định: [ADR-0002](adr/0002-platform-subdomain-dhcb.md).
+Chi tiết quyết định: [ADR-0002](adr/0002-platform-subdomain-dhcb.md). Trạng thái triển khai và điều kiện mở domain: [DEPLOY-SALES-SUBDOMAIN](DEPLOY-SALES-SUBDOMAIN.md).
 
 ## Ranh giới
 
@@ -18,17 +18,13 @@ Sales     ──✕──  không đọc mastery / billing Learning
 Platform hub ──► SSO / identity (sau ADR auth chi tiết)
 ```
 
-## Deploy (đặc tả, chưa thực hiện)
+## Deploy
 
-1. Cloudflare DNS: `sales` CNAME/A → VPS
-2. TLS qua Cloudflare
-3. Reverse proxy (nginx) path `/` → app Sales
-4. Environment `staging` rồi `production` + kill switch
-5. Secrets chỉ qua env/secret manager — không commit
+Mục tiêu là `sales.donghanhcungban.org` trên pattern Cloudflare + VPS, nhưng **chưa có HTTP service hay DNS/TLS production**. Không coi domain là đã tích hợp cho tới khi hoàn tất checklist deploy và read-back HTTPS.
 
 ## Vai trò người dùng (v1)
 
-- **Operator:** duyệt draft, bật/tắt publish, xem audit
-- **System:** adapter, ranking, pipeline (không phải end-user Learning)
+- **Operator:** duyệt draft, bật/tắt publish, xem audit.
+- **System:** adapter, ranking, pipeline (không phải end-user Learning).
 
 End-user deals UI là phase sau khi pipeline + approval ổn định.
