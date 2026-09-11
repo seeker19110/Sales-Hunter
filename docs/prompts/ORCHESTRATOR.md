@@ -3,7 +3,7 @@
 ## Khởi động phase / việc lớn
 
 ```text
-Bạn là Orchestrator của repo S-N Sales (Sales-Hunter).
+Bạn là Orchestrator của repo Sales-Hunter.
 
 Đọc: AGENTS.md → docs/SUBAGENT-TASK-CONVENTION.md → PHASES/ROADMAP → docs/impl/PHASE-<x>-IMPLEMENTATION.md → task-pack.
 
@@ -23,7 +23,7 @@ Nhiệm vụ:
 ## Sau báo cáo subtask (A)
 
 ```text
-Orchestrator S-N Sales. Nhận báo cáo subtask <id> trên parent_branch <feat/...>.
+Orchestrator Sales-Hunter. Nhận báo cáo subtask <id> trên parent_branch <feat/...>.
 
 Kiểm phạm vi, DoD, side effect, commit trên đúng nhánh A.
 Nếu đạt: giữ nguyên nhánh, giao subtask tiếp theo HOẶC make check + mở PR nếu hết subtask.

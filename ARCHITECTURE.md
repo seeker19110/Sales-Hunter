@@ -1,4 +1,4 @@
-# ARCHITECTURE.md — bản đồ S-N Sales
+# ARCHITECTURE.md — bản đồ Sales-Hunter
 
 ## Trạng thái
 

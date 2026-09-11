@@ -1,4 +1,4 @@
-# ADR-0001: Kiến trúc khởi đầu cho S-N Sales
+# ADR-0001: Kiến trúc khởi đầu cho Sales-Hunter
 
 - Trạng thái: Chấp nhận
 - Ngày: 2026-09-11

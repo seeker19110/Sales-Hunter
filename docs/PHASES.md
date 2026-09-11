@@ -1,4 +1,4 @@
-# Đặc tả các Phase — S-N Sales
+# Đặc tả các Phase — Sales-Hunter
 
 Tài liệu này mô tả chi tiết từng phase từ trạng thái hiện tại đến hệ thống hoàn chỉnh.
 Mọi thay đổi kiến trúc, nguồn dữ liệu, quyền publish hoặc schema breaking **phải có ADR** trước khi code.

@@ -1,4 +1,4 @@
-# Quy ước Subagent Task — S-N Sales
+# Quy ước Subagent Task — Sales-Hunter
 
 **Trạng thái:** Chấp nhận (quy ước vận hành).  
 **Áp dụng từ:** mọi phase và việc lớn sau khi merge tài liệu này.

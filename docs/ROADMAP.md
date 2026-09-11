@@ -1,4 +1,4 @@
-# ROADMAP — S-N Sales
+# ROADMAP — Sales-Hunter
 
 Trạng thái: **Phase 0 xong** · **Phase 0.5 ADR platform** · **Phase 1 domain core (code)** · **Phase 1.5 đang mở**.
 

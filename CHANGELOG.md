@@ -13,6 +13,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Sửa
 
+- Chuẩn hóa tên hiển thị và package metadata thành Sales-Hunter.
 - `AGENTS.md`, `TASK-PACK.md`, `PROMPT-SHEET.md`: gắn quy ước subagent và link prompts.
 - Ranking yêu cầu clock có timezone.
 - `.gitattributes` LF trên Windows.

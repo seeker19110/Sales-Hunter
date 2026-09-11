@@ -1,4 +1,4 @@
-# TRAPS.md — bẫy đã xảy ra trong S-N Sales
+# TRAPS.md — bẫy đã xảy ra trong Sales-Hunter
 
 File này chỉ ghi sự cố **đã xảy ra thật trong repository này**, không sao chép lịch sử của Claude-Agents và không dùng như danh sách best practice chung.
 

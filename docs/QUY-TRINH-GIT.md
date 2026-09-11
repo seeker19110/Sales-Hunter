@@ -1,4 +1,4 @@
-# Quy trình Git — S-N Sales
+# Quy trình Git — Sales-Hunter
 
 Luồng chuẩn: **đặc tả → tách subtask + tier → một nhánh việc lớn (mô hình A) → TDD/commit theo subtask → PR → CI → squash merge → quan sát**.
 
@@ -24,7 +24,7 @@ Việc lớn: bảng subtask + `model_tier` + `branching: A` trước khi mở n
 
 ```bash
 git fetch origin
-git worktree add -b feat/<viec-lon> ../s-n-sales-wt-<viec-lon> origin/<base>
+git worktree add -b feat/<viec-lon> ../sales-hunter-wt-<viec-lon> origin/<base>
 ```
 
 Sau khi việc lớn trước đã merge:
