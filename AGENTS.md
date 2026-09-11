@@ -4,7 +4,7 @@
 
 ## Phạm vi hiện tại
 
-Repository đang ở giai đoạn khung vận hành. Hợp đồng trong `schemas/` là thiết kế v1; chưa có kết nối thật với Shopee/TikTok Shop và chưa có quyền tự động đăng.
+Repository đang ở giai đoạn khung vận hành + đặc tả Phase 1. Hợp đồng trong `schemas/` là thiết kế v1; chưa có kết nối thật với Shopee/TikTok Shop và chưa có quyền tự động đăng.
 
 ## Luật cấm
 
@@ -16,12 +16,14 @@ Repository đang ở giai đoạn khung vận hành. Hợp đồng trong `schema
 6. Không tự động đăng nội dung công khai khi chưa có ADR nêu rõ phạm vi, cơ chế dừng và phê duyệt.
 7. Không sửa ngoài phạm vi task pack; thấy việc khác thì ghi lại, không tiện tay dọn.
 8. Không nói “đã chạy/đã đăng/đã kiểm” nếu không có output hoặc định danh do công cụ sinh ra.
+9. Không hard-code domain/redirect của Shopee/TikTok trong code ứng dụng; phải qua allowlist config version hóa.
+10. Không dùng float cho tiền tệ ở bất kỳ tầng domain nào.
 
 ## Luật bắt buộc
 
 1. Thay đổi code phải theo TDD: test đỏ đúng lý do → code tối thiểu → test xanh → refactor.
 2. Input ngoài hệ thống phải được lưu nguyên bản hoặc có dấu vết, sau đó parse qua schema có version trước khi vào domain.
-3. Mọi số tiền dùng số nguyên theo đơn vị nhỏ nhất của tiền tệ; thời gian dùng ISO 8601 có múi giờ; không dùng float cho tiền.
+3. Mọi số tiền dùng số nguyên theo đơn vị nhỏ nhất của tiền tệ (value object `Money`); thời gian dùng ISO 8601 có múi giờ.
 4. Bản ghi ưu đãi phải mang `platform`, định danh ngoài, `observed_at` và bằng chứng nguồn. Dữ liệu chuẩn hóa không được ghi đè dữ liệu thô.
 5. Link affiliate chỉ được tạo bởi adapter/code với allowlist domain và quy tắc nền tảng; không lấy link cuối từ văn bản do model hoặc trang nguồn chỉ dẫn.
 6. Hành động ra ngoài hệ thống phải lũy đẳng, có audit log và mặc định ở chế độ dry-run/draft.
@@ -29,6 +31,7 @@ Repository đang ở giai đoạn khung vận hành. Hợp đồng trong `schema
 8. Mỗi PR cập nhật `CHANGELOG.md`; cuối phiên ghi điều cần bàn giao trong `docs/sessions/`.
 9. Trước push chạy đúng các cổng trong [CONTRIBUTING.md](CONTRIBUTING.md). Không hạ cổng để làm CI xanh.
 10. Sửa một lỗi phải rà các adapter/luồng cùng cơ chế và thêm bẫy vào `TRAPS.md` nếu đó là sự cố mới có khả năng tái diễn.
+11. Ranking phải deterministic, có `rank_version` và `reasons` giải thích được; không dùng model để sinh score.
 
 ## Ranh giới tin cậy
 

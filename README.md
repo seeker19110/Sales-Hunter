@@ -47,6 +47,7 @@ make check
 - [AGENTS.md](AGENTS.md): luật bắt buộc cho mọi agent/lập trình viên.
 - [ARCHITECTURE.md](ARCHITECTURE.md): ranh giới hệ thống và luồng dữ liệu dự kiến.
 - [CODEMAP.md](CODEMAP.md): muốn thay đổi gì thì đọc/sửa ở đâu.
+- [ROADMAP.md](docs/ROADMAP.md): lộ trình Phase 0 → 4.
 - [TRAPS.md](TRAPS.md): chỉ ghi bẫy đã xảy ra thật trong repo này.
 - [CONTRIBUTING.md](CONTRIBUTING.md): cài đặt, kiểm thử, PR và Definition of Done.
 - [SECURITY.md](SECURITY.md): bí mật, dữ liệu nhạy cảm và ranh giới nguồn ngoài.

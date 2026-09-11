@@ -1,0 +1,11 @@
+{
+  "schema_version": "approval-record.v1",
+  "approval_id": "apr-demo-001",
+  "publication_id": "pub-demo-001",
+  "draft_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "status": "approved",
+  "decided_by": "operator-demo",
+  "decided_at": "2026-09-11T04:00:00Z",
+  "reason": "Fixture synthetic — nội dung đạt checklist affiliate.",
+  "policy_version": "affiliate-safety-2026-09"
+}
