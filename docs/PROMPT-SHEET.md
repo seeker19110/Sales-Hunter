@@ -1,55 +1,43 @@
 # Prompt sheet — câu lệnh chuẩn
 
-Chỉ giữ câu lệnh đã giúp duy trì ranh giới của S-N Sales. Khi thêm prompt, ghi lý do và ngày dùng đầu tiên.
-
-**Bộ prompt sẵn (copy-paste):**
+**Bộ prompt sẵn:**
 - Orchestrator: [docs/prompts/ORCHESTRATOR.md](prompts/ORCHESTRATOR.md)
-- Phase 1.5 — mỗi subagent một file: [docs/prompts/phase-1.5/](prompts/phase-1.5/)
+- Phase 1.5: [docs/prompts/phase-1.5/](prompts/phase-1.5/) — **một nhánh việc lớn, nhiều commit (mô hình A)**
 
-## Bắt đầu phiên (orchestrator hoặc agent đơn)
+## Bắt đầu phiên
 
 ```text
-Đọc AGENTS.md, TRAPS.md, ARCHITECTURE.md, docs/SUBAGENT-TASK-CONVENTION.md và dòng liên quan trong CODEMAP.md. Kiểm git status/worktree. Điền task pack cho yêu cầu này; nếu việc lớn/phase thì tách subtask + model_tier (T0–T4) trước khi code. Nêu rõ hành động ngoài hệ thống nào bị cấm. Sau đó làm theo TDD và chạy đúng cổng của CONTRIBUTING.md.
+Đọc AGENTS.md, docs/SUBAGENT-TASK-CONVENTION.md (mô hình nhánh A mặc định), TRAPS.md, ARCHITECTURE.md, CODEMAP.md. Kiểm git status/worktree. Việc lớn → một remote branch; subtask → commit tuần tự trên nhánh đó. Gán model_tier T0–T4. Không tạo branch per subtask trừ khi parallel thật (branching B).
 ```
 
-## Orchestrator — tách phase thành subtask
-
-Dùng bản đầy đủ trong `docs/prompts/ORCHESTRATOR.md`, hoặc:
+## Orchestrator — tách việc + nhánh A
 
 ```text
-Bạn là orchestrator S-N Sales. Đọc docs/impl/PHASE-<x>-IMPLEMENTATION.md và task-pack phase tương ứng. Tách thành danh sách subtask đủ nhỏ theo docs/SUBAGENT-TASK-CONVENTION.md. Mỗi subtask: id, model_tier T0–T4, side effect, path được/không được chạm, DoD. Không giao cả phase cho một subagent. Không gán dưới T3 nếu có side effect mạng/publish. Xuất bảng subtask rồi dừng để duyệt trước khi giao.
+Bạn là orchestrator S-N Sales. Đọc impl phase + task-pack. Tách subtask + model_tier. Mặc định branching A: một remote branch cho cả việc lớn; mỗi subtask là commit trên nhánh đó; một PR khi xong. Chỉ đề xuất branching B khi cần parallel + path không overlap. Xuất bảng subtask + tên parent_branch rồi dừng để duyệt.
 ```
 
-## Giao một subagent
-
-Ưu tiên mở đúng file trong `docs/prompts/phase-*/` và copy nguyên khối. Mẫu generic:
+## Giao một subagent (trên nhánh việc lớn)
 
 ```text
-Bạn là subagent S-N Sales. Chỉ làm đúng subtask trong block/template sau đây. Đọc AGENTS.md và các file trong mục "Bối cảnh phải đọc". Không sửa ngoài phạm vi, không tự publish/ADR, không tiện tay làm subtask khác. TDD nếu có code. Kết thúc bằng báo cáo theo mục 9 của TEMPLATE-SUBTASK.
+Bạn là subagent S-N Sales. Chỉ làm đúng subtask trong block sau. Làm việc trên parent_branch đã cho (branching A) — không tạo remote branch mới. Đọc AGENTS.md và mục bối cảnh. TDD nếu có code. Kết thúc bằng báo cáo TEMPLATE-SUBTASK (kèm gợi ý commit message có subtask_id).
 
-<dán nội dung TEMPLATE-SUBTASK hoặc file docs/prompts/... đã điền>
+<dán TEMPLATE-SUBTASK hoặc docs/prompts/phase-... đã điền>
 ```
 
 ## Thêm adapter nền tảng
 
 ```text
-Trước khi code adapter <nền tảng>: xác định API/nguồn được phép bằng tài liệu chính thức có ngày truy cập; liệt kê auth, quota, rate limit, pagination, timezone, currency, lỗi và điều khoản lưu dữ liệu. Định nghĩa/đổi schema cùng contract test dùng fixture đã khử bí mật. Không fallback sang scraping khi API thiếu. Việc này tối thiểu tier T4 (ADR + human) trước implement mạng.
-```
-
-## Điều tra giá hoặc sale sai
-
-```text
-Không suy từ message lỗi. Lấy một observation raw, giữ nguyên observed_at/account/region/currency, tái hiện normalizer bằng test. Tách lần lượt giá gốc, giá sale, coupon, shipping và eligibility. Test phải đỏ khi chưa sửa; sau sửa rà mọi adapter dùng cùng công thức và phân biệt stale-data với source-unavailable.
+Trước khi code adapter: ADR + tài liệu chính thức + ngày đọc. Không scrap. Tối thiểu T4 + human trước mạng. Một nhánh feat/2-... cho việc lớn adapter; subtask commit tuần tự trên nhánh đó.
 ```
 
 ## Chuẩn bị đăng nội dung
 
 ```text
-Kiểm schema publication candidate, tuổi của claim snapshot, affiliate disclosure, allowlist URL và approval hash. Chỉ chạy dry-run nếu chưa được người vận hành cho phép đăng. Nếu đăng thật, dùng idempotency key rồi đọc lại platform post ID/URL; không nhận lời khai "đã đăng" từ model. Mọi subtask publish = T4.
+Kiểm publication candidate, freshness, disclosure, allowlist, approval hash. Dry-run mặc định. Publish thật = T4. Không nhận "đã đăng" từ model.
 ```
 
 ## Kết thúc phiên
 
 ```text
-Chạy lint, test và repository contract; đọc toàn bộ diff so với base. Kiểm commit remote nằm trong PR và CI trên head hiện tại. Ghi docs/sessions/<ngày>.md chỉ gồm việc xong (kèm subtask id + tier), việc dở + lý do, PR mở, bẫy mới và điều phiên sau không được quên.
+make check / unittest; đọc diff. Session log: subtask_id, tier, parent_branch, commit. Không quên phần dở cho phiên sau trên CÙNG nhánh việc lớn nếu chưa mở PR.
 ```
