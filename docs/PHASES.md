@@ -7,6 +7,10 @@ Mọi thay đổi kiến trúc, nguồn dữ liệu, quyền publish hoặc sche
 
 > Chứng minh được **một vòng kín hợp pháp và trung thực** trước khi mở rộng nền tảng hoặc tự động hóa.
 
+**Vận hành agent (toàn cục):**
+
+> Mỗi phase hoặc việc lớn **bắt buộc** tách thành subtask, giao subagent, chọn `model_tier` T0–T4 theo [SUBAGENT-TASK-CONVENTION.md](SUBAGENT-TASK-CONVENTION.md). Không giao cả phase cho một agent.
+
 ---
 
 ## Tổng quan lộ trình
@@ -24,6 +28,8 @@ Mọi thay đổi kiến trúc, nguồn dữ liệu, quyền publish hoặc sche
 | **6** | Production + Scale | Production, kill switch, multi-channel | 3–4 tuần+ | Phase 5 |
 
 **MVP dùng được thực tế** = kết thúc Phase 4 (có vòng kín quan sát → draft → duyệt → đăng → theo dõi cơ bản).
+
+**Trước khi code bất kỳ phase mở nào:** đọc `docs/impl/PHASE-x-IMPLEMENTATION.md` → task-pack phase → tách subtask (TEMPLATE-SUBTASK) → gán tier.
 
 ---
 
@@ -49,11 +55,13 @@ Hoàn thiện pipeline từ `rank-result` → `publication-candidate.v1` với �
 - [ ] Disclosure luôn có mặt và không thể bỏ qua bằng tham số.
 - [ ] Test đỏ → xanh theo TDD; `make check` xanh.
 - [ ] CHANGELOG + session log cập nhật.
+- [ ] Đã tách và hoàn thành subtask theo convention (không một PR “làm cả phase” thiếu bảng subtask).
 
 ### Ràng buộc kỹ thuật
 - Không dùng float cho tiền.
 - Claim phải truy được về observation_id + observed_at.
 - External side effects: **none**.
+- Subtask điển hình: T1–T2 (xem impl Phase 1.5).
 
 ### Rủi ro
 Thấp. Chủ yếu là làm rõ canonicalization của `draft_sha256`.
@@ -84,12 +92,13 @@ Có ít nhất **một** nguồn observation thật, hợp pháp, có thể ch�
 - Auto-publish, multi-platform song song, UI phức tạp.
 
 ### Nghiệm thu
-- [ ] ADR ToS/allowlist được chấp nhận.
+- [ ] ADR ToS/allowlist được chấp nhận (**T4 + human**).
 - [ ] `GIA-DINH-NEN-TANG.md` ghi rõ nguồn, ngày đọc, người chịu trách nhiệm.
 - [ ] Có thể tạo observation hợp lệ từ nguồn thật (hoặc manual có audit).
 - [ ] Pipeline observation → rank → publication-candidate chạy được với dữ liệu thật.
 - [ ] Checklist `AN-TOAN-AFFILIATE.md` được tick cho phần nguồn.
 - [ ] `make check` + contract test xanh.
+- [ ] Subtask đã tách (ADR / manual / official / e2e) theo convention.
 
 ### Ràng buộc kỹ thuật
 - `source_method` chỉ nhận giá trị được schema cho phép.
@@ -124,6 +133,7 @@ Vòng kín draft → người duyệt → publish có receipt đọc lại từ 
 - [ ] Receipt chỉ được ghi khi đọc lại thành công từ nền tảng.
 - [ ] Test phủ các ca biên (hash mismatch, expired, already published).
 - [ ] ADR (nếu cần) cho cơ chế publish và kill switch.
+- [ ] Subtask publish/kill-switch = **T4**.
 
 ### Ràng buộc
 - External side effects: `publish` (có kiểm soát).
@@ -151,6 +161,7 @@ Deploy staging tại `sales.donghanhcungban.org` và có giao diện tối thi�
 - [ ] Operator có thể duyệt và (nếu bật) publish từ UI.
 - [ ] Không leak dữ liệu/credential sang Learning.
 - [ ] Checklist deploy được tick.
+- [ ] Subtask tách API / UI / deploy; deploy DNS = T3–T4.
 
 ### Rủi ro
 Trung bình (vận hành, bảo mật cơ bản).
@@ -173,6 +184,7 @@ Trung bình (vận hành, bảo mật cơ bản).
 - [ ] Có dashboard hoặc export số liệu cơ bản.
 - [ ] Ranking có thể điều chỉnh trọng số qua `rank_version` mới.
 - [ ] Có quy trình thu hồi nội dung khi deal hết hạn.
+- [ ] Subtask theo convention; đổi rank_version có test regression.
 
 ---
 
@@ -193,6 +205,7 @@ Chạy production ổn định, có thể mở thêm kênh/nền tảng.
 - [ ] Production chạy ≥ 2 tuần không sự cố nghiêm trọng.
 - [ ] Có runbook sự cố (khóa tài khoản, deal sai, rate limit).
 - [ ] Mọi nền tảng mới đều đi qua `GIA-DINH-NEN-TANG.md` + ADR.
+- [ ] Cutover production = **T4 + human**; diễn tập kill switch.
 
 ---
 
@@ -204,15 +217,18 @@ Chạy production ổn định, có thể mở thêm kênh/nền tảng.
 4. Không hạ cổng CI để “xanh”.
 5. Khi nghi ngờ ToS / quyền → dừng và hỏi, không đoán.
 6. Ưu tiên **một vòng kín chất lượng** hơn nhiều nền tảng nửa vời.
+7. **Tách subtask + `model_tier`** trước khi giao agent ([SUBAGENT-TASK-CONVENTION.md](SUBAGENT-TASK-CONVENTION.md)).
 
 ---
 
 ## Tài liệu liên quan
 
 - [ROADMAP.md](ROADMAP.md)
+- [SUBAGENT-TASK-CONVENTION.md](SUBAGENT-TASK-CONVENTION.md)
 - [ARCHITECTURE.md](../ARCHITECTURE.md)
 - [HOP-DONG-DU-LIEU.md](HOP-DONG-DU-LIEU.md)
 - [AN-TOAN-AFFILIATE.md](AN-TOAN-AFFILIATE.md)
 - [GIA-DINH-NEN-TANG.md](GIA-DINH-NEN-TANG.md)
 - [PLATFORM.md](PLATFORM.md)
+- `docs/impl/PHASE-*-IMPLEMENTATION.md`
 - ADR trong `docs/adr/`

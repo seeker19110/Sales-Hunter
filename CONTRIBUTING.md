@@ -18,13 +18,15 @@ pre-commit install
 ## 2. Luồng thay đổi
 
 1. Đọc `AGENTS.md`, `TRAPS.md`, `ARCHITECTURE.md` và `CODEMAP.md`.
-2. Với việc nhiều file, điền `docs/TASK-PACK.md`.
-3. Tạo nhánh riêng theo `docs/QUY-TRINH-GIT.md`.
-4. Nếu đổi kiến trúc/schema/quyền xuất bản, viết ADR trước.
+2. Với việc nhiều file / phase: đọc `docs/SUBAGENT-TASK-CONVENTION.md`, điền task pack, **tách subtask** và gán `model_tier` (T0–T4) trước khi code.
+3. Tạo nhánh riêng theo `docs/QUY-TRINH-GIT.md` (một subtask hoặc nhóm subtask review được / PR).
+4. Nếu đổi kiến trúc/schema/quyền xuất bản/nguồn ngoài, viết ADR trước (tier T4 + người duyệt).
 5. Viết test đỏ cho hành vi mới hoặc lỗi tái hiện được.
 6. Viết code tối thiểu để xanh; sau đó mới refactor.
 7. Chạy cổng, tự đọc diff, cập nhật tài liệu và changelog.
 8. Push, mở PR, chờ `quality` và `metadata` xanh; chỉ squash merge sau đó.
+
+**Cấm:** giao cả phase cho một agent một lần; subagent tự mở rộng phạm vi hoặc tự bật publish.
 
 ## 3. Cổng chất lượng
 
@@ -63,7 +65,8 @@ Khi đã có mã ứng dụng, PR thêm stack phải đồng thời bổ sung ty
 
 ## 5. Definition of Done
 
-- [ ] Phạm vi khớp task pack/ADR; không có sửa dọn ngoài lề.
+- [ ] Phạm vi khớp task pack **và** subtask (nếu có); không có sửa dọn ngoài lề.
+- [ ] Subtask có `model_tier`; T4 đã qua người duyệt khi liên quan.
 - [ ] Test từng đỏ đúng lý do rồi xanh với bản sửa.
 - [ ] Lint, format, test, repository contract và CI xanh.
 - [ ] Không có secret, payload thật, log debug hoặc file sinh ngoài ý muốn.

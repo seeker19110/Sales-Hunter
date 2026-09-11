@@ -2,6 +2,8 @@
 
 Đọc file này trước khi sửa repository. Sau đó đọc [TRAPS.md](TRAPS.md), [ARCHITECTURE.md](ARCHITECTURE.md) và dòng liên quan trong [CODEMAP.md](CODEMAP.md).
 
+Khi làm **phase hoặc việc lớn**: đọc thêm [docs/SUBAGENT-TASK-CONVENTION.md](docs/SUBAGENT-TASK-CONVENTION.md) — chia subtask, giao subagent, chọn `model_tier` T0–T4.
+
 ## Phạm vi hiện tại
 
 Repository đang ở giai đoạn khung vận hành + đặc tả Phase 1. Hợp đồng trong `schemas/` là thiết kế v1; chưa có kết nối thật với Shopee/TikTok Shop và chưa có quyền tự động đăng.
@@ -14,10 +16,11 @@ Repository đang ở giai đoạn khung vận hành + đặc tả Phase 1. Hợp
 4. Không để model tự tính giá, phần trăm giảm, hoa hồng, thời hạn hoặc chọn URL đích. Model output luôn là dữ liệu chưa tin cậy.
 5. Không biến một lần quan sát giá/tồn kho thành khẳng định “đang sale” nếu chưa kiểm tra độ mới và bằng chứng nguồn.
 6. Không tự động đăng nội dung công khai khi chưa có ADR nêu rõ phạm vi, cơ chế dừng và phê duyệt.
-7. Không sửa ngoài phạm vi task pack; thấy việc khác thì ghi lại, không tiện tay dọn.
+7. Không sửa ngoài phạm vi task pack **hoặc subtask** đã giao; thấy việc khác thì ghi lại, không tiện tay dọn.
 8. Không nói “đã chạy/đã đăng/đã kiểm” nếu không có output hoặc định danh do công cụ sinh ra.
 9. Không hard-code domain/redirect của Shopee/TikTok trong code ứng dụng; phải qua allowlist config version hóa.
 10. Không dùng float cho tiền tệ ở bất kỳ tầng domain nào.
+11. Không giao cả phase cho một subagent; không để subagent tự nâng tier hoặc tự mở side effect.
 
 ## Luật bắt buộc
 
@@ -32,6 +35,7 @@ Repository đang ở giai đoạn khung vận hành + đặc tả Phase 1. Hợp
 9. Trước push chạy đúng các cổng trong [CONTRIBUTING.md](CONTRIBUTING.md). Không hạ cổng để làm CI xanh.
 10. Sửa một lỗi phải rà các adapter/luồng cùng cơ chế và thêm bẫy vào `TRAPS.md` nếu đó là sự cố mới có khả năng tái diễn.
 11. Ranking phải deterministic, có `rank_version` và `reasons` giải thích được; không dùng model để sinh score.
+12. Phase/việc lớn: tách subtask theo [SUBAGENT-TASK-CONVENTION.md](docs/SUBAGENT-TASK-CONVENTION.md); mỗi subtask có `model_tier`; T4 cần người duyệt trước merge.
 
 ## Ranh giới tin cậy
 

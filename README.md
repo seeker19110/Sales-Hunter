@@ -32,8 +32,9 @@ make check
 ## Tài liệu
 
 - [AGENTS.md](AGENTS.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [CODEMAP.md](CODEMAP.md)
-- [ROADMAP](docs/ROADMAP.md) · [PLATFORM](docs/PLATFORM.md)
+- [ROADMAP](docs/ROADMAP.md) · [PHASES](docs/PHASES.md) · [PLATFORM](docs/PLATFORM.md)
 - [Hợp đồng dữ liệu](docs/HOP-DONG-DU-LIEU.md)
+- **[Quy ước subagent task](docs/SUBAGENT-TASK-CONVENTION.md)** — mọi phase/việc lớn: tách subtask + `model_tier` T0–T4 trước khi giao agent
 
 ## Giấy phép
 
