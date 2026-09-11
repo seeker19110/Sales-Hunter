@@ -27,15 +27,14 @@ class RankingTests(unittest.TestCase):
         self.assertGreaterEqual(len(a["reasons"]), 1)
         self.assertGreater(a["score"], 0.5)
 
-    def test_pipeline_from_fixture_shape(self) -> None:
-        obs = {
-            "observation_id": "obs-demo-001",
-            "sale_price_minor": 150_000,
-            "list_price_minor": 200_000,
-            "currency": "VND",
-            "stock_status": "unknown",
-            "observed_at": "2026-09-11T03:00:00Z",
-        }
+    def test_pipeline_from_valid_observation_fixture(self) -> None:
+        import json
+        from pathlib import Path
+
+        fixture_path = (
+            Path(__file__).resolve().parents[1] / "schemas/examples/valid/offer-observation.v1.json"
+        )
+        obs = json.loads(fixture_path.read_text(encoding="utf-8"))
         now = datetime(2026, 9, 11, 3, 30, tzinfo=UTC)
         result = observation_to_rank(obs, now=now)
         self.assertEqual(result["schema_version"], "rank-result.v1")

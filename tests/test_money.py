@@ -10,6 +10,10 @@ class MoneyTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             Money(1.5)  # type: ignore[arg-type]
 
+    def test_rejects_boolean_amount(self) -> None:
+        with self.assertRaises(TypeError):
+            Money(True)  # type: ignore[arg-type]
+
     def test_rejects_negative(self) -> None:
         with self.assertRaises(ValueError):
             Money(-1)

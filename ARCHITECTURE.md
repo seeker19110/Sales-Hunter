@@ -2,7 +2,7 @@
 
 ## Trạng thái
 
-Đây là kiến trúc mục tiêu được chấp nhận ở [ADR-0001](docs/adr/0001-kien-truc-khoi-dau.md). Hiện repository mới triển khai hợp đồng JSON và khung kiểm định repository; các module ứng dụng dưới đây chưa được coi là đã tồn tại cho tới khi có code và test.
+Kiến trúc mục tiêu được chấp nhận ở [ADR-0001](docs/adr/0001-kien-truc-khoi-dau.md). Hiện đã có Phase 1 domain core: `Money`, ranking xác định và fake pipeline validate observation → rank. Chưa có adapter mạng, tạo link affiliate, approval store, publisher, HTTP application hoặc deploy subdomain.
 
 ## Luồng chính
 
@@ -41,6 +41,7 @@ Bắt đầu bằng **modular monolith**: ranh giới là package/interface tron
 Hợp đồng hiện có:
 
 - [`offer-observation.v1.json`](schemas/offer-observation.v1.json): quan sát ưu đãi từ adapter.
+- [`rank-result.v1.json`](schemas/rank-result.v1.json): kết quả ranking từ observation đã validate.
 - [`publication-candidate.v1.json`](schemas/publication-candidate.v1.json): bản nháp chuẩn bị duyệt/đăng.
 
 ## Yêu cầu xuyên suốt
@@ -50,3 +51,4 @@ Hợp đồng hiện có:
 - Đồng hồ, timezone, currency và rounding được truyền tường minh.
 - Metric tách “không có sale” khỏi “không thu thập được dữ liệu”.
 - Có kill switch theo nền tảng và toàn hệ thống trước khi bật auto-publish.
+- Sales được deploy độc lập tại `sales.donghanhcungban.org`; không chia sẻ dữ liệu/credential Learning mặc định.

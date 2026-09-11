@@ -12,6 +12,8 @@ package = false
 [dependency-groups]
 dev = [
     "jsonschema[format-nongpl]>=4.26.0",
+    "pip-audit>=2.10.1",
+    "pyright>=1.1.414",
     "ruff==0.16.6",
 ]
 
@@ -27,3 +29,8 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 quote-style = "double"
 indent-style = "space"
 line-ending = "lf"
+
+[tool.pyright]
+include = ["src", "tools", "tests"]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"

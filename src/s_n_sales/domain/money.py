@@ -11,8 +11,8 @@ class Money:
     currency: str = "VND"
 
     def __post_init__(self) -> None:
-        if not isinstance(self.amount_minor, int):
-            raise TypeError("amount_minor phải là int")
+        if isinstance(self.amount_minor, bool) or not isinstance(self.amount_minor, int):
+            raise TypeError("amount_minor phải là int, không phải bool")
         if self.amount_minor < 0:
             raise ValueError("amount_minor không được âm")
         if not self.currency or not isinstance(self.currency, str):

@@ -9,6 +9,7 @@ from typing import Any
 from s_n_sales.domain.money import Money
 
 RANK_VERSION = "rank-v1.0.0"
+VALID_STOCK_STATUSES = frozenset({"in_stock", "out_of_stock", "unknown"})
 
 
 @dataclass(frozen=True, slots=True)
@@ -19,16 +20,22 @@ class RankInput:
     currency: str
     stock_status: str
     observed_at: datetime
-    now: datetime | None = None
+    now: datetime
+
+    def __post_init__(self) -> None:
+        if not self.observation_id:
+            raise ValueError("observation_id không được rỗng")
+        if self.stock_status not in VALID_STOCK_STATUSES:
+            raise ValueError("stock_status không hợp lệ")
+        for field, value in (("observed_at", self.observed_at), ("now", self.now)):
+            if value.tzinfo is None or value.utcoffset() is None:
+                raise ValueError(f"{field} phải có timezone")
 
 
 def rank_observation(inp: RankInput) -> dict[str, Any]:
     """Trả dict khớp schema rank-result.v1 (không ghi file)."""
-    now = inp.now or datetime.now(UTC)
-    if inp.observed_at.tzinfo is None:
-        observed = inp.observed_at.replace(tzinfo=UTC)
-    else:
-        observed = inp.observed_at
+    now = inp.now.astimezone(UTC)
+    observed = inp.observed_at.astimezone(UTC)
 
     sale = Money(inp.sale_price_minor, inp.currency)
     list_price = (
@@ -60,7 +67,7 @@ def rank_observation(inp: RankInput) -> dict[str, Any]:
             }
         )
 
-    # Freshness: trong 1h = full, tuyến tính về 0 ở 24h
+    # Freshness giảm tuyến tính từ thời điểm observation về 0 sau 24 giờ.
     freshness = max(0.0, 1.0 - age_seconds / 86400.0)
     w_f = 0.35
     score += freshness * w_f
@@ -97,7 +104,7 @@ def rank_observation(inp: RankInput) -> dict[str, Any]:
         "observation_id": inp.observation_id,
         "score": round(score, 6),
         "rank_version": RANK_VERSION,
-        "ranked_at": now.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "ranked_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "reasons": reasons,
         "features": {
             "discount_ratio": ratio,
