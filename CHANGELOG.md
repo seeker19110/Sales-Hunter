@@ -6,15 +6,14 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
-- `docs/SUBAGENT-TASK-CONVENTION.md` + `TEMPLATE-SUBTASK.md`: chia phase → subtask → model_tier T0–T4.
-- Áp dụng toàn cục: README, CODEMAP, CONTRIBUTING, ROADMAP, PHASES, QUY-TRINH-GIT tham chiếu quy ước.
-- `docs/impl/PHASE-*` và task-pack 0003–0008.
-- `docs/PHASES.md` + ROADMAP Phase 1.5.
+- `docs/prompts/ORCHESTRATOR.md` + `docs/prompts/phase-1.5/*`: prompt sẵn — mỗi subagent một subtask Phase 1.5.
+- `docs/SUBAGENT-TASK-CONVENTION.md` + `TEMPLATE-SUBTASK.md`; áp dụng toàn cục README/CODEMAP/CONTRIBUTING/ROADMAP/PHASES/QUY-TRINH-GIT.
+- `docs/impl/PHASE-*` và task-pack 0003–0008; PHASES + ROADMAP Phase 1.5.
 - Runtime validation observation; Pyright; pip-audit; Dependabot; hướng dẫn deploy subdomain.
 
 ### Sửa
 
-- `AGENTS.md`, `TASK-PACK.md`, `PROMPT-SHEET.md`: gắn quy ước subagent.
+- `AGENTS.md`, `TASK-PACK.md`, `PROMPT-SHEET.md`: gắn quy ước subagent và link prompts.
 - Ranking yêu cầu clock có timezone.
 - `.gitattributes` LF trên Windows.
 

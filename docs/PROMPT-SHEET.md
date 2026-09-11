@@ -2,6 +2,10 @@
 
 Chỉ giữ câu lệnh đã giúp duy trì ranh giới của S-N Sales. Khi thêm prompt, ghi lý do và ngày dùng đầu tiên.
 
+**Bộ prompt sẵn (copy-paste):**
+- Orchestrator: [docs/prompts/ORCHESTRATOR.md](prompts/ORCHESTRATOR.md)
+- Phase 1.5 — mỗi subagent một file: [docs/prompts/phase-1.5/](prompts/phase-1.5/)
+
 ## Bắt đầu phiên (orchestrator hoặc agent đơn)
 
 ```text
@@ -10,16 +14,20 @@ Chỉ giữ câu lệnh đã giúp duy trì ranh giới của S-N Sales. Khi th�
 
 ## Orchestrator — tách phase thành subtask
 
+Dùng bản đầy đủ trong `docs/prompts/ORCHESTRATOR.md`, hoặc:
+
 ```text
 Bạn là orchestrator S-N Sales. Đọc docs/impl/PHASE-<x>-IMPLEMENTATION.md và task-pack phase tương ứng. Tách thành danh sách subtask đủ nhỏ theo docs/SUBAGENT-TASK-CONVENTION.md. Mỗi subtask: id, model_tier T0–T4, side effect, path được/không được chạm, DoD. Không giao cả phase cho một subagent. Không gán dưới T3 nếu có side effect mạng/publish. Xuất bảng subtask rồi dừng để duyệt trước khi giao.
 ```
 
 ## Giao một subagent
 
+Ưu tiên mở đúng file trong `docs/prompts/phase-*/` và copy nguyên khối. Mẫu generic:
+
 ```text
 Bạn là subagent S-N Sales. Chỉ làm đúng subtask trong block/template sau đây. Đọc AGENTS.md và các file trong mục "Bối cảnh phải đọc". Không sửa ngoài phạm vi, không tự publish/ADR, không tiện tay làm subtask khác. TDD nếu có code. Kết thúc bằng báo cáo theo mục 9 của TEMPLATE-SUBTASK.
 
-<dán nội dung TEMPLATE-SUBTASK đã điền>
+<dán nội dung TEMPLATE-SUBTASK hoặc file docs/prompts/... đã điền>
 ```
 
 ## Thêm adapter nền tảng
