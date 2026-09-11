@@ -1,0 +1,52 @@
+name: CD
+
+# Placeholder CD — chưa có artifact/deploy thật.
+# Chỉ chạy sau khi CI quality xanh trên nhánh bảo vệ.
+# Khi có release: thêm build package, publish, hoặc deploy có dry-run + approval.
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main, bootstrap/base]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Chỉ kiểm tra, không side-effect"
+        type: boolean
+        default: true
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  gate:
+    name: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Xác nhận CI đã xanh (push) hoặc manual dry-run
+        run: |
+          echo "CD gate OK"
+          echo "event=${{ github.event_name }}"
+          echo "dry_run=${{ inputs.dry_run || 'true' }}"
+          echo "Chưa có bước publish/deploy — giữ dry-run cho tới ADR."
+
+  # Tương lai (sau ADR):
+  # package:
+  #   needs: [gate]
+  #   ...
+  # publish:
+  #   needs: [package]
+  #   environment: production  # bắt buộc approval
+  #   ...
