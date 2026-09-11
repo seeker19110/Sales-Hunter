@@ -28,9 +28,9 @@ jobs:
           python-version: "3.11"
       - run: uv sync --locked
       - name: Ruff lint
-        run: uv run ruff check tools tests
+        run: uv run ruff check src tools tests
       - name: Ruff format check
-        run: uv run ruff format --check tools tests
+        run: uv run ruff format --check src tools tests
 
   schema:
     name: schema
@@ -70,7 +70,10 @@ jobs:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
       - run: uv sync --locked
-      - run: uv run python -m unittest discover -s tests -v
+      - name: Unit tests
+        env:
+          PYTHONPATH: src
+        run: uv run python -m unittest discover -s tests -v
 
   audit:
     name: audit

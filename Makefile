@@ -1,13 +1,15 @@
 .PHONY: sync lint format-check test schema check
 
+export PYTHONPATH := src:$(PYTHONPATH)
+
 sync:
 	uv sync --locked
 
 lint:
-	uv run ruff check tools tests
+	uv run ruff check src tools tests
 
 format-check:
-	uv run ruff format --check tools tests
+	uv run ruff format --check src tools tests
 
 test:
 	uv run python -m unittest discover -s tests -v
