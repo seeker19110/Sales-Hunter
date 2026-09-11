@@ -8,7 +8,7 @@ Repository S-N Sales đang trống. Rút phần hữu ích từ Claude-Agents đ
 
 - [x] Có bộ tài liệu vận hành tiếng Việt, kiến trúc khởi đầu và schema v1.
 - [x] Validator/test từng đỏ khi module chưa tồn tại rồi xanh sau triển khai.
-- [ ] PR mở; CI `quality` và `metadata` xanh.
+- [x] PR mở; CI `quality` và `metadata` xanh (theo dõi tại PR #1).
 
 ## 3. Phạm vi
 
