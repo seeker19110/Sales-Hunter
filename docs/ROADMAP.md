@@ -2,7 +2,9 @@
 
 Trạng thái: **Phase 0 xong** · **Phase 0.5 ADR platform** · **Phase 1 domain core (code)** · **Phase 1.5 đang mở**.
 
-Đặc tả chi tiết từng phase: **[PHASES.md](PHASES.md)**.
+Đặc tả chi tiết từng phase: **[PHASES.md](PHASES.md)**.  
+Triển khai kỹ thuật: `docs/impl/PHASE-*-IMPLEMENTATION.md`.  
+**Vận hành agent (bắt buộc):** mọi phase/việc lớn phải tách **subtask** + gán **`model_tier` T0–T4** theo [SUBAGENT-TASK-CONVENTION.md](SUBAGENT-TASK-CONVENTION.md).
 
 ## Phase 0 — Khung vận hành
 
@@ -24,6 +26,7 @@ Trạng thái: **Phase 0 xong** · **Phase 0.5 ADR platform** · **Phase 1 domai
 
 ## Phase 1.5 — Content draft đầy đủ
 
+- [ ] Tách subtask theo convention (xem impl + task-pack 0003)
 - [ ] Builder `publication-candidate.v1` hoàn chỉnh
 - [ ] `claim_snapshot` + `draft_sha256` deterministic
 - [ ] Template disclosure affiliate bắt buộc
@@ -31,6 +34,7 @@ Trạng thái: **Phase 0 xong** · **Phase 0.5 ADR platform** · **Phase 1 domai
 
 ## Phase 2 — Adapter + nguồn hợp pháp
 
+- [ ] Tách subtask; ADR/ToS = **T4 + human** trước code mạng
 - [ ] ADR ToS + allowlist domain + rate limit
 - [ ] Cập nhật `GIA-DINH-NEN-TANG.md` (xác minh nguồn)
 - [ ] Adapter Shopee (hoặc manual pipeline chất lượng cao) → observation thật
@@ -39,6 +43,7 @@ Trạng thái: **Phase 0 xong** · **Phase 0.5 ADR platform** · **Phase 1 domai
 
 ## Phase 3 — Approval + Publisher
 
+- [ ] Tách subtask; publish path = **T4**
 - [ ] Lưu `approval-record.v1` (hash-bound)
 - [ ] Publisher idempotent + read-back `publish-receipt.v1`
 - [ ] Kill switch nền tảng + toàn hệ thống
@@ -46,6 +51,7 @@ Trạng thái: **Phase 0 xong** · **Phase 0.5 ADR platform** · **Phase 1 domai
 
 ## Phase 4 — Staging + Operator UI
 
+- [ ] Tách subtask (API / UI / deploy)
 - [ ] HTTP service tối thiểu
 - [ ] Dashboard duyệt draft (approve/reject)
 - [ ] Deploy staging `sales.donghanhcungban.org` theo checklist
@@ -53,6 +59,7 @@ Trạng thái: **Phase 0 xong** · **Phase 0.5 ADR platform** · **Phase 1 domai
 
 ## Phase 5 — Analytics + Feedback loop
 
+- [ ] Tách subtask
 - [ ] Tracking click / conversion cơ bản
 - [ ] Metric tách “không có sale” vs “không thu thập được”
 - [ ] Cải thiện ranking qua `rank_version` mới
@@ -60,6 +67,7 @@ Trạng thái: **Phase 0 xong** · **Phase 0.5 ADR platform** · **Phase 1 domai
 
 ## Phase 6 — Production + Scale
 
+- [ ] Tách subtask; production cutover = **T4 + human**
 - [ ] ADR auth/SSO (nếu cần)
 - [ ] Production deploy + monitoring + runbook
 - [ ] Thêm adapter thứ hai (TikTok Shop) chỉ sau khi Shopee ổn định

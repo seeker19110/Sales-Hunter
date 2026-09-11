@@ -6,10 +6,9 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
-- `docs/SUBAGENT-TASK-CONVENTION.md`: quy ước chia phase/việc lớn thành subtask, giao subagent, chọn model theo tier T0–T4.
-- `docs/task-packs/TEMPLATE-SUBTASK.md`: mẫu giao từng subagent.
-- `docs/impl/PHASE-2` … `PHASE-6-IMPLEMENTATION.md` và task-pack 0004–0008.
-- `docs/impl/PHASE-1` / `PHASE-1.5-IMPLEMENTATION.md` và task-pack 0003.
+- `docs/SUBAGENT-TASK-CONVENTION.md` + `TEMPLATE-SUBTASK.md`: chia phase → subtask → model_tier T0–T4.
+- Áp dụng toàn cục: README, CODEMAP, CONTRIBUTING, ROADMAP, PHASES, QUY-TRINH-GIT tham chiếu quy ước.
+- `docs/impl/PHASE-*` và task-pack 0003–0008.
 - `docs/PHASES.md` + ROADMAP Phase 1.5.
 - Runtime validation observation; Pyright; pip-audit; Dependabot; hướng dẫn deploy subdomain.
 
