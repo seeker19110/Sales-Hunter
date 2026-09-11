@@ -817,7 +817,7 @@ wheels = [
 ]
 
 [[package]]
-name = "s-n-sales"
+name = "sales-hunter"
 version = "0.1.0"
 source = { virtual = "." }
 

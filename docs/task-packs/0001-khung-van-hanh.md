@@ -2,7 +2,7 @@
 
 ## 1. Mục tiêu
 
-Repository S-N Sales đang trống. Rút phần hữu ích từ Claude-Agents để agent/lập trình viên có luật, bản đồ, hợp đồng và cổng kiểm định trước khi xây tích hợp Shopee/TikTok Shop.
+Repository Sales-Hunter đang trống. Rút phần hữu ích từ Claude-Agents để agent/lập trình viên có luật, bản đồ, hợp đồng và cổng kiểm định trước khi xây tích hợp Shopee/TikTok Shop.
 
 ## 2. Xong nghĩa là gì
 

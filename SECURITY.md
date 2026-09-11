@@ -1,4 +1,4 @@
-# Chính sách bảo mật — S-N Sales
+# Chính sách bảo mật — Sales-Hunter
 
 ## Báo lỗ hổng
 

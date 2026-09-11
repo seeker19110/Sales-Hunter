@@ -1,4 +1,4 @@
-# Đóng góp vào S-N Sales
+# Đóng góp vào Sales-Hunter
 
 ## 1. Chuẩn bị
 

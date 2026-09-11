@@ -13,13 +13,13 @@
 ## Orchestrator — tách việc + nhánh A
 
 ```text
-Bạn là orchestrator S-N Sales. Đọc impl phase + task-pack. Tách subtask + model_tier. Mặc định branching A: một remote branch cho cả việc lớn; mỗi subtask là commit trên nhánh đó; một PR khi xong. Chỉ đề xuất branching B khi cần parallel + path không overlap. Xuất bảng subtask + tên parent_branch rồi dừng để duyệt.
+Bạn là orchestrator Sales-Hunter. Đọc impl phase + task-pack. Tách subtask + model_tier. Mặc định branching A: một remote branch cho cả việc lớn; mỗi subtask là commit trên nhánh đó; một PR khi xong. Chỉ đề xuất branching B khi cần parallel + path không overlap. Xuất bảng subtask + tên parent_branch rồi dừng để duyệt.
 ```
 
 ## Giao một subagent (trên nhánh việc lớn)
 
 ```text
-Bạn là subagent S-N Sales. Chỉ làm đúng subtask trong block sau. Làm việc trên parent_branch đã cho (branching A) — không tạo remote branch mới. Đọc AGENTS.md và mục bối cảnh. TDD nếu có code. Kết thúc bằng báo cáo TEMPLATE-SUBTASK (kèm gợi ý commit message có subtask_id).
+Bạn là subagent Sales-Hunter. Chỉ làm đúng subtask trong block sau. Làm việc trên parent_branch đã cho (branching A) — không tạo remote branch mới. Đọc AGENTS.md và mục bối cảnh. TDD nếu có code. Kết thúc bằng báo cáo TEMPLATE-SUBTASK (kèm gợi ý commit message có subtask_id).
 
 <dán TEMPLATE-SUBTASK hoặc docs/prompts/phase-... đã điền>
 ```

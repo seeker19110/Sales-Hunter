@@ -1,4 +1,4 @@
-# S-N Sales
+# Sales-Hunter
 
 Khung phát triển cho hệ thống **săn sale và tạo nội dung affiliate đa nền tảng**, trước mắt nhắm tới Shopee và TikTok Shop.
 

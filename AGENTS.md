@@ -1,4 +1,4 @@
-# AGENTS.md — luật làm việc trong S-N Sales
+# AGENTS.md — luật làm việc trong Sales-Hunter
 
 Đọc file này trước khi sửa repository. Sau đó đọc [TRAPS.md](TRAPS.md), [ARCHITECTURE.md](ARCHITECTURE.md) và dòng liên quan trong [CODEMAP.md](CODEMAP.md).
 
