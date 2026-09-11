@@ -30,13 +30,27 @@ pre-commit install
 
 ```bash
 uv run ruff check tools tests
+uv run ruff format --check tools tests
 uv run python -m unittest discover -s tests -v
 uv run python tools/validate_repo.py
 ```
 
-Hoặc `make check`. CI chạy lại ba cổng trên và quét secret bằng gitleaks.
+Hoặc `make check`.
 
-Khi đã có mã ứng dụng, PR thêm stack phải đồng thời bổ sung typecheck, unit/integration test, build và audit phụ thuộc vào `quality`; không thay ba cổng hiện có bằng cổng yếu hơn.
+CI jobs:
+
+| Job | Việc |
+|-----|------|
+| `static` | ruff lint + ruff format --check |
+| `schema` | `tools/validate_repo.py` (file bắt buộc, link markdown, schema + examples) |
+| `unit` | unittest trên Ubuntu/Windows × Python 3.11/3.12 |
+| `audit` | gitleaks toàn lịch sử |
+| `quality` | tất cả job trên phải `success` |
+| `metadata` (PR policy) | Conventional Commits title + CHANGELOG |
+
+CD hiện là **placeholder dry-run** (`.github/workflows/cd.yml`). Không publish/deploy cho tới khi có ADR.
+
+Khi đã có mã ứng dụng, PR thêm stack phải đồng thời bổ sung typecheck, unit/integration test, build và audit phụ thuộc vào `quality`; không thay các cổng hiện có bằng cổng yếu hơn.
 
 ## 4. Thay đổi hợp đồng
 
@@ -49,7 +63,7 @@ Khi đã có mã ứng dụng, PR thêm stack phải đồng thời bổ sung ty
 
 - [ ] Phạm vi khớp task pack/ADR; không có sửa dọn ngoài lề.
 - [ ] Test từng đỏ đúng lý do rồi xanh với bản sửa.
-- [ ] Lint, test, repository contract và CI xanh.
+- [ ] Lint, format, test, repository contract và CI xanh.
 - [ ] Không có secret, payload thật, log debug hoặc file sinh ngoài ý muốn.
 - [ ] Hành động ngoài hệ thống có dry-run, idempotency và read-back khi áp dụng.
 - [ ] `README.md`, `ARCHITECTURE.md`, `CODEMAP.md`, schema và changelog được cập nhật khi liên quan.

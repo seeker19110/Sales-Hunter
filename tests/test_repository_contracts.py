@@ -144,11 +144,7 @@ class RepositoryHarnessTests(unittest.TestCase):
             valid_path.parent.mkdir(parents=True)
             valid_path.write_text(json.dumps({"source_url": "not a URI"}), encoding="utf-8")
             invalid_path = (
-                root
-                / "schemas"
-                / "examples"
-                / "invalid"
-                / "offer-observation.v1.missing-url.json"
+                root / "schemas" / "examples" / "invalid" / "offer-observation.v1.missing-url.json"
             )
             invalid_path.parent.mkdir(parents=True)
             invalid_path.write_text("{}", encoding="utf-8")

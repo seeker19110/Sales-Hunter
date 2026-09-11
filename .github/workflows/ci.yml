@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, bootstrap/base]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -27,8 +27,28 @@ jobs:
           enable-cache: true
           python-version: "3.11"
       - run: uv sync --locked
-      - run: uv run ruff check tools tests
-      - run: uv run python tools/validate_repo.py
+      - name: Ruff lint
+        run: uv run ruff check tools tests
+      - name: Ruff format check
+        run: uv run ruff format --check tools tests
+
+  schema:
+    name: schema
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          enable-cache: true
+          python-version: "3.11"
+      - run: uv sync --locked
+      - name: Repository + schema contracts
+        run: uv run python tools/validate_repo.py
 
   unit:
     name: unit
@@ -40,6 +60,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -47,7 +68,7 @@ jobs:
       - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
         with:
           enable-cache: true
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
       - run: uv sync --locked
       - run: uv run python -m unittest discover -s tests -v
 
@@ -71,7 +92,7 @@ jobs:
   quality:
     name: quality
     if: always()
-    needs: [static, unit, audit]
+    needs: [static, schema, unit, audit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -81,7 +102,7 @@ jobs:
         env:
           RESULTS: ${{ join(needs.*.result, ',') }}
         run: |
-          if [ "$RESULTS" != "success,success,success" ]; then
+          if [ "$RESULTS" != "success,success,success,success" ]; then
             echo "Cổng con chưa xanh: $RESULTS" >&2
             exit 1
           fi

@@ -18,6 +18,12 @@ dev = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+src = ["tools", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
