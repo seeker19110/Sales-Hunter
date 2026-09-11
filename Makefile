@@ -1,4 +1,4 @@
-.PHONY: sync lint test check
+.PHONY: sync lint format-check test schema check
 
 sync:
 	uv sync --locked
@@ -6,8 +6,13 @@ sync:
 lint:
 	uv run ruff check tools tests
 
+format-check:
+	uv run ruff format --check tools tests
+
 test:
 	uv run python -m unittest discover -s tests -v
 
-check: lint test
+schema:
 	uv run python tools/validate_repo.py
+
+check: lint format-check test schema
