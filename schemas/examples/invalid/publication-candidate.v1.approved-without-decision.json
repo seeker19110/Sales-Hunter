@@ -1,0 +1,24 @@
+{
+  "schema_version": "publication-candidate.v1",
+  "publication_id": "pub-invalid-001",
+  "observation_id": "obs-demo-001",
+  "target_channel": "demo-channel",
+  "content": "Fixture cố ý duyệt mà thiếu người và thời điểm quyết định.",
+  "affiliate_url": "https://example.com/affiliate/item-demo-001",
+  "affiliate_disclosure": "Liên kết minh họa có thể là liên kết tiếp thị liên kết.",
+  "claim_snapshot": {
+    "platform": "shopee",
+    "observed_at": "2026-09-11T03:00:00Z",
+    "currency": "VND",
+    "list_price_minor": 200000,
+    "sale_price_minor": 150000,
+    "source_url": "https://example.com/evidence/obs-demo-001"
+  },
+  "draft_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+  "approval": {
+    "status": "approved",
+    "draft_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "reason": null
+  },
+  "idempotency_key": "demo-channel:pub-invalid-001:v1"
+}

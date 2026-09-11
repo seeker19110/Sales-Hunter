@@ -1,0 +1,23 @@
+{
+  "schema_version": "offer-observation.v1",
+  "observation_id": "obs-invalid-001",
+  "platform": "shopee",
+  "external_offer_id": "offer-invalid-001",
+  "item_id": "item-invalid-001",
+  "merchant_id": "merchant-invalid-001",
+  "market": "VN",
+  "source_method": "manual",
+  "title": "Fixture cố ý thiếu evidence",
+  "product_url": "https://example.com/products/item-invalid-001",
+  "observed_at": "2026-09-11T03:00:00Z",
+  "currency": "VND",
+  "list_price_minor": null,
+  "sale_price_minor": 150000,
+  "shipping_price_minor": null,
+  "stock_status": "unknown",
+  "coupon_codes": [],
+  "eligibility": {
+    "scope": "unknown",
+    "notes": null
+  }
+}

@@ -1,0 +1,23 @@
+[project]
+name = "s-n-sales"
+version = "0.1.0"
+description = "Khung phát triển hệ thống săn sale và affiliate đa nền tảng"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "jsonschema[format-nongpl]>=4.26.0",
+    "ruff==0.16.6",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]

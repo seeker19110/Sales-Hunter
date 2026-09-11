@@ -1,0 +1,6 @@
+S-N Sales
+
+Phần khung vận hành phát triển được điều chỉnh từ dự án Claude-Agents:
+https://github.com/seeker19110/Claude-Agents
+
+Claude-Agents được phân phối theo Apache License 2.0. Các file đã được viết lại và thu gọn cho miền săn sale/affiliate; lịch sử sự cố và runtime đa-agent của nguồn không được sao chép.
