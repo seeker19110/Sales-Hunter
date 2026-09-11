@@ -6,6 +6,8 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
+- `docs/PHASES.md`: đặc tả đầy đủ Phase 1.5 → Phase 6 (mục tiêu, phạm vi, nghiệm thu, ràng buộc, rủi ro).
+- Cập nhật ROADMAP với Phase 1.5 và lộ trình ưu tiên vòng kín hợp pháp.
 - Runtime validation cho raw observation trước ranking; từ chối schema-invalid, giá trị tiền boolean, timestamp thiếu timezone và URL không HTTPS.
 - Typecheck Pyright, dependency audit bằng pip-audit và Dependabot cho uv/GitHub Actions.
 - Hướng dẫn triển khai có kiểm chứng cho `sales.donghanhcungban.org`; domain chưa được triển khai khi chưa có HTTP service, DNS/TLS và read-back.
