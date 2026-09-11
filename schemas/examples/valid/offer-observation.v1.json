@@ -1,0 +1,29 @@
+{
+  "schema_version": "offer-observation.v1",
+  "observation_id": "obs-demo-001",
+  "platform": "shopee",
+  "external_offer_id": "offer-demo-001",
+  "item_id": "item-demo-001",
+  "variant_id": null,
+  "merchant_id": "merchant-demo-001",
+  "market": "VN",
+  "source_method": "manual",
+  "title": "Sản phẩm minh họa không phải dữ liệu thật",
+  "product_url": "https://example.com/products/item-demo-001",
+  "observed_at": "2026-09-11T03:00:00Z",
+  "currency": "VND",
+  "list_price_minor": 200000,
+  "sale_price_minor": 150000,
+  "shipping_price_minor": null,
+  "stock_status": "unknown",
+  "coupon_codes": [],
+  "eligibility": {
+    "scope": "unknown",
+    "notes": "Fixture synthetic; không dùng để tạo claim."
+  },
+  "evidence": {
+    "source_url": "https://example.com/evidence/obs-demo-001",
+    "fetched_at": "2026-09-11T03:00:00Z",
+    "payload_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

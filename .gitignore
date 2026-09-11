@@ -1,0 +1,31 @@
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Bí mật và cấu hình theo máy
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*credentials*.json
+*token*.json
+*cookies*.json
+
+# Dữ liệu quan sát và trạng thái chạy không thuộc mã nguồn
+var/
+data/raw/
+*.sqlite
+*.sqlite-*
+*.db
+
+# Công cụ cục bộ
+.claude/settings.local.json
+.claude/worktrees/
