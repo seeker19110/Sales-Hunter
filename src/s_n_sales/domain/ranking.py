@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from s_n_sales.domain.money import Money
@@ -24,9 +24,9 @@ class RankInput:
 
 def rank_observation(inp: RankInput) -> dict[str, Any]:
     """Trả dict khớp schema rank-result.v1 (không ghi file)."""
-    now = inp.now or datetime.now(timezone.utc)
+    now = inp.now or datetime.now(UTC)
     if inp.observed_at.tzinfo is None:
-        observed = inp.observed_at.replace(tzinfo=timezone.utc)
+        observed = inp.observed_at.replace(tzinfo=UTC)
     else:
         observed = inp.observed_at
 
@@ -97,7 +97,7 @@ def rank_observation(inp: RankInput) -> dict[str, Any]:
         "observation_id": inp.observation_id,
         "score": round(score, 6),
         "rank_version": RANK_VERSION,
-        "ranked_at": now.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "ranked_at": now.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "reasons": reasons,
         "features": {
             "discount_ratio": ratio,

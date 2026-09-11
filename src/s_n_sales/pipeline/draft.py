@@ -8,7 +8,9 @@ from typing import Any
 from s_n_sales.domain.ranking import RankInput, rank_observation
 
 
-def observation_to_rank(observation: dict[str, Any], *, now: datetime | None = None) -> dict[str, Any]:
+def observation_to_rank(
+    observation: dict[str, Any], *, now: datetime | None = None
+) -> dict[str, Any]:
     observed_raw = observation["observed_at"]
     if isinstance(observed_raw, str):
         observed_at = datetime.fromisoformat(observed_raw.replace("Z", "+00:00"))
