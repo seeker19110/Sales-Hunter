@@ -19,9 +19,7 @@ class ApprovalError(ValueError):
 @lru_cache(maxsize=1)
 def _approval_validator() -> Draft202012Validator:
     root = Path(__file__).resolve().parents[3]
-    schema = json.loads(
-        (root / "schemas" / "approval-record.v1.json").read_text(encoding="utf-8")
-    )
+    schema = json.loads((root / "schemas" / "approval-record.v1.json").read_text(encoding="utf-8"))
     return Draft202012Validator(schema, format_checker=FormatChecker())
 
 
