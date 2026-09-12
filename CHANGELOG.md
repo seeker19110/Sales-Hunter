@@ -6,7 +6,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
-- Phase 2: manual observation adapter, adapter kill switch và draft-only end-to-end flow; không có network side effect.
+- Phase 2: manual observation adapter, adapter kill switch và draft-only end-to-end flow; ADR-0003 được ghi ở trạng thái đề xuất, không có network side effect.
 - Phase 1.5: `publication-candidate.v1` builder với `claim_snapshot`, `draft_sha256` deterministic, disclosure bắt buộc, pending approval và contract/unit tests.
 - `docs/prompts/ORCHESTRATOR.md` + `docs/prompts/phase-1.5/*`: prompt sẵn — mỗi subagent một subtask Phase 1.5.
 - `docs/SUBAGENT-TASK-CONVENTION.md` + `TEMPLATE-SUBTASK.md`; áp dụng toàn cục README/CODEMAP/CONTRIBUTING/ROADMAP/PHASES/QUY-TRINH-GIT.
