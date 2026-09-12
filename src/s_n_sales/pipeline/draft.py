@@ -73,6 +73,11 @@ def _validated_rank_input(observation: dict[str, Any], now: datetime) -> RankInp
     )
 
 
+def validate_observation(observation: dict[str, Any], *, now: datetime) -> None:
+    """Validate observation; raise ObservationValidationError nếu không đạt."""
+    _validated_rank_input(observation, now)
+
+
 def observation_to_rank(observation: dict[str, Any], *, now: datetime) -> dict[str, Any]:
     """Validate observation external rồi trả rank-result xác định, không side effect."""
     return rank_observation(_validated_rank_input(observation, now))

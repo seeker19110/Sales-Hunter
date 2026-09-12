@@ -24,3 +24,14 @@ Ghi rõ:
 - ngày cần rà lại policy.
 
 Không fallback sang scraping hoặc browser automation chỉ vì API chính thức thiếu capability. Trường hợp manual phải được ghi `source_method=manual` và không giả là dữ liệu live tự động.
+
+
+## Manual observation pipeline (Phase 2)
+
+| Năng lực | Trạng thái | Ghi chú |
+|----------|------------|---------|
+| Nạp observation từ file JSON (`source_method=manual`) | **đã xác minh (kỹ thuật repo)** | Adapter `src/s_n_sales/adapters/manual.py`; không mạng |
+| Giá trị thương mại / claim public | **chưa** — phụ thuộc người cung cấp file | Operator chịu trách nhiệm độ trung thực của file |
+| Official API Shopee/TikTok | chưa xác minh | Xem bảng trên; cần ADR riêng khi có nguồn |
+
+Ngày ghi: 2026-09-11. ADR liên quan: `docs/adr/0003-manual-first-observation.md`.
