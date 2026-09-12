@@ -6,7 +6,7 @@ from copy import deepcopy
 from datetime import datetime
 from typing import Any
 
-from s_n_sales.pipeline.publisher import PublishError, Publisher
+from s_n_sales.pipeline.publisher import Publisher, PublishError
 
 
 def publish_multi_channel(
