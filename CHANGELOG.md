@@ -23,6 +23,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 - Đồng bộ trạng thái skeleton Phase 1–6 trong roadmap, kiến trúc và tài liệu deploy; giữ rõ các điều kiện T4/production chưa hoàn tất.
 - Chuẩn hóa toàn bộ tên hiển thị còn lại thành Sales-Hunter; giữ nguyên package `s_n_sales` và schema v1 là định danh kỹ thuật tương thích.
 - Chạy Pyright và pip-audit qua `python -m` để tránh Windows console-script trampoline.
+- ADR manual-first và production cutover được owner chấp nhận có điều kiện; checklist/evidence vẫn là cổng bắt buộc trước side effect.
 
 ### Sửa
 

@@ -1,6 +1,6 @@
 # ADR-0003 — Manual-first observation trước official API
 
-- **Trạng thái:** Đề xuất (chờ người duyệt — T4)
+- **Trạng thái:** Chấp nhận có điều kiện (T4 — owner duyệt 2026-09-12)
 - **Ngày:** 2026-09-11
 - **Phase:** 2
 
@@ -35,3 +35,9 @@ Scraping / browser automation **bị cấm** bởi AGENTS.md.
 
 - `load_manual_observation` + `run_manual_to_publication_candidate` + unit test
 - Fixture synthetic trong `schemas/examples/valid/`
+
+## Điều kiện mở rộng
+
+Quyết định này chỉ cho phép luồng manual không mạng. Adapter official API, authorized export,
+tạo affiliate link hoặc bất kỳ credential nào vẫn cần ADR/source review riêng với tài liệu
+chính thức, phạm vi account và ngày rà lại policy trước khi triển khai.

@@ -1,6 +1,6 @@
 # ADR-0004 — Production cutover (dry-run publish mặc định)
 
-- **Trạng thái:** Đề xuất (T4 — chờ người duyệt)
+- **Trạng thái:** Chấp nhận có điều kiện (T4 — owner duyệt 2026-09-12)
 - **Ngày:** 2026-09-11
 - **Phase:** 6
 
@@ -26,3 +26,10 @@ Chưa có client publish mạng thật, chưa xác minh official API Shopee/TikT
 
 - Unittest publisher dry-run + multi-channel helper
 - Diễn tập kill switch theo RUNBOOK
+
+## Điều kiện cutover
+
+Chấp nhận ADR không thay thế checklist `docs/PRODUCTION-CHECKLIST.md`: DNS/TLS, owner hạ
+tầng, staging read-back, secret manager, auth/operator authorization, monitoring và bằng
+chứng diễn tập kill switch vẫn phải hoàn tất trước mỗi external side effect hoặc production
+cutover.

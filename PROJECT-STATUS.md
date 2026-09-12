@@ -24,10 +24,10 @@ Tất cả PR trên đã được rebase/merge tuần tự vào `bootstrap/base`
 
 ## Việc tiếp theo
 
-1. Rà và quyết định trạng thái ADR-0003 (`docs/adr/0003-manual-first-observation.md`).
-2. Rà và quyết định trạng thái ADR-0004 (`docs/adr/0004-production-cutover.md`) — đây là quyết định T4/người duyệt.
-3. Chưa thực hiện cutover production cho đến khi `docs/PRODUCTION-CHECKLIST.md` được duyệt/tick đầy đủ.
-4. Khi bắt đầu tích hợp nền tảng thật, tạo task/ADR riêng cho adapter/client chính thức; không dùng scraping hay endpoint không được phép.
+1. ADR-0003 và ADR-0004 đã được owner chấp nhận có điều kiện ngày 2026-09-12; điều kiện checklist và evidence vẫn bắt buộc.
+2. Chưa thực hiện cutover production cho đến khi `docs/PRODUCTION-CHECKLIST.md` được duyệt/tick đầy đủ bằng evidence thực tế.
+3. Khi bắt đầu tích hợp nền tảng thật, cần account/program, tài liệu official áp dụng, scope/quota và owner; không dùng scraping hay endpoint không được phép.
+4. Trước external deploy cần owner zone/origin/secret manager/on-call; trước API operator public cần ADR auth/authorization và datastore.
 
 ## Quy tắc resume cho mọi phiên
 
