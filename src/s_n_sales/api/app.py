@@ -28,7 +28,7 @@ def create_handler_class(store: OperatorStore) -> type[BaseHTTPRequestHandler]:
         def do_GET(self) -> None:
             path = urlparse(self.path).path.rstrip("/") or "/"
             if path == "/healthz":
-                _json_response(self, 200, {"status": "ok", "service": "s-n-sales-operator"})
+                _json_response(self, 200, {"status": "ok", "service": "sales-hunter-operator"})
                 return
             if path == "/api/v1/candidates":
                 _json_response(self, 200, {"items": store.list_candidates()})

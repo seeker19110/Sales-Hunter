@@ -6,8 +6,8 @@
 
 - Ngày cập nhật: 2026-09-12
 - Base branch: `bootstrap/base`
-- Base sau chuỗi phase: `ae4698167554720a4efbe2da944c21ce5754e321`
-- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base.
+- Base hiện tại: `6bc16b8ff01f5e64cc7a152d01d56785f24b9308`
+- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base; bốn commit handoff sau chuỗi phase đã đồng bộ trạng thái.
 - Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
 
 ## PR đã hoàn tất trong chuỗi hiện tại

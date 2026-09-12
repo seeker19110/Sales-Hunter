@@ -3,6 +3,8 @@
 Tài liệu này mô tả chi tiết từng phase từ trạng thái hiện tại đến hệ thống hoàn chỉnh.
 Mọi thay đổi kiến trúc, nguồn dữ liệu, quyền publish hoặc schema breaking **phải có ADR** trước khi code.
 
+> Snapshot: skeleton Phase 1–6 đã merge vào `bootstrap/base`; các DoD bên dưới vẫn là điều kiện vận hành/production cần hoàn tất, đặc biệt các mục T4.
+
 **Nguyên tắc chỉ đạo toàn bộ lộ trình:**
 
 > Chứng minh được **một vòng kín hợp pháp và trung thực** trước khi mở rộng nền tảng hoặc tự động hóa.

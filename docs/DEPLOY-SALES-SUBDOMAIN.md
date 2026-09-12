@@ -1,12 +1,12 @@
 # Triển khai `sales.donghanhcungban.org`
 
-Trạng thái: **chưa triển khai**. Repository hiện chỉ có domain core; chưa có HTTP application, VPS origin, Cloudflare zone access hoặc cấu hình DNS/TLS để phục vụ subdomain.
+Trạng thái: **chưa triển khai**. Repository có HTTP operator API skeleton với `/healthz`, nhưng chưa có runtime deployed, VPS origin, Cloudflare zone access hoặc cấu hình DNS/TLS để phục vụ subdomain.
 
 Quyết định kiến trúc gốc: [ADR-0002](adr/0002-platform-subdomain-dhcb.md). Ranh giới và vai trò: [PLATFORM](PLATFORM.md).
 
 ## Điều kiện trước khi triển khai
 
-- [ ] ADR riêng chốt HTTP runtime, hosting origin, health check, logging và rollback.
+- [ ] ADR/deploy decision chốt hosting production, logging, rollback và operator authorization.
 - [ ] Owner xác nhận zone Cloudflare `donghanhcungban.org` và origin VPS được phép dùng.
 - [ ] Tạo môi trường `staging` trước; không trỏ DNS production khi chưa có smoke test.
 - [ ] Có secret manager/biến môi trường; không đưa credentials Cloudflare, SSO, affiliate hay webhook vào git.

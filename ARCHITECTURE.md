@@ -2,7 +2,7 @@
 
 ## Trạng thái
 
-Kiến trúc mục tiêu được chấp nhận ở [ADR-0001](docs/adr/0001-kien-truc-khoi-dau.md). Hiện đã có Phase 1 domain core: `Money`, ranking xác định và fake pipeline validate observation → rank. Chưa có adapter mạng, tạo link affiliate, approval store, publisher, HTTP application hoặc deploy subdomain.
+Kiến trúc mục tiêu được chấp nhận ở [ADR-0001](docs/adr/0001-kien-truc-khoi-dau.md). Hiện có skeleton Phase 1–6: domain core, manual adapter, approval/publisher dry-run, operator HTTP API in-memory, analytics và runbook. Chưa có adapter mạng, tạo link affiliate, persistence production, client publish thật hoặc deploy subdomain.
 
 ## Luồng chính
 

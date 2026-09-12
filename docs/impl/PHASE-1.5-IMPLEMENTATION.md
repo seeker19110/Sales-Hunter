@@ -48,7 +48,7 @@ observation: dict          # đã validate (offer-observation.v1)
 rank_result: dict          # đã có từ observation_to_rank
 content: str               # nội dung bản nháp (do người hoặc model cung cấp)
 affiliate_url: str         # URL đích (phải HTTPS; Phase 1.5 chưa enforce allowlist đầy đủ)
-target_channel: str        # ví dụ "telegram:s-n-sales", "facebook:page-id"
+target_channel: str        # ví dụ "telegram:sales-hunter", "facebook:page-id"
 publication_id: str | None # nếu None → sinh "pub-{observation_id}-{short_hash}"
 idempotency_key: str | None
 ```

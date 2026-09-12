@@ -4,7 +4,7 @@ Khung phát triển cho hệ thống **săn sale và tạo nội dung affiliate 
 
 **Platform:** subdomain của [Đồng Hành Cùng Bạn](https://www.donghanhcungban.org) — mục tiêu **`sales.donghanhcungban.org`** (xem [docs/PLATFORM.md](docs/PLATFORM.md), [ADR-0002](docs/adr/0002-platform-subdomain-dhcb.md)).
 
-> Trạng thái: khung vận hành + schema v1 + **domain core Phase 1** (Money, ranking, fake pipeline). Chưa có crawler API thật hay auto-publish.
+> Trạng thái: skeleton Phase 1–6 đã có trên base: publication candidate, manual observation + kill switch, approval + dry-run publisher, operator HTTP API, analytics/recall và runbook. Chưa có client mạng thật, DNS/TLS, cutover hay publish không dry-run.
 
 ## Mục tiêu
 
@@ -25,8 +25,8 @@ Python 3.11+ và [uv](https://docs.astral.sh/uv/).
 
 ```bash
 uv sync
-export PYTHONPATH=src
-make check
+$env:PYTHONPATH = "src" # PowerShell; POSIX: export PYTHONPATH=src
+uv run python -m unittest discover -s tests -v
 ```
 
 ## Tài liệu
@@ -35,6 +35,7 @@ make check
 - [ROADMAP](docs/ROADMAP.md) · [PHASES](docs/PHASES.md) · [PLATFORM](docs/PLATFORM.md)
 - [Hợp đồng dữ liệu](docs/HOP-DONG-DU-LIEU.md)
 - **[Quy ước subagent task](docs/SUBAGENT-TASK-CONVENTION.md)** — mọi phase/việc lớn: tách subtask + `model_tier` T0–T4 trước khi giao agent
+- [Trạng thái thực thi](PROJECT-STATUS.md) — checkpoint chuẩn giữa các phiên
 
 ## Giấy phép
 

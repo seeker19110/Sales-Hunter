@@ -54,7 +54,7 @@ class ManualAdapterTests(unittest.TestCase):
             self.fixture,
             content="Sản phẩm minh họa đang giảm — kiểm tra link.",
             affiliate_url="https://example.com/aff/item-demo-001",
-            target_channel="telegram:s-n-sales-demo",
+            target_channel="telegram:sales-hunter-demo",
             now=self.now,
         )
         self.assertEqual(candidate["schema_version"], "publication-candidate.v1")

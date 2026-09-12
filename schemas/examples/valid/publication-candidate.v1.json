@@ -1,8 +1,8 @@
 {
   "schema_version": "publication-candidate.v1",
-  "publication_id": "pub-obs-demo-001-736fffba8052",
+  "publication_id": "pub-obs-demo-001-e09cc6549536",
   "observation_id": "obs-demo-001",
-  "target_channel": "telegram:s-n-sales-demo",
+  "target_channel": "telegram:sales-hunter-demo",
   "content": "Sản phẩm minh họa đang giảm — kiểm tra link trước khi mua.",
   "affiliate_url": "https://example.com/aff/item-demo-001",
   "affiliate_disclosure": "#affiliate — Bài viết có thể chứa liên kết tiếp thị liên kết. Giá và tồn kho được quan sát tại thời điểm ghi nhận, có thể đã thay đổi.",
@@ -14,10 +14,10 @@
     "list_price_minor": 200000,
     "source_url": "https://example.com/evidence/obs-demo-001"
   },
-  "draft_sha256": "736fffba80526b2ce822470c71d52d5825bc2725b2de7bd6ba63a95ebce02eb5",
+  "draft_sha256": "e09cc6549536b2910fbce6aa386f543138a6996c4f1ad786182a9ae1e822b9a4",
   "approval": {
     "status": "pending",
-    "draft_sha256": "736fffba80526b2ce822470c71d52d5825bc2725b2de7bd6ba63a95ebce02eb5"
+    "draft_sha256": "e09cc6549536b2910fbce6aa386f543138a6996c4f1ad786182a9ae1e822b9a4"
   },
-  "idempotency_key": "obs-demo-001:telegram:s-n-sales-demo:736fffba80526b2ce822470c71d52d5825bc2725b2de7bd6ba63a95ebce02eb5"
+  "idempotency_key": "obs-demo-001:telegram:sales-hunter-demo:e09cc6549536b2910fbce6aa386f543138a6996c4f1ad786182a9ae1e822b9a4"
 }

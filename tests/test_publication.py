@@ -122,7 +122,7 @@ class BuildPublicationCandidateTests(unittest.TestCase):
         self.rank = observation_to_rank(self.observation, now=self.now)
         self.content = "Sản phẩm minh họa đang giảm — kiểm tra link trước khi mua."
         self.affiliate_url = "https://example.com/aff/item-demo-001"
-        self.channel = "telegram:s-n-sales-demo"
+        self.channel = "telegram:sales-hunter-demo"
 
     def test_build_sets_pending_approval(self) -> None:
         candidate = build_publication_candidate(

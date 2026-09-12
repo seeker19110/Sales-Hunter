@@ -20,6 +20,12 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Sửa
 
+- Đồng bộ trạng thái skeleton Phase 1–6 trong roadmap, kiến trúc và tài liệu deploy; giữ rõ các điều kiện T4/production chưa hoàn tất.
+- Chuẩn hóa toàn bộ tên hiển thị còn lại thành Sales-Hunter; giữ nguyên package `s_n_sales` và schema v1 là định danh kỹ thuật tương thích.
+- Chạy Pyright và pip-audit qua `python -m` để tránh Windows console-script trampoline.
+
+### Sửa
+
 - Chuẩn hóa tên hiển thị và package metadata thành Sales-Hunter.
 - `AGENTS.md`, `TASK-PACK.md`, `PROMPT-SHEET.md`: gắn quy ước subagent và link prompts.
 - Ranking yêu cầu clock có timezone.

@@ -35,7 +35,7 @@ class OperatorApiTests(unittest.TestCase):
             rank,
             content="API staging demo",
             affiliate_url="https://example.com/aff/item-demo-001",
-            target_channel="telegram:s-n-sales-demo",
+            target_channel="telegram:sales-hunter-demo",
         )
 
     def tearDown(self) -> None:
@@ -60,6 +60,7 @@ class OperatorApiTests(unittest.TestCase):
         status, body = self._json("GET", "/healthz")
         self.assertEqual(status, 200)
         self.assertEqual(body["status"], "ok")
+        self.assertEqual(body["service"], "sales-hunter-operator")
 
     def test_upsert_list_approve(self) -> None:
         status, saved = self._json("POST", "/api/v1/candidates", self.candidate)
