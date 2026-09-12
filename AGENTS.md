@@ -1,12 +1,12 @@
 # AGENTS.md — luật làm việc trong Sales-Hunter
 
-Đọc file này trước khi sửa repository. Sau đó đọc [TRAPS.md](TRAPS.md), [ARCHITECTURE.md](ARCHITECTURE.md) và dòng liên quan trong [CODEMAP.md](CODEMAP.md).
+Đọc **[PROJECT-STATUS.md](PROJECT-STATUS.md) trước tiên** để biết tiến độ thực tế và điểm resume. Sau đó đọc [TRAPS.md](TRAPS.md), [ARCHITECTURE.md](ARCHITECTURE.md) và dòng liên quan trong [CODEMAP.md](CODEMAP.md). `docs/ROADMAP.md` mô tả lộ trình; không dùng ROADMAP thay cho trạng thái thực thi hiện tại.
 
 Khi làm **phase hoặc việc lớn**: đọc thêm [docs/SUBAGENT-TASK-CONVENTION.md](docs/SUBAGENT-TASK-CONVENTION.md) — chia subtask, giao subagent, chọn `model_tier` T0–T4.
 
 ## Phạm vi hiện tại
 
-Repository đang ở giai đoạn khung vận hành + đặc tả Phase 1. Hợp đồng trong `schemas/` là thiết kế v1; chưa có kết nối thật với Shopee/TikTok Shop và chưa có quyền tự động đăng.
+Phase 1 → Phase 6 skeleton đã được hợp nhất vào `bootstrap/base`. Hệ thống vẫn ở chế độ an toàn: chưa có client mạng thật, chưa cutover production và publisher mặc định dry-run. Trạng thái mới nhất, blocker và việc tiếp theo nằm trong `PROJECT-STATUS.md`.
 
 ## Luật cấm
 
@@ -36,6 +36,7 @@ Repository đang ở giai đoạn khung vận hành + đặc tả Phase 1. Hợp
 10. Sửa một lỗi phải rà các adapter/luồng cùng cơ chế và thêm bẫy vào `TRAPS.md` nếu đó là sự cố mới có khả năng tái diễn.
 11. Ranking phải deterministic, có `rank_version` và `reasons` giải thích được; không dùng model để sinh score.
 12. Phase/việc lớn: tách subtask theo [SUBAGENT-TASK-CONVENTION.md](docs/SUBAGENT-TASK-CONVENTION.md); mỗi subtask có `model_tier`; T4 cần người duyệt trước merge.
+13. Mỗi phiên phải đọc `PROJECT-STATUS.md` trước khi làm việc; sau mỗi merge, thay đổi phase, blocker hoặc quyết định kiến trúc phải cập nhật `PROJECT-STATUS.md` trong cùng PR. Nếu file này mâu thuẫn với trạng thái GitHub, đối chiếu GitHub rồi sửa file ngay.
 
 ## Ranh giới tin cậy
 
