@@ -22,10 +22,10 @@ def _json_response(handler: BaseHTTPRequestHandler, status: int, body: Any) -> N
 
 def create_handler_class(store: OperatorStore) -> type[BaseHTTPRequestHandler]:
     class OperatorHandler(BaseHTTPRequestHandler):
-        def log_message(self, format: str, *args: object) -> None:  # noqa: A003
+        def log_message(self, format: str, *args: object) -> None:
             return  # quiet in tests
 
-        def do_GET(self) -> None:  # noqa: N802
+        def do_GET(self) -> None:
             path = urlparse(self.path).path.rstrip("/") or "/"
             if path == "/healthz":
                 _json_response(self, 200, {"status": "ok", "service": "s-n-sales-operator"})
@@ -51,7 +51,7 @@ def create_handler_class(store: OperatorStore) -> type[BaseHTTPRequestHandler]:
                 return
             _json_response(self, 404, {"error": "not_found"})
 
-        def do_POST(self) -> None:  # noqa: N802
+        def do_POST(self) -> None:
             path = urlparse(self.path).path.rstrip("/") or "/"
             length = int(self.headers.get("Content-Length", "0"))
             raw = self.rfile.read(length) if length else b"{}"
