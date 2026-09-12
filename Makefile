@@ -1,4 +1,4 @@
-.PHONY: sync lint format-check typecheck test schema dependency-audit check
+.PHONY: sync lint format-check typecheck test schema dependency-audit status-freshness check
 
 export PYTHONPATH := src:$(PYTHONPATH)
 
@@ -22,5 +22,8 @@ schema:
 
 dependency-audit:
 	uv run python -m pip_audit
+
+status-freshness:
+	uv run python tools/check_status_freshness.py
 
 check: lint format-check typecheck test schema dependency-audit

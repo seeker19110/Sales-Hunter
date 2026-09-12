@@ -36,7 +36,7 @@ Phase 1 → Phase 6 skeleton đã được hợp nhất vào `bootstrap/base`. H
 10. Sửa một lỗi phải rà các adapter/luồng cùng cơ chế và thêm bẫy vào `TRAPS.md` nếu đó là sự cố mới có khả năng tái diễn.
 11. Ranking phải deterministic, có `rank_version` và `reasons` giải thích được; không dùng model để sinh score.
 12. Phase/việc lớn: tách subtask theo [SUBAGENT-TASK-CONVENTION.md](docs/SUBAGENT-TASK-CONVENTION.md); mỗi subtask có `model_tier`; T4 cần người duyệt trước merge.
-13. Mỗi phiên phải đọc `PROJECT-STATUS.md` trước khi làm việc; sau mỗi merge, thay đổi phase, blocker hoặc quyết định kiến trúc phải cập nhật `PROJECT-STATUS.md` trong cùng PR. Nếu file này mâu thuẫn với trạng thái GitHub, đối chiếu GitHub rồi sửa file ngay.
+13. Mỗi phiên phải đọc `PROJECT-STATUS.md` trước khi làm việc; sau mỗi merge, thay đổi phase, blocker hoặc quyết định kiến trúc phải cập nhật `PROJECT-STATUS.md` trong cùng PR. Nếu file này mâu thuẫn với trạng thái GitHub, đối chiếu GitHub rồi sửa file ngay. Job CI `status-freshness` (`tools/check_status_freshness.py`, chạy khi push `bootstrap/base`) đối chiếu máy: SHA ở "Base hiện tại" phải là tổ tiên của HEAD.
 
 ## Ranh giới tin cậy
 
