@@ -67,9 +67,7 @@ class FakePlatformClient:
 @lru_cache(maxsize=1)
 def _receipt_validator() -> Draft202012Validator:
     root = Path(__file__).resolve().parents[3]
-    schema = json.loads(
-        (root / "schemas" / "publish-receipt.v1.json").read_text(encoding="utf-8")
-    )
+    schema = json.loads((root / "schemas" / "publish-receipt.v1.json").read_text(encoding="utf-8"))
     return Draft202012Validator(schema, format_checker=FormatChecker())
 
 
@@ -108,8 +106,7 @@ class Publisher:
 
         if self.dry_run:
             raise PublishError(
-                "dry_run=True: không publish thật. "
-                "Tắt dry_run và cung cấp PlatformClient."
+                "dry_run=True: không publish thật. Tắt dry_run và cung cấp PlatformClient."
             )
 
         if self.client is None:
