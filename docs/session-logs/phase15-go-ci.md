@@ -1,0 +1,3 @@
+# Go CI
+
+Via PR.
