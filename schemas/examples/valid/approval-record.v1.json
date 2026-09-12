@@ -1,11 +1,11 @@
 {
   "schema_version": "approval-record.v1",
   "approval_id": "apr-demo-001",
-  "publication_id": "pub-demo-001",
-  "draft_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "publication_id": "pub-obs-demo-001-e4633809175c",
+  "draft_sha256": "e4633809175cab9a3247f4959308ddd08a3e125acca789c830d4cbd38818b2dc",
   "status": "approved",
-  "decided_by": "operator-demo",
-  "decided_at": "2026-09-11T04:00:00Z",
-  "reason": "Fixture synthetic — nội dung đạt checklist affiliate.",
-  "policy_version": "affiliate-safety-2026-09"
+  "decided_by": "operator@example.com",
+  "decided_at": "2026-09-11T05:00:00Z",
+  "reason": null,
+  "policy_version": null
 }
