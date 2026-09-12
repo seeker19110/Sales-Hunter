@@ -28,6 +28,7 @@ Tất cả PR trên đã được rebase/merge tuần tự vào `bootstrap/base`
 2. Chưa thực hiện cutover production cho đến khi `docs/PRODUCTION-CHECKLIST.md` được duyệt/tick đầy đủ bằng evidence thực tế.
 3. Khi bắt đầu tích hợp nền tảng thật, cần account/program, tài liệu official áp dụng, scope/quota và owner; không dùng scraping hay endpoint không được phép.
 4. Trước external deploy cần owner zone/origin/secret manager/on-call; trước API operator public cần ADR auth/authorization và datastore.
+5. Multi-channel skeleton hiện mâu thuẫn với bất biến `draft_sha256` vì thay `target_channel` sau approval; trước publisher thật cần ADR T4 chốt approval/hash theo từng kênh hoặc canonical hash không gồm kênh.
 
 ## Quy tắc resume cho mọi phiên
 

@@ -20,6 +20,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Sửa
 
+- Cài Sales-Hunter editable bằng Hatchling để các lệnh quality bắt buộc chạy trực tiếp được trên PowerShell/Windows, không còn phụ thuộc `PYTHONPATH` của Makefile.
 - Đồng bộ trạng thái skeleton Phase 1–6 trong roadmap, kiến trúc và tài liệu deploy; giữ rõ các điều kiện T4/production chưa hoàn tất.
 - Chuẩn hóa toàn bộ tên hiển thị còn lại thành Sales-Hunter; giữ nguyên package `s_n_sales` và schema v1 là định danh kỹ thuật tương thích.
 - Chạy Pyright và pip-audit qua `python -m` để tránh Windows console-script trampoline.
