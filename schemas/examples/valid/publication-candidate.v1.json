@@ -1,24 +1,23 @@
 {
   "schema_version": "publication-candidate.v1",
-  "publication_id": "pub-demo-001",
+  "publication_id": "pub-obs-demo-001-736fffba8052",
   "observation_id": "obs-demo-001",
-  "target_channel": "demo-channel",
-  "content": "Bản nháp synthetic dùng để kiểm schema.",
-  "affiliate_url": "https://example.com/affiliate/item-demo-001",
-  "affiliate_disclosure": "Liên kết minh họa có thể là liên kết tiếp thị liên kết.",
+  "target_channel": "telegram:s-n-sales-demo",
+  "content": "Sản phẩm minh họa đang giảm — kiểm tra link trước khi mua.",
+  "affiliate_url": "https://example.com/aff/item-demo-001",
+  "affiliate_disclosure": "#affiliate — Bài viết có thể chứa liên kết tiếp thị liên kết. Giá và tồn kho được quan sát tại thời điểm ghi nhận, có thể đã thay đổi.",
   "claim_snapshot": {
     "platform": "shopee",
     "observed_at": "2026-09-11T03:00:00Z",
     "currency": "VND",
-    "list_price_minor": 200000,
     "sale_price_minor": 150000,
+    "list_price_minor": 200000,
     "source_url": "https://example.com/evidence/obs-demo-001"
   },
-  "draft_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "draft_sha256": "736fffba80526b2ce822470c71d52d5825bc2725b2de7bd6ba63a95ebce02eb5",
   "approval": {
     "status": "pending",
-    "draft_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
-    "reason": null
+    "draft_sha256": "736fffba80526b2ce822470c71d52d5825bc2725b2de7bd6ba63a95ebce02eb5"
   },
-  "idempotency_key": "demo-channel:pub-demo-001:v1"
+  "idempotency_key": "obs-demo-001:telegram:s-n-sales-demo:736fffba80526b2ce822470c71d52d5825bc2725b2de7bd6ba63a95ebce02eb5"
 }
