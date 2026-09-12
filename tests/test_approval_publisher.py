@@ -43,9 +43,7 @@ class ApprovalPublisherTests(unittest.TestCase):
         )
         self.assertEqual(record["status"], "approved")
         self.assertEqual(record["draft_sha256"], self.candidate["draft_sha256"])
-        schema = json.loads(
-            (ROOT / "schemas/approval-record.v1.json").read_text(encoding="utf-8")
-        )
+        schema = json.loads((ROOT / "schemas/approval-record.v1.json").read_text(encoding="utf-8"))
         Draft202012Validator(schema, format_checker=FormatChecker()).validate(record)
 
     def test_changed_draft_invalidates_approval(self) -> None:
@@ -98,9 +96,7 @@ class ApprovalPublisherTests(unittest.TestCase):
         self.assertEqual(r1["idempotency_key"], r2["idempotency_key"])
         self.assertEqual(r1["platform_post_id"], r2["platform_post_id"])
         self.assertEqual(r1["status"], "published")
-        schema = json.loads(
-            (ROOT / "schemas/publish-receipt.v1.json").read_text(encoding="utf-8")
-        )
+        schema = json.loads((ROOT / "schemas/publish-receipt.v1.json").read_text(encoding="utf-8"))
         Draft202012Validator(schema, format_checker=FormatChecker()).validate(r1)
 
     def test_rejected_cannot_publish(self) -> None:
