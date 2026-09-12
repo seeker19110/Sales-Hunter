@@ -6,7 +6,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
-- Phase 3: approval hash-bound và publisher dry-run mặc định, idempotent, có kill switch và read-back receipt qua fake client trong test.
+- Phase 3: approval hash-bound và publisher dry-run mặc định, idempotent, có kill switch hệ thống/kênh và read-back receipt qua fake client trong test.
 - Phase 2: manual observation adapter, adapter kill switch và draft-only end-to-end flow; ADR-0003 được ghi ở trạng thái đề xuất, không có network side effect.
 - Phase 1.5: `publication-candidate.v1` builder với `claim_snapshot`, `draft_sha256` deterministic, disclosure bắt buộc, pending approval và contract/unit tests.
 - `docs/prompts/ORCHESTRATOR.md` + `docs/prompts/phase-1.5/*`: prompt sẵn — mỗi subagent một subtask Phase 1.5.
