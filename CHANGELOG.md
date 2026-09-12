@@ -6,6 +6,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
+- `PROJECT-STATUS.md` làm single source of truth cho tiến độ thực thi và điểm resume giữa các phiên; `AGENTS.md` bắt buộc đọc/cập nhật trạng thái này.
 - Phase 6: runbook, production checklist, ADR-0004 đề xuất và helper multi-channel publish; không thực hiện DNS/TLS/cutover hay client mạng thật.
 - Phase 5: analytics event/metrics skeleton, tách no_sale vs source_unavailable và recall content theo tuổi observation; chưa tracking pixel/API conversion/rank tuning.
 - Phase 4: operator HTTP API skeleton (stdlib) với healthz, candidate store và approve/reject; in-memory, chưa deploy/auth/publish qua HTTP.
