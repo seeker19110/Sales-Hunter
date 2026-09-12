@@ -108,7 +108,8 @@ class Publisher:
 
         if self.dry_run:
             raise PublishError(
-                "dry_run=True: không publish thật. Tắt dry_run và cung cấp PlatformClient."
+                "dry_run=True: không publish thật. "
+                "Tắt dry_run và cung cấp PlatformClient."
             )
 
         if self.client is None:
