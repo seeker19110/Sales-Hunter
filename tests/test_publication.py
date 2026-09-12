@@ -4,6 +4,7 @@ import json
 import unittest
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 
@@ -18,7 +19,7 @@ from s_n_sales.pipeline.publication import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _base_claim() -> dict:
+def _base_claim() -> dict[str, Any]:
     return {
         "platform": "shopee",
         "observed_at": "2026-09-11T03:00:00Z",
@@ -31,7 +32,7 @@ def _base_claim() -> dict:
 
 class ComputeDraftSha256Tests(unittest.TestCase):
     def test_compute_draft_sha256_stable(self) -> None:
-        kwargs = dict(
+        a = compute_draft_sha256(
             content="Deal demo",
             affiliate_url="https://example.com/a",
             affiliate_disclosure=DISCLOSURE_TEMPLATE,
@@ -39,55 +40,82 @@ class ComputeDraftSha256Tests(unittest.TestCase):
             target_channel="telegram:demo",
             observation_id="obs-demo-001",
         )
-        a = compute_draft_sha256(**kwargs)
-        b = compute_draft_sha256(**kwargs)
+        b = compute_draft_sha256(
+            content="Deal demo",
+            affiliate_url="https://example.com/a",
+            affiliate_disclosure=DISCLOSURE_TEMPLATE,
+            claim_snapshot=_base_claim(),
+            target_channel="telegram:demo",
+            observation_id="obs-demo-001",
+        )
         self.assertEqual(a, b)
         self.assertRegex(a, r"^[0-9a-f]{64}$")
 
     def test_compute_draft_sha256_changes_on_content(self) -> None:
-        base = dict(
+        h1 = compute_draft_sha256(
+            content="A",
             affiliate_url="https://example.com/a",
             affiliate_disclosure=DISCLOSURE_TEMPLATE,
             claim_snapshot=_base_claim(),
             target_channel="telegram:demo",
             observation_id="obs-demo-001",
         )
-        h1 = compute_draft_sha256(content="A", **base)
-        h2 = compute_draft_sha256(content="B", **base)
+        h2 = compute_draft_sha256(
+            content="B",
+            affiliate_url="https://example.com/a",
+            affiliate_disclosure=DISCLOSURE_TEMPLATE,
+            claim_snapshot=_base_claim(),
+            target_channel="telegram:demo",
+            observation_id="obs-demo-001",
+        )
         self.assertNotEqual(h1, h2)
 
     def test_compute_draft_sha256_changes_on_disclosure(self) -> None:
-        base = dict(
+        h1 = compute_draft_sha256(
             content="Deal",
             affiliate_url="https://example.com/a",
+            affiliate_disclosure="one",
             claim_snapshot=_base_claim(),
             target_channel="telegram:demo",
             observation_id="obs-demo-001",
         )
-        h1 = compute_draft_sha256(affiliate_disclosure="one", **base)
-        h2 = compute_draft_sha256(affiliate_disclosure="two", **base)
-        self.assertNotEqual(h1, h2)
-
-    def test_compute_draft_sha256_changes_on_claim_snapshot(self) -> None:
-        base = dict(
+        h2 = compute_draft_sha256(
             content="Deal",
             affiliate_url="https://example.com/a",
-            affiliate_disclosure=DISCLOSURE_TEMPLATE,
+            affiliate_disclosure="two",
+            claim_snapshot=_base_claim(),
             target_channel="telegram:demo",
             observation_id="obs-demo-001",
         )
+        self.assertNotEqual(h1, h2)
+
+    def test_compute_draft_sha256_changes_on_claim_snapshot(self) -> None:
         c1 = _base_claim()
         c2 = _base_claim()
         c2["sale_price_minor"] = 149000
         self.assertNotEqual(
-            compute_draft_sha256(claim_snapshot=c1, **base),
-            compute_draft_sha256(claim_snapshot=c2, **base),
+            compute_draft_sha256(
+                content="Deal",
+                affiliate_url="https://example.com/a",
+                affiliate_disclosure=DISCLOSURE_TEMPLATE,
+                claim_snapshot=c1,
+                target_channel="telegram:demo",
+                observation_id="obs-demo-001",
+            ),
+            compute_draft_sha256(
+                content="Deal",
+                affiliate_url="https://example.com/a",
+                affiliate_disclosure=DISCLOSURE_TEMPLATE,
+                claim_snapshot=c2,
+                target_channel="telegram:demo",
+                observation_id="obs-demo-001",
+            ),
         )
 
 
 class BuildPublicationCandidateTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.observation = json.loads(
+        self.observation: dict[str, Any] = json.loads(
             (ROOT / "schemas/examples/valid/offer-observation.v1.json").read_text(encoding="utf-8")
         )
         self.now = datetime(2026, 9, 11, 4, 0, tzinfo=UTC)
