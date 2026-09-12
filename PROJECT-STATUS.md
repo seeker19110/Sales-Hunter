@@ -6,8 +6,8 @@
 
 - Ngày cập nhật: 2026-09-12
 - Base branch: `bootstrap/base`
-- Base sau chuỗi phase: `ae4698167554720a4efbe2da944c21ce5754e321`
-- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base.
+- Base hiện tại: `6bc16b8ff01f5e64cc7a152d01d56785f24b9308`
+- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base; bốn commit handoff sau chuỗi phase đã đồng bộ trạng thái.
 - Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
 
 ## PR đã hoàn tất trong chuỗi hiện tại
@@ -24,10 +24,11 @@ Tất cả PR trên đã được rebase/merge tuần tự vào `bootstrap/base`
 
 ## Việc tiếp theo
 
-1. Rà và quyết định trạng thái ADR-0003 (`docs/adr/0003-manual-first-observation.md`).
-2. Rà và quyết định trạng thái ADR-0004 (`docs/adr/0004-production-cutover.md`) — đây là quyết định T4/người duyệt.
-3. Chưa thực hiện cutover production cho đến khi `docs/PRODUCTION-CHECKLIST.md` được duyệt/tick đầy đủ.
-4. Khi bắt đầu tích hợp nền tảng thật, tạo task/ADR riêng cho adapter/client chính thức; không dùng scraping hay endpoint không được phép.
+1. ADR-0003 và ADR-0004 đã được owner chấp nhận có điều kiện ngày 2026-09-12; điều kiện checklist và evidence vẫn bắt buộc.
+2. Chưa thực hiện cutover production cho đến khi `docs/PRODUCTION-CHECKLIST.md` được duyệt/tick đầy đủ bằng evidence thực tế.
+3. Khi bắt đầu tích hợp nền tảng thật, cần account/program, tài liệu official áp dụng, scope/quota và owner; không dùng scraping hay endpoint không được phép.
+4. Trước external deploy cần owner zone/origin/secret manager/on-call; trước API operator public cần ADR auth/authorization và datastore.
+5. Multi-channel skeleton hiện mâu thuẫn với bất biến `draft_sha256` vì thay `target_channel` sau approval; trước publisher thật cần ADR T4 chốt approval/hash theo từng kênh hoặc canonical hash không gồm kênh.
 
 ## Quy tắc resume cho mọi phiên
 

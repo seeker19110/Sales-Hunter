@@ -1,4 +1,4 @@
-# Runbook vận hành S-N Sales
+# Runbook vận hành Sales-Hunter
 
 Tài liệu sự cố cho operator. **Không** chứa secret, token, IP nội bộ.
 

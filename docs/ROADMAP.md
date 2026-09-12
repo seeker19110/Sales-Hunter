@@ -1,6 +1,6 @@
 # ROADMAP — Sales-Hunter
 
-Trạng thái: **Phase 0 xong** · **Phase 0.5 ADR platform** · **Phase 1 domain core (code)** · **Phase 1.5 đang mở**.
+Trạng thái: **skeleton Phase 0–6 đã merge vào `bootstrap/base`**. Các checkbox còn mở dưới đây là năng lực vận hành/production, không phải trạng thái merge code. Xem [PROJECT-STATUS](../PROJECT-STATUS.md) để có checkpoint thực thi hiện tại.
 
 Đặc tả chi tiết từng phase: **[PHASES.md](PHASES.md)**.  
 Triển khai kỹ thuật: `docs/impl/PHASE-*-IMPLEMENTATION.md`.  
@@ -21,38 +21,38 @@ Triển khai kỹ thuật: `docs/impl/PHASE-*-IMPLEMENTATION.md`.
 - [x] Ranking deterministic + `rank-result.v1`
 - [x] Skeleton `src/s_n_sales/`
 - [x] Fake fixture loader + pipeline observation → rank
-- [ ] Publication-candidate builder đầy đủ (disclosure + draft_sha256) → chuyển sang Phase 1.5
+- [x] Publication-candidate builder đầy đủ (disclosure + draft_sha256) → Phase 1.5
 - [ ] mypy strict (tuỳ chọn)
 
 ## Phase 1.5 — Content draft đầy đủ
 
-- [ ] Tách subtask theo convention (xem impl + task-pack 0003)
-- [ ] Builder `publication-candidate.v1` hoàn chỉnh
-- [ ] `claim_snapshot` + `draft_sha256` deterministic
-- [ ] Template disclosure affiliate bắt buộc
-- [ ] Contract test + cập nhật HOP-DONG-DU-LIEU nếu cần
+- [x] Tách subtask theo convention (xem impl + task-pack 0003)
+- [x] Builder `publication-candidate.v1` hoàn chỉnh
+- [x] `claim_snapshot` + `draft_sha256` deterministic
+- [x] Template disclosure affiliate bắt buộc
+- [x] Contract test
 
 ## Phase 2 — Adapter + nguồn hợp pháp
 
 - [ ] Tách subtask; ADR/ToS = **T4 + human** trước code mạng
 - [ ] ADR ToS + allowlist domain + rate limit
 - [ ] Cập nhật `GIA-DINH-NEN-TANG.md` (xác minh nguồn)
-- [ ] Adapter Shopee (hoặc manual pipeline chất lượng cao) → observation thật
-- [ ] Contract test + kill switch theo adapter
-- [ ] End-to-end observation → rank → publication-candidate với dữ liệu thật
+- [x] Manual pipeline chất lượng cao → observation do operator cung cấp
+- [x] Contract test + kill switch cho manual adapter
+- [x] End-to-end manual observation → rank → publication-candidate
 
 ## Phase 3 — Approval + Publisher
 
 - [ ] Tách subtask; publish path = **T4**
-- [ ] Lưu `approval-record.v1` (hash-bound)
-- [ ] Publisher idempotent + read-back `publish-receipt.v1`
-- [ ] Kill switch nền tảng + toàn hệ thống
-- [ ] Dry-run mặc định
+- [x] Lưu `approval-record.v1` in-memory (hash-bound)
+- [x] Publisher idempotent + read-back fake `publish-receipt.v1`
+- [x] Kill switch nền tảng + toàn hệ thống
+- [x] Dry-run mặc định
 
 ## Phase 4 — Staging + Operator UI
 
 - [ ] Tách subtask (API / UI / deploy)
-- [ ] HTTP service tối thiểu
+- [x] HTTP service tối thiểu (operator API skeleton)
 - [ ] Dashboard duyệt draft (approve/reject)
 - [ ] Deploy staging `sales.donghanhcungban.org` theo checklist
 - [ ] HTTPS + health check
@@ -61,15 +61,16 @@ Triển khai kỹ thuật: `docs/impl/PHASE-*-IMPLEMENTATION.md`.
 
 - [ ] Tách subtask
 - [ ] Tracking click / conversion cơ bản
-- [ ] Metric tách “không có sale” vs “không thu thập được”
-- [ ] Cải thiện ranking qua `rank_version` mới
-- [ ] Quy trình thu hồi nội dung khi deal hết hạn
+- [x] Metric skeleton tách “không có sale” vs “không thu thập được”
+- [ ] Cải thiện ranking qua `rank_version` mới, dựa trên dữ liệu thật
+- [x] Quy trình thu hồi nội dung khi deal hết hạn
 
 ## Phase 6 — Production + Scale
 
 - [ ] Tách subtask; production cutover = **T4 + human**
 - [ ] ADR auth/SSO (nếu cần)
-- [ ] Production deploy + monitoring + runbook
+- [x] Runbook + production checklist skeleton
+- [ ] Production deploy + monitoring
 - [ ] Thêm adapter thứ hai (TikTok Shop) chỉ sau khi Shopee ổn định
 - [ ] Multi-channel publish theo cùng quy trình approval
 

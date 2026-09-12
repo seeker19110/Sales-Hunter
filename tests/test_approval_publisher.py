@@ -31,7 +31,7 @@ class ApprovalPublisherTests(unittest.TestCase):
             rank,
             content="Deal demo approved path",
             affiliate_url="https://example.com/aff/item-demo-001",
-            target_channel="telegram:s-n-sales-demo",
+            target_channel="telegram:sales-hunter-demo",
         )
 
     def test_decide_approval_approved(self) -> None:
