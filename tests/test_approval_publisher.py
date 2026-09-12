@@ -14,7 +14,7 @@ from s_n_sales.pipeline.approval import (
 )
 from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.publication import build_publication_candidate
-from s_n_sales.pipeline.publisher import FakePlatformClient, PublishError, Publisher
+from s_n_sales.pipeline.publisher import FakePlatformClient, Publisher, PublishError
 
 ROOT = Path(__file__).resolve().parents[1]
 
