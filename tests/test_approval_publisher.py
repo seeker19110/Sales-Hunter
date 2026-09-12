@@ -7,7 +7,11 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-from s_n_sales.pipeline.approval import ApprovalError, assert_approval_matches_draft, decide_approval
+from s_n_sales.pipeline.approval import (
+    ApprovalError,
+    assert_approval_matches_draft,
+    decide_approval,
+)
 from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.publication import build_publication_candidate
 from s_n_sales.pipeline.publisher import FakePlatformClient, PublishError, Publisher
