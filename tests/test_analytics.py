@@ -30,7 +30,7 @@ class AnalyticsTests(unittest.TestCase):
 
     def test_event_requires_timezone(self) -> None:
         with self.assertRaises(ValueError):
-            AnalyticsEvent("click", datetime(2026, 9, 11, 7, 0))  # noqa: DTZ001
+            AnalyticsEvent("click", datetime(2026, 9, 11, 7, 0))
 
     def test_recall_when_stale(self) -> None:
         observed = datetime(2026, 9, 10, 0, 0, tzinfo=UTC)
