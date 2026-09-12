@@ -6,6 +6,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
+- Phase 5: analytics event/metrics skeleton, tách no_sale vs source_unavailable và recall content theo tuổi observation; chưa tracking pixel/API conversion/rank tuning.
 - Phase 4: operator HTTP API skeleton (stdlib) với healthz, candidate store và approve/reject; in-memory, chưa deploy/auth/publish qua HTTP.
 - Phase 3: approval hash-bound và publisher dry-run mặc định, idempotent, có kill switch hệ thống/kênh và read-back receipt qua fake client trong test.
 - Phase 2: manual observation adapter, adapter kill switch và draft-only end-to-end flow; ADR-0003 được ghi ở trạng thái đề xuất, không có network side effect.
