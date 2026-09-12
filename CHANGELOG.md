@@ -6,6 +6,8 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
+- Phase 1.5: builder `publication-candidate.v1` deterministic với `claim_snapshot`, `draft_sha256`, disclosure bắt buộc, pending approval và idempotency key.
+- Unit/contract coverage cho hash stability, HTTPS affiliate URL, disclosure, claim snapshot và schema validation.
 - `docs/prompts/ORCHESTRATOR.md` + `docs/prompts/phase-1.5/*`: prompt sẵn — mỗi subagent một subtask Phase 1.5.
 - `docs/SUBAGENT-TASK-CONVENTION.md` + `TEMPLATE-SUBTASK.md`; áp dụng toàn cục README/CODEMAP/CONTRIBUTING/ROADMAP/PHASES/QUY-TRINH-GIT.
 - `docs/impl/PHASE-*` và task-pack 0003–0008; PHASES + ROADMAP Phase 1.5.
