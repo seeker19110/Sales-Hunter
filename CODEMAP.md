@@ -18,5 +18,6 @@
 | Thêm nền tảng | adapter mới + tài liệu nguồn chính thức + contract test | rate limit, domain allowlist, ToS; subtask ≥ T4 |
 | Lộ trình phát triển | `docs/ROADMAP.md`, `docs/PHASES.md`, `docs/impl/` | task pack + subtask theo convention |
 | Thêm cổng CI | `.github/workflows/ci.yml`; nối vào `needs` của `quality` | PR thật phải chạy cổng đó |
+| Đối chiếu `PROJECT-STATUS.md` với git thật | `tools/check_status_freshness.py`, job `status-freshness` (chạy khi push `bootstrap/base`) | SHA là tổ tiên của HEAD; nhánh nêu tên còn tồn tại trên remote |
 | Ghi bẫy tái diễn | `TRAPS.md` | ngày, triệu chứng, nguyên nhân, cách rà, PR |
 | Giao việc phiên mới | `docs/TASK-PACK.md` / `docs/task-packs/` | đủ mục tiêu, phạm vi, nghiệm thu; việc lớn → subtask |
