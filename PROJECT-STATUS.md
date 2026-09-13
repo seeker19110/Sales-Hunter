@@ -4,14 +4,16 @@
 
 ## Snapshot hiện tại
 
-- Ngày cập nhật: 2026-09-12
+- Ngày cập nhật: 2026-09-13
 - Base branch: `bootstrap/base`
-- Base hiện tại: `2b8402f23372efec25a5ab3c3c94d5a45c22c67f`
-- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base; bốn commit handoff sau chuỗi phase đã đồng bộ trạng thái. #22 (harden readiness) và #23 (kiểm freshness của chính file này) đã merge.
+- Base hiện tại: `ab1586d30488164fba2b2b65e5cfaf3151453efd`
+- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base; bốn commit handoff sau chuỗi phase đã đồng bộ trạng thái. #22 (harden readiness), #23 (kiểm freshness của chính file này), #24 (đồng bộ file này) và #7 (dependabot: bump `astral-sh/setup-uv` lên 10.0.1, nhãn `no-changelog`) đã merge.
 - Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
 
 ## PR đã hoàn tất trong chuỗi hiện tại
 
+- #7 — dependabot: bump `astral-sh/setup-uv` từ 7.6.0 lên 10.0.1 (nhãn `no-changelog`)
+- #24 — đồng bộ `PROJECT-STATUS.md` sau khi #22/#23 merge
 - #23 — `tools/check_status_freshness.py` + job CI `status-freshness` đối chiếu file này với git thật
 - #22 — harden readiness
 - #20 — chuẩn hóa branding Sales-Hunter
