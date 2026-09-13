@@ -6,12 +6,14 @@
 
 - Ngày cập nhật: 2026-09-12
 - Base branch: `bootstrap/base`
-- Base hiện tại: `6bc16b8ff01f5e64cc7a152d01d56785f24b9308`
-- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base; bốn commit handoff sau chuỗi phase đã đồng bộ trạng thái.
+- Base hiện tại: `2b8402f23372efec25a5ab3c3c94d5a45c22c67f`
+- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base; bốn commit handoff sau chuỗi phase đã đồng bộ trạng thái. #22 (harden readiness) và #23 (kiểm freshness của chính file này) đã merge.
 - Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
 
 ## PR đã hoàn tất trong chuỗi hiện tại
 
+- #23 — `tools/check_status_freshness.py` + job CI `status-freshness` đối chiếu file này với git thật
+- #22 — harden readiness
 - #20 — chuẩn hóa branding Sales-Hunter
 - #13 — Phase 1.5 publication candidate
 - #15 — Phase 2 manual observation + kill switch
