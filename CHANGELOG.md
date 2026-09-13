@@ -6,6 +6,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
+- `TRAPS.md`: ghi bẫy PR dependabot kẹt ở cổng `metadata` vì không tự sửa được `CHANGELOG.md` (#7); cách rà và cách gỡ (nhãn `no-changelog`).
 - `tools/check_status_freshness.py` + job CI `status-freshness` (chạy khi push `bootstrap/base`): đối chiếu SHA/nhánh ghi trong `PROJECT-STATUS.md` với git thật, chặn tài liệu trạng thái lỗi thời âm thầm sau merge.
 - `PROJECT-STATUS.md` làm single source of truth cho tiến độ thực thi và điểm resume giữa các phiên; `AGENTS.md` bắt buộc đọc/cập nhật trạng thái này.
 - Phase 6: runbook, production checklist, ADR-0004 đề xuất và helper multi-channel publish; không thực hiện DNS/TLS/cutover hay client mạng thật.
