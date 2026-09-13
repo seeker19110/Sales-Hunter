@@ -27,17 +27,17 @@ def compute_draft_sha256(
     affiliate_url: str,
     affiliate_disclosure: str,
     claim_snapshot: dict[str, Any],
-    target_channel: str,
     observation_id: str,
+    target_channel: str | None = None,
 ) -> str:
     """SHA-256 hex của canonical JSON (sort_keys, separators cố định, UTF-8)."""
+    del target_channel  # channel-agnostic content hash (ADR-0005)
     canonical_object = {
         "affiliate_disclosure": affiliate_disclosure,
         "affiliate_url": affiliate_url,
         "claim_snapshot": claim_snapshot,
         "content": content,
         "observation_id": observation_id,
-        "target_channel": target_channel,
     }
     canonical_json = json.dumps(
         canonical_object,

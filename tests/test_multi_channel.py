@@ -80,6 +80,20 @@ class MultiChannelTests(unittest.TestCase):
         self.assertEqual(results["telegram:b"]["error"], "kill_switch")
         self.assertEqual(results["telegram:a"]["status"], "published")
 
+    def test_draft_sha256_remains_valid_across_channels(self) -> None:
+        pub = Publisher(dry_run=False, client=FakePlatformClient())
+        channels = ["telegram:channel_1", "tiktok_shop:channel_2"]
+        results = publish_multi_channel(
+            self.candidate,
+            self.approval,
+            channels,
+            publisher=pub,
+            now=self.now,
+        )
+        self.assertEqual(results["telegram:channel_1"]["status"], "published")
+        self.assertEqual(results["tiktok_shop:channel_2"]["status"], "published")
+        self.assertEqual(self.candidate["draft_sha256"], self.approval["draft_sha256"])
+
 
 if __name__ == "__main__":
     unittest.main()
