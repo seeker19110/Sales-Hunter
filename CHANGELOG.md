@@ -21,6 +21,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Sửa
 
+- Cập nhật `PROJECT-STATUS.md` sau khi #7 (dependabot `astral-sh/setup-uv` → 10.0.1) merge; base hiện tại `ab1586d`.
 - Cập nhật `PROJECT-STATUS.md`: base hiện tại là `2b8402f` (sau #22, #23), thêm #22/#23 vào danh sách PR đã hoàn tất.
 - Cài Sales-Hunter editable bằng Hatchling để các lệnh quality bắt buộc chạy trực tiếp được trên PowerShell/Windows, không còn phụ thuộc `PYTHONPATH` của Makefile.
 - Đồng bộ trạng thái skeleton Phase 1–6 trong roadmap, kiến trúc và tài liệu deploy; giữ rõ các điều kiện T4/production chưa hoàn tất.
