@@ -1,6 +1,6 @@
 {
   "schema_version": "publication-candidate.v1",
-  "publication_id": "pub-obs-demo-001-e09cc6549536",
+  "publication_id": "pub-obs-demo-001-ddd61687fe4b",
   "observation_id": "obs-demo-001",
   "target_channel": "telegram:sales-hunter-demo",
   "content": "Sản phẩm minh họa đang giảm — kiểm tra link trước khi mua.",
@@ -14,10 +14,10 @@
     "list_price_minor": 200000,
     "source_url": "https://example.com/evidence/obs-demo-001"
   },
-  "draft_sha256": "e09cc6549536b2910fbce6aa386f543138a6996c4f1ad786182a9ae1e822b9a4",
+  "draft_sha256": "ddd61687fe4b53cea53a8ef94aba13c655914a96a8541027951738209e0893bd",
   "approval": {
     "status": "pending",
-    "draft_sha256": "e09cc6549536b2910fbce6aa386f543138a6996c4f1ad786182a9ae1e822b9a4"
+    "draft_sha256": "ddd61687fe4b53cea53a8ef94aba13c655914a96a8541027951738209e0893bd"
   },
-  "idempotency_key": "obs-demo-001:telegram:sales-hunter-demo:e09cc6549536b2910fbce6aa386f543138a6996c4f1ad786182a9ae1e822b9a4"
+  "idempotency_key": "obs-demo-001:telegram:sales-hunter-demo:ddd61687fe4b53cea53a8ef94aba13c655914a96a8541027951738209e0893bd"
 }

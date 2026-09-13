@@ -51,6 +51,25 @@ class ComputeDraftSha256Tests(unittest.TestCase):
         self.assertEqual(a, b)
         self.assertRegex(a, r"^[0-9a-f]{64}$")
 
+    def test_compute_draft_sha256_channel_agnostic(self) -> None:
+        h_channel_1 = compute_draft_sha256(
+            content="Deal demo",
+            affiliate_url="https://example.com/a",
+            affiliate_disclosure=DISCLOSURE_TEMPLATE,
+            claim_snapshot=_base_claim(),
+            target_channel="telegram:channel_1",
+            observation_id="obs-demo-001",
+        )
+        h_channel_2 = compute_draft_sha256(
+            content="Deal demo",
+            affiliate_url="https://example.com/a",
+            affiliate_disclosure=DISCLOSURE_TEMPLATE,
+            claim_snapshot=_base_claim(),
+            target_channel="tiktok_shop:channel_2",
+            observation_id="obs-demo-001",
+        )
+        self.assertEqual(h_channel_1, h_channel_2)
+
     def test_compute_draft_sha256_changes_on_content(self) -> None:
         h1 = compute_draft_sha256(
             content="A",
