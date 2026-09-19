@@ -14,7 +14,9 @@ from s_n_sales.api.app import make_server
 from s_n_sales.api.store import OperatorStore
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
 from s_n_sales.pipeline.draft import observation_to_rank
+from s_n_sales.pipeline.manual_draft_flow import run_manual_to_publication_candidate
 from s_n_sales.pipeline.publication import build_publication_candidate
+from s_n_sales.pipeline.publisher import FakePlatformClient, Publisher, PublishError
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -304,6 +306,115 @@ class OperatorSqliteIntegrationTests(unittest.TestCase):
         with urlopen(req_list, timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             self.assertEqual(len(data["items"]), 1)
+
+
+class OperatorEndToEndPipelineTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp_dir = tempfile.TemporaryDirectory()
+        db_path = Path(self.temp_dir.name) / "e2e_operator.db"
+        self.store = SqliteOperatorStore(db_path=db_path)
+        self.token = "e2e-secret-token"
+        self.server = make_server(
+            self.store,
+            host="127.0.0.1",
+            port=0,
+            auth_token=self.token,
+        )
+        self.port = self.server.server_address[1]
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        self.base = f"http://127.0.0.1:{self.port}"
+        self.fixture = ROOT / "schemas/examples/valid/offer-observation.v1.json"
+
+    def tearDown(self) -> None:
+        self.server.shutdown()
+        self.server.server_close()
+        self.store.close()
+        self.temp_dir.cleanup()
+
+    def test_end_to_end_observation_to_ui_to_publish(self) -> None:
+        now = datetime(2026, 9, 11, 8, 0, tzinfo=UTC)
+
+        # 1. Pipeline: load observation and build candidate
+        candidate = run_manual_to_publication_candidate(
+            self.fixture,
+            content="Deal công nghệ hot — tai nghe không dây giảm giá sốc!",
+            affiliate_url="https://example.com/aff/e2e-deal-001",
+            target_channel="telegram:sales-hunter-channel",
+            now=now,
+        )
+        pub_id = candidate["publication_id"]
+        draft_sha = candidate["draft_sha256"]
+
+        # 2. Ingest into Operator Store via API (with Bearer token)
+        ingest_req = Request(
+            self.base + "/api/v1/candidates",
+            data=json.dumps(candidate).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.token}",
+            },
+            method="POST",
+        )
+        with urlopen(ingest_req, timeout=5) as resp:
+            self.assertEqual(resp.status, 201)
+
+        # 3. Verify deal appears in Web Dashboard HTML
+        dash_req = Request(f"{self.base}/dashboard?token={self.token}")
+        with urlopen(dash_req, timeout=5) as resp:
+            self.assertEqual(resp.status, 200)
+            html_content = resp.read().decode("utf-8")
+            self.assertIn(pub_id, html_content)
+            self.assertIn("Chờ duyệt", html_content)
+
+        # 4. Operator approves deal via Web Form submission
+        approve_form = urlencode(
+            {
+                "token": self.token,
+                "decided_by": "lead-operator@donghanhcungban.org",
+                "reason": "Verified price claim and affiliate disclosure",
+            }
+        ).encode("utf-8")
+        approve_req = Request(
+            f"{self.base}/dashboard/candidates/{pub_id}/approve",
+            data=approve_form,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            method="POST",
+        )
+        with urlopen(approve_req, timeout=5) as resp:
+            self.assertIn(resp.status, (200, 303))
+
+        # 5. Read back approval record from SQLite store and assert invariants
+        approval = self.store.get_approval(pub_id)
+        self.assertIsNotNone(approval)
+        assert approval is not None
+        self.assertEqual(approval["status"], "approved")
+        self.assertEqual(approval["draft_sha256"], draft_sha)
+        self.assertEqual(approval["decided_by"], "lead-operator@donghanhcungban.org")
+
+        # 6. Verify dry-run safety invariant: publish with dry_run=True blocks external publish
+        pub_dry = Publisher(dry_run=True)
+        with self.assertRaises(PublishError):
+            pub_dry.publish(candidate, approval, now=now)
+
+        # 7. Execute idempotent publish with FakePlatformClient (dry_run=False in staging test)
+        client = FakePlatformClient()
+        publisher = Publisher(client=client, dry_run=False)
+        receipt = publisher.publish(candidate, approval, now=now)
+        self.assertEqual(receipt["status"], "published")
+        self.assertEqual(receipt["publication_id"], pub_id)
+
+        # 8. Save receipt and verify via Receipts API
+        self.store.save_receipt(receipt)
+        receipts_req = Request(
+            f"{self.base}/api/v1/receipts",
+            headers={"Authorization": f"Bearer {self.token}"},
+        )
+        with urlopen(receipts_req, timeout=5) as resp:
+            self.assertEqual(resp.status, 200)
+            receipts_data = json.loads(resp.read().decode("utf-8"))
+            self.assertEqual(len(receipts_data["items"]), 1)
+            self.assertEqual(receipts_data["items"][0]["receipt_id"], receipt["receipt_id"])
 
 
 if __name__ == "__main__":
