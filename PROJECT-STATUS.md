@@ -7,11 +7,12 @@
 - Ngày cập nhật: 2026-09-19
 - Base branch: `bootstrap/base`
 - Base hiện tại: `c620c10b2a36ce46a321952c02d3658dd0653bb9`
-- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base; ADR-0005 đã triển khai canonical content hash cho multi-channel publication (PR #28); hai PR dependabot đã bump dependencies (#30 ruff, #31 setup-uv).
+- Trạng thái: Phase 1 → Phase 6 skeleton đã hợp nhất vào base; PR #30, #31, #32 đã hoàn tất; ADR-0006 đã triển khai lưu trữ bền vững SQLite, xác thực Token và Web Operator Dashboard cho Phase 4.
 - Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
 
 ## PR đã hoàn tất trong chuỗi hiện tại
 
+- #32 — đồng bộ `PROJECT-STATUS.md` sau khi PR #30 và #31 merge
 - #31 — dependabot: bump `astral-sh/setup-uv` từ 10.0.1 lên 10.1.0 (nhãn `no-changelog`)
 - #30 — dependabot: bump `ruff` từ 0.16.6 lên 0.16.7 (nhãn `no-changelog`)
 - #29 — đồng bộ `PROJECT-STATUS.md` sau khi PR #28 merge
@@ -36,8 +37,9 @@ Tất cả PR trên đã được rebase/merge tuần tự vào `bootstrap/base`
 1. ADR-0003 và ADR-0004 đã được owner chấp nhận có điều kiện ngày 2026-09-12; điều kiện checklist và evidence vẫn bắt buộc.
 2. Chưa thực hiện cutover production cho đến khi `docs/PRODUCTION-CHECKLIST.md` được duyệt/tick đầy đủ bằng evidence thực tế.
 3. Khi bắt đầu tích hợp nền tảng thật, cần account/program, tài liệu official áp dụng, scope/quota và owner; không dùng scraping hay endpoint không được phép.
-4. Trước external deploy cần owner zone/origin/secret manager/on-call; trước API operator public cần ADR auth/authorization và datastore.
+4. Trước external deploy cần owner zone/origin/secret manager/on-call theo checklist.
 5. ADR-0005 đã được thông qua và triển khai ngày 2026-09-12: `draft_sha256` được chuẩn hóa theo canonical content hash (channel-agnostic), đảm bảo tính an toàn và bất biến của phê duyệt nội dung khi phân phối đa kênh.
+6. ADR-0006 đã được triển khai ngày 2026-09-19: hoàn thiện SQLite datastore bền vững (`SqliteOperatorStore`), Token Auth và Web Operator Dashboard cho Phase 4; sẵn sàng cho deploy staging khi hạ tầng sẵn sàng.
 
 ## Quy tắc resume cho mọi phiên
 
