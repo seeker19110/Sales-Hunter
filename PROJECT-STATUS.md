@@ -6,12 +6,13 @@
 
 - Ngày cập nhật: 2026-09-19
 - Base branch: `bootstrap/base`
-- Base hiện tại: `c620c10b2a36ce46a321952c02d3658dd0653bb9`
-- Trạng thái: Phase 1 → Phase 6 skeleton đã hợp nhất vào base; PR #30, #31, #32 đã hoàn tất; ADR-0006 đã triển khai lưu trữ bền vững SQLite, xác thực Token và Web Operator Dashboard cho Phase 4.
+- Base hiện tại: `fbc2a1be9e52d9278a89698790fdd6769cab8042`
+- Trạng thái: Phase 1 → Phase 6 skeleton đã hợp nhất vào base; PR #30, #31, #32, #33 đã hoàn tất; ADR-0006 đã triển khai lưu trữ bền vững SQLite, xác thực Token và Web Operator Dashboard cho Phase 4.
 - Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
 
 ## PR đã hoàn tất trong chuỗi hiện tại
 
+- #33 — hoàn thiện Phase 4: SQLite datastore bền vững, Token Auth và Web Operator Dashboard
 - #32 — đồng bộ `PROJECT-STATUS.md` sau khi PR #30 và #31 merge
 - #31 — dependabot: bump `astral-sh/setup-uv` từ 10.0.1 lên 10.1.0 (nhãn `no-changelog`)
 - #30 — dependabot: bump `ruff` từ 0.16.6 lên 0.16.7 (nhãn `no-changelog`)
