@@ -7,7 +7,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
-from s_n_sales.pipeline.approval import ApprovalError
 from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.publication import build_publication_candidate
 
