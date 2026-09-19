@@ -14,6 +14,9 @@ class OperatorStore:
         self._candidates: dict[str, dict[str, Any]] = {}
         self._approvals: dict[str, dict[str, Any]] = {}
 
+    def close(self) -> None:
+        pass
+
     def upsert_candidate(self, candidate: dict[str, Any]) -> dict[str, Any]:
         pub_id = candidate.get("publication_id")
         if not isinstance(pub_id, str) or not pub_id:
@@ -21,8 +24,11 @@ class OperatorStore:
         self._candidates[pub_id] = deepcopy(candidate)
         return deepcopy(candidate)
 
-    def list_candidates(self) -> list[dict[str, Any]]:
-        return [deepcopy(c) for c in self._candidates.values()]
+    def list_candidates(self, status: str | None = None) -> list[dict[str, Any]]:
+        items = [deepcopy(c) for c in self._candidates.values()]
+        if status is not None:
+            items = [c for c in items if c.get("approval", {}).get("status", "pending") == status]
+        return items
 
     def get_candidate(self, publication_id: str) -> dict[str, Any] | None:
         c = self._candidates.get(publication_id)

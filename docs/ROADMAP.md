@@ -51,11 +51,12 @@ Triển khai kỹ thuật: `docs/impl/PHASE-*-IMPLEMENTATION.md`.
 
 ## Phase 4 — Staging + Operator UI
 
-- [ ] Tách subtask (API / UI / deploy)
-- [x] HTTP service tối thiểu (operator API skeleton)
-- [ ] Dashboard duyệt draft (approve/reject)
+- [x] Tách subtask (API / UI / datastore / deploy theo ADR-0006)
+- [x] HTTP service tối thiểu (operator API + Web Dashboard)
+- [x] Dashboard duyệt draft (approve/reject, claim snapshot, disclosure)
+- [x] SQLite persistent datastore (`SqliteOperatorStore`) + Token Auth
 - [ ] Deploy staging `sales.donghanhcungban.org` theo checklist
-- [ ] HTTPS + health check
+- [ ] HTTPS + health check origin ngoài
 
 ## Phase 5 — Analytics + Feedback loop
 

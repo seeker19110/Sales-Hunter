@@ -6,6 +6,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
+- ADR-0006 và Phase 4: `SqliteOperatorStore` (lưu trữ bền vững chuẩn stdlib sqlite3), xác thực Token Auth và Web Operator Dashboard (giao diện duyệt deal trực quan, xem claim/disclosure, form duyệt/từ chối, lọc trạng thái, chống XSS).
 - `TRAPS.md`: ghi bẫy PR dependabot kẹt ở cổng `metadata` vì không tự sửa được `CHANGELOG.md` (#7); cách rà và cách gỡ (nhãn `no-changelog`).
 - `tools/check_status_freshness.py` + job CI `status-freshness` (chạy khi push `bootstrap/base`): đối chiếu SHA/nhánh ghi trong `PROJECT-STATUS.md` với git thật, chặn tài liệu trạng thái lỗi thời âm thầm sau merge.
 - `PROJECT-STATUS.md` làm single source of truth cho tiến độ thực thi và điểm resume giữa các phiên; `AGENTS.md` bắt buộc đọc/cập nhật trạng thái này.
