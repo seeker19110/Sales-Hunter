@@ -217,10 +217,12 @@ class OperatorDashboardTests(unittest.TestCase):
 
     def test_dashboard_form_approve(self) -> None:
         pub_id = self.candidate["publication_id"]
-        form_data = urlencode({
-            "decided_by": "operator@test.com",
-            "reason": "Verified deal quality",
-        }).encode("utf-8")
+        form_data = urlencode(
+            {
+                "decided_by": "operator@test.com",
+                "reason": "Verified deal quality",
+            }
+        ).encode("utf-8")
         req = Request(
             f"{self.base}/dashboard/candidates/{pub_id}/approve",
             data=form_data,
@@ -238,10 +240,12 @@ class OperatorDashboardTests(unittest.TestCase):
 
     def test_dashboard_form_reject(self) -> None:
         pub_id = self.candidate["publication_id"]
-        form_data = urlencode({
-            "decided_by": "operator@test.com",
-            "reason": "Not enough discount",
-        }).encode("utf-8")
+        form_data = urlencode(
+            {
+                "decided_by": "operator@test.com",
+                "reason": "Not enough discount",
+            }
+        ).encode("utf-8")
         req = Request(
             f"{self.base}/dashboard/candidates/{pub_id}/reject",
             data=form_data,
