@@ -4,14 +4,17 @@
 
 ## Snapshot hiện tại
 
-- Ngày cập nhật: 2026-09-13
+- Ngày cập nhật: 2026-09-19
 - Base branch: `bootstrap/base`
-- Base hiện tại: `1eece610487927a5000958758bfd5427bc8a7e9b`
-- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base; ADR-0005 đã triển khai canonical content hash cho multi-channel publication (PR #28).
+- Base hiện tại: `c620c10b2a36ce46a321952c02d3658dd0653bb9`
+- Trạng thái: Phase 1 → Phase 6 skeleton đã được hợp nhất vào base; ADR-0005 đã triển khai canonical content hash cho multi-channel publication (PR #28); hai PR dependabot đã bump dependencies (#30 ruff, #31 setup-uv).
 - Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
 
 ## PR đã hoàn tất trong chuỗi hiện tại
 
+- #31 — dependabot: bump `astral-sh/setup-uv` từ 10.0.1 lên 10.1.0 (nhãn `no-changelog`)
+- #30 — dependabot: bump `ruff` từ 0.16.6 lên 0.16.7 (nhãn `no-changelog`)
+- #29 — đồng bộ `PROJECT-STATUS.md` sau khi PR #28 merge
 - #28 — ADR-0005 canonical draft hash cho multi-channel publishing
 - #27 — log dependabot metadata-gate trap trong TRAPS.md
 - #7 — dependabot: bump `astral-sh/setup-uv` từ 7.6.0 lên 10.0.1 (nhãn `no-changelog`)
