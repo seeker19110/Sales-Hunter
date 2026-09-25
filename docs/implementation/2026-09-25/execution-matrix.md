@@ -1,52 +1,58 @@
-# Audit execution matrix — 25/09/2026
+# Audit execution matrix — đợt hoàn thiện 25/09/2026
 
-Historical audit is immutable. This is implementation status, not proof of production readiness. Base verified: `0fea06578b04b832c07df6b31c60444510d25c79`. Read GitHub for PR changes after this checkpoint.
+Base đã đối chiếu: `0fea06578b04b832c07df6b31c60444510d25c79`, CI36150453741 success.
+Lịch sử audit không bị sửa. Đây là source checkpoint; đọc lại GitHub khi tiếp tục.
 
-## Evidence registry
+## Registry bằng chứng
 
-| Key | PR / branch | HEAD | CI | Merge / gate | Evidence |
-|---|---|---|---|---|---|
-| UI | #37 | aedba6c5e9574290e40b72e8e0e6087c49b35c8a | 36139653615 success; metadata 36139653640 success; post-merge 36140091351 success | merged 2522c4db9e168865957d128cab1e597dbb41abb4 | 82 tests, real Chrome mobile list/detail from builder+SQLite; tree verified |
-| PKG | #36 | dae66501b8d1fdec4ce6d26194385c5682d9c26c | quality, artifact and matrix success | merged a61cffe5d95e335614375d35037cdd010e7e5fc6 | runtime dependency and five package schemas, clean wheel smoke outside checkout |
-| INT | #38 | 9d8c290a75640b45c27f7b82822c90270da6adad | quality, artifact, browser and matrix success | human T4 reviewed exact HEAD; merged 683683710dd0de99857912487d4b2d5341f05c0e | 16 integrity regressions, trusted approval authority and UTC; partial SH-002/023 |
-| PROJ | #40 | 6b5d50ce8633d65aaf59063a8644a768609179fb | quality, artifact, browser and matrix success | merged 0fea06578b04b832c07df6b31c60444510d25c79 | candidate nested approval v1 projection and legacy readback; 104 local tests |
-| AUTH | fix/audit-operator-auth-2026-09-25 | see PR HEAD | CI pending | T4 human review required | local-only fail-closed auth/session/CSRF; no external identity or deployment |
-| NONE | none | none | not run | not started | audit/code inspection is not implementation acceptance |
-
-## Item matrix
-
-Each evidence key resolves PR, HEAD, CI, merge and verification limits above. “Partial” never means closed. Dependencies name the missing acceptance work, not permission to skip it.
-
-| ID | Current status / implemented scope | Dependencies / acceptance still required | Evidence |
+| Key | PR / HEAD / CI | Trạng thái tích hợp | Test / giới hạn |
 |---|---|---|---|
-| SH-001 | Merged, CI verified: recompute all five protected fields at both stores, approve and publish; freeze candidate | immutable revision/CAS in SH-008/009 | INT |
-| SH-002 | Partial merged: full approval contract; configured authority; reject missing/forged/currently rejected records and cached receipt after reject/restart | SH-003 external identity/roles; SH-008/009 revision/history; SH-011 final payload/channel scope | INT |
-| SH-003 | PR #39: local auth fail-closed, Bearer API, dashboard session/CSRF, server actor and loopback-only bind | CI on updated HEAD and T4 review/merge; production identity/roles, TLS/server and external staging decision | AUTH |
-| SH-004 | Merged, CI verified: runtime dependencies, package resources and clean wheel outside checkout | External deployment remains separate | PKG |
-| SH-005 | Not started: RAM idempotency remains | Durable intent/outbox, unique key, leases, attempts, finite retry, unknown-outcome reconciliation; restart/concurrency/crash tests; T4 | NONE |
-| SH-006 | Partial: hash integrity now checked on ingest; caller/server DTO separation NOT done | Reject caller-owned approval/hash metadata; full candidate input schema and stable API errors | INT |
-| SH-007 | Merged #40, CI verified: SQLite writes and reads five-field candidate approval projection; standalone approval remains full; legacy nested records projected on read | Revision/history remain SH-008/009 | PROJ |
-| SH-008 | Not started: current authority lookup is NOT revision CAS | Atomic update/approve expected-revision transaction; controlled race tests on selected production database | NONE |
-| SH-009 | Partial: current rejection rechecked before send; history still overwritten | Append-only approval/revision events, transactional invalidation and consistent projections | INT |
-| SH-010 | Merged and CI verified: canonical integer VND, platform, null/zero/large values, mobile display | No production claim; full inbox workflow remains SH-024 | UI |
-| SH-011 | Not started: platform client still sends content only | Deterministic final payload/link/disclosure/capability hash; exact preview/approval/sent equivalence; T4 | NONE |
-| SH-012 | Not started: no final freshness/stock revalidation | Provider capability and timestamp policy; stale/future/stock/expiry pre-send tests | NONE |
-| SH-013 | Not started: eligibility still mixed with ranking | Explicit blocking policy independent of score; stale/out-of-stock/coupon eligibility tests | NONE |
-| SH-014 | Not started: claim snapshot incomplete | Versioned product/shop/variant/prices/coupon/shipping/eligibility/evidence contract; ADR/migration and boundary fixtures | NONE |
-| SH-015 | Not started: URL validation remains scheme-only | Configured allowlist/host/redirect validation; SSRF controls at actual fetch boundary; malformed URL tests | NONE |
-| SH-016 | Merged, CI verified: publisher normalizes aware clock before client/receipt; fake provider uses UTC | No real provider timestamp evidence | INT |
-| SH-017 | Not started: pause flags still transient | Persistent global/source/channel actor/reason/time; restart and pre-retry/pre-send checks | NONE |
-| SH-018 | Not started: stdlib HTTP not production server | Accepted server/framework ADR, time/body limits, Host/Origin/UTF-8/JSON tests, readiness | NONE |
-| SH-019 | Not started: analytics skeleton only | Durable event IDs, signature/replay policy by actual provider, conversion lifecycle and commission ledger/reconciliation | NONE |
-| SH-020 | Not started: CD still placeholder | SHA artifact/promote, real doctor/migrate/pause/reconcile/export/backup/restore drill, health/heartbeat/runbook; no production cutover authorized | NONE |
-| SH-021 | Partial status accuracy: known PR35 docs versus PR37 code separated | Accepted architecture/database/server decisions, tested rollback/restore and current operational docs | UI / INT |
-| SH-022 | Not started: no official account capability verified | Program/region/scope/quota/policy/owner evidence; disabled connector until authorized; manual/fake contracts do not prove live | NONE |
-| SH-023 | Partial local verified: validate all channels and global integrity/current approval before first send | Durable per-channel outcome/unknown read-back/reconcile, final payload scope; T4 | INT |
-| SH-024 | Partial: mobile list/detail monetary read model and real-browser gate only | Form/CSV preview, search/filter/pagination, evidence/revision/final payload preview, RBAC-aware bulk approval and E2E actions | UI |
-| SH-025 | Not started: digest is not retained raw evidence | Permissioned immutable redacted evidence, versions/hash/retention/export, tamper and retrieval tests | NONE |
-| SH-026 | Partial: shared typed price read model and protected-value checks | Typed caller/server DTOs throughout API, store, renderer and publisher; bool/float/null/malformed boundary tests | UI / INT |
-| SH-027 | Not started: business dedup/cooldown/history absent | Product+variant+condition keys, persisted cooldown, exact historical claims and duplicate/restart tests | NONE |
+| BASE | #36 packaging, #37 UI, #38 integrity/UTC, #40 projection; base0fea065 | Đã merge | clean-wheel, browser, schema, matrix CI; không live |
+| AUTH | #39 / f48346c / CI36150731331 success | Chờ human T4; chưa merge | local Bearer/session/CSRF; chưa roles/TLS production |
+| DATA | #41 / 75c302b / CI36156814136 và metadata36156814141 success | Chờ #39 + refresh + humanT4/ADR0008 | 133 diagnostic tests; CI đủ Windows/Ubuntu/browser/wheel; SQLite pilot, không PostgreSQL |
+| DEAL | feat/audit-deal-quality-20260925 / xem PR HEAD | Local verified, chưa merge/CI tại checkpoint | 161 tổng diagnostic tests; test_deal_quality, test_grounded_flow; runtime smoke mở rộng; ADR0009/T4 |
+| NONE | Chưa có implementation được nghiệm thu | Không tính hoàn tất | Cần code/test/CI/review tương ứng |
 
-AI grounded content: not implemented. Deterministic facts/template baseline, numeric/link/disclosure/schema validator, model configuration, bounded costs/cache and Vietnamese adversarial evaluation remain required; no paid benchmark has run.
+## SH-001–027
 
-Source: partial implementation. Staging: not verified/deployed. Production: not deployed, no external publishing/credential/DNS changes. AUTH requires human T4 review; previous INT review and merge do not authorize it. Unimplemented items above are not mislabeled as external blockers.
+| ID | Hiện trạng và phạm vi sửa | Dependency / nghiệm thu còn thiếu | Evidence |
+|---|---|---|---|
+| SH-001 | Hash thực tế đã merge; DATA thêm snapshot/revision chống ABA | DATA tích hợp; không giữ DB transaction qua network | BASE/DATA |
+| SH-002 | Authority đầy đủ/current đã merge; revision/event atomic trong DATA | AUTH identity; scoped final payload và queue trong PUB; humanT4 | BASE/DATA |
+| SH-003 | AUTH local fail-closed; DATA thêm Host/Origin/framing/time/UTF8 | Review #39; roles/object permissions, TLS và production server riêng | AUTH/DATA |
+| SH-004 | Runtime deps/package schemas/clean wheel đã merge | DEAL có hai contract mới, phải qua wheel gate đúng HEAD | BASE/DEAL |
+| SH-005 | Legacy publisher còn RAM dictionary | PUB durable intent/atomic lease/attempt/readback/restart/unknown-outcome tests | NONE |
+| SH-006 | DATA chỉ nhận pending đúng schema/hash; DEAL manual input không cho caller IDs/hash/approval | Tích hợp DATA/DEAL; legacy import giữ tương thích nhưng không đủ điều kiện queue mới nếu thiếu facts | DATA/DEAL |
+| SH-007 | Projection schema đúng đã merge #40; DATA validates transitions/reload | DATA migration thêm history, không giả lịch sử cũ | BASE/DATA |
+| SH-008 | DATA revision CAS, HTTP409/428, hai connection chỉ một thắng | HumanT4/ADR0008 + merge; PostgreSQL concurrency chưa chạy | DATA |
+| SH-009 | DATA version/event chỉ-thêm, edit invalidate authority, ABA không hồi approval | Merge DATA; final-payload decision events PUB chưa có | DATA |
+| SH-010 | Canonical integer VND/null/zero/platform/mobile + browser đã merge | UI mới phải giữ đúng dữ liệu thực builder | BASE |
+| SH-011 | DEAL deterministic final payload link/disclosure/facts/hash/channel và binding bất biến | PUB duyệt đúng payload revision và gửi/readback chính payload đó |
+| SH-012 | DEAL eligibility kiểm freshness/stock/expiry/evidence | PUB kiểm lại trước send, recall intent/thực thi/xác nhận | DEAL |
+| SH-013 | DEAL eligible_rank chặn độc lập score | Queue mới phải cưỡng chế cùng policy; không gọi legacy score là authorization | DEAL |
+| SH-014 | DEAL facts.v1 giữ toàn observation/variant/coupon/ship/conditions/evidence, total có chứng cứ riêng | ADR0009/review; dữ kiện vẫn là nguồn manual có attestation, không platform-live proof | DEAL |
+| SH-015 | DEAL exact-host HTTPS allowlist/redirect, public-address validation | Transport phải pin resolved address và verify TLS; actual connector permission chưa có | DEAL |
+| SH-016 | UTC đã merge; helpers giữ aware UTC cho facts/evidence | Không có timestamp provider live | BASE/DEAL |
+| SH-017 | Pause legacy còn transient | PUB persist global/source/channel actor/reason/time; restart/pre-send tests | NONE |
+| SH-018 | DATA input/framing/Host/Origin/time limits local | Accepted production framework/server ADR, external readiness/load tests | AUTH/DATA |
+| SH-019 | Analytics skeleton cũ | Durable dedup events/conversion lifecycle/commission ledger/signature/replay | NONE |
+| SH-020 | Artifact gate đã có; DATA preview migration/count/hash/rollback | OPS doctor/backup/restore drill, pause after restore, deployment/heartbeat | BASE/DATA |
+| SH-021 | Checkpoint/registry cập nhật, tách stack chưa merge | Đồng bộ sau mỗi merge, selected production ADR và actual runbook evidence | DATA/DEAL |
+| SH-022 | Chưa có credential/account capability official được xác minh | Disabled live; hoàn thiện manual/fake transport và official capability review trước network | NONE |
+| SH-023 | Base preflight kênh/hash, DATA authority snapshot | PUB per-channel durable outcomes/unknown/reconcile/scoped payload | BASE/DATA/DEAL |
+| SH-024 | Base mobile + DEAL manual JSON preview không ghi DB thực | OPS CSV/form/inbox/search/pagination/revision diff/bulk permission and browser actions | BASE/DEAL |
+| SH-025 | DEAL retained JSON, source/retained digests, immutable metadata, redaction/expiry/revoke/tombstones | OPS authorized export/retention UI; redaction là known-sensitive policy, không máy tự chứng minh mọi PII đã sạch | DEAL |
+| SH-026 | DATA contracts/errors/snapshot + DEAL facts/payload schemas/manual-input whitelist | API/UI/queue/ledger new boundaries phải nối/test; không chỉ thêm DTO không sử dụng | DATA/DEAL |
+| SH-027 | DEAL business key đúng seller/product/variant/conditions và retained rank_version/reasons | LEDGER price history + PUB persistent cooldown, duplicate/restart tests | DEAL |
+
+## AI nội dung
+
+DEAL có template baseline và composer schema-constrained: model chỉ chọn introduction và
+thứ tự mọi fact IDs; không được thêm số/link/nội dung tự do hoặc bỏ điều kiện. Prompt/model/
+policy/cost ceiling/call cap/cache được cấu hình và kiểm bằng fake model; thiếu model/budget
+hoặc output sai -> template. Chưa có SDK/provider live, chưa benchmark có phí, không tuyên
+bố chất lượng văn phong free-form đã được đánh giá. Test tiếng Việt có coupon, null/zero,
+stale/stock/variant và nguồn chứa instruction không cấp quyền tool/publish.
+
+Source: phần triển khai nội bộ đang kiểm/stack. Staging và production: chưa deploy, không
+credential thật/DNS/network publishing. Chờ review không phải lý do bỏ các epic độc lập.

@@ -1,96 +1,58 @@
 # PROJECT STATUS — Sales-Hunter
 
-> **Single source of truth cho tiến độ thực thi.** Mọi phiên làm việc phải đọc file này trước khi đọc ROADMAP hoặc bắt đầu sửa repo.
+> Điểm resume thực thi. Đối chiếu GitHub trước mọi thay đổi; CI và source không thay bằng chứng staging/production.
 
-## Snapshot hiện tại
+## Snapshot đã kiểm
 
-- Ngày cập nhật: 2026-09-25
-- Base branch: `bootstrap/base`
-- Base hiện tại: `0fea06578b04b832c07df6b31c60444510d25c79`
-- Trạng thái: Phase 1 → Phase 6 skeleton, SH-010 (#37), SH-004 (#36), phần integrity (#38) và projection (#40) đã hợp nhất vào base. ADR-0006 đã triển khai SQLite, Token Auth và Web Operator Dashboard. Audit 25/09 ghi 27 hạng mục; các blocker khác còn mở.
-- Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
-- Báo cáo: [audit 25/09/2026](docs/audits/2026-09-25/README.md), 27 hạng mục và cổng nghiệm thu A–G. Chưa coi skeleton là đủ điều kiện external staging/production.
+- Ngày cập nhật: 2026-09-25.
+- Base branch: `bootstrap/base`.
+- Base hiện tại: `0fea06578b04b832c07df6b31c60444510d25c79` (PR #40), CI push 36150453741 success.
+- Đã merge: #35 audit (tài liệu), #37 giá/dashboard, #36 runtime packaging, #38 integrity/current approval/UTC, #40 candidate approval projection.
+- Phase 1–6 là skeleton đã có trước; không phải toàn bộ 27 hạng mục đã hoàn thiện.
+- Chưa network client nền tảng, DNS/TLS/cutover production hoặc đăng công khai. Dry-run là mặc định.
 
-## Phiên hoàn thiện tiếp theo
+## Stack đang thực thi
 
-- #40 đã merge SH-007 vào base `0fea065`; CI 36150453741 success.
-- #39 auth HEAD `f48346c` đã đồng bộ #40; CI 36150731331 success, vẫn chờ human T4.
-- Epic DATA `feat/audit-revision-transactions-20260925` dựa trên #39: input pending,
-  revision/CAS, lịch sử bất biến, migration preview và HTTP 409/428 có regression cục bộ.
-  Source đang nghiệm thu; chưa merge/triển khai. Chỉ tích hợp sau #39 và human T4.
-- [Task pack toàn đợt](docs/task-packs/2026-09-25-completion.md) chia DATA/DEAL/PUB/LEDGER/OPS;
-  không đồng nhất kiểm thử SQLite pilot với concurrency PostgreSQL hay production.
+| Epic | Bằng chứng source/CI | Gate tích hợp |
+|---|---|---|
+| AUTH #39 | HEAD `f48346c8596073a464c8289605945e9617ce9c4f`, CI36150731331 success; Bearer/session/CSRF local, đề xuất ADR0007 | Chưa merge; human T4 trên HEAD cuối; external identity/TLS không thuộc nghiệm thu này |
+| DATA #41 | HEAD `75c302b7ba0eda15c6eb1b4228713c8192cd10be`, tree6af8047; CI36156814136 + metadata36156814141 success, 133 tests local, Windows/Ubuntu, browser và wheel đều đạt | Stack trên #39; refresh sau squash và human T4/ADR0008; không auto-merge khi thiếu dependency/review |
+| DEAL `feat/audit-deal-quality-20260925` | 161 tests local; facts/evidence/eligibility/final payload/manual input/grounded composer đã có source và contracts | Stack trên #41; CI remote chưa xác minh tại checkpoint; ADR0009/T4 trước merge |
+| PUB / LEDGER / OPS | Theo task pack toàn đợt; không tính các lời đề xuất là code hoàn tất | Chỉ mở quyền tích hợp sau các gate tương ứng; không gọi kết quả fake là live |
 
-## Đợt thực thi audit 25/09/2026
+DATA: revision đã xem bắt buộc, CAS transaction, lịch sử chỉ-thêm, invalidate approval khi
+edit, snapshot authority nguyên tử, ETag/409/428, migration preview read-only và rollback
+legacy lỗi. Không đồng nhất SQLite pilot với PostgreSQL multi-node.
 
-- PR #38 đã merge tại `6836837` sau human T4 review trên HEAD `9d8c290`; exact HEAD CI quality/artifact/browser/matrix đều xanh.
-- PR #40 đã merge tại `0fea065` sau CI xanh trên HEAD `6b5d50c`; SH-007 candidate projection hợp lệ trên SQLite/API, chưa sửa transaction/revision/history.
-- SH-003 ở PR #39: local auth và ADR-0007 đề xuất đã qua CI trên HEAD cũ; HEAD sau đồng bộ #40 cần CI và human T4 review trước merge. External identity/roles/TLS chưa triển khai.
-- PR #35 đã merge báo cáo; PR #37 đã merge SH-010, browser gate đạt CI. PR #36 đã merge SH-004 tại `a61cffe` với artifact gate đạt CI trên HEAD `dae6650`.
-- PR #38 xử lý một phần SH-001/002/016/023, đã qua CI và human T4 review trước merge. Identity/revision/payload scope vẫn mở.
-- [Ma trận thực thi 27 hạng mục](docs/implementation/2026-09-25/execution-matrix.md) phân biệt phần chưa làm và phần đã kiểm; không coi audit #35 là implementation.
-- T4 identity/publisher/ADR vẫn cần human review. Django/PostgreSQL chưa được chấp nhận. Chưa staging/production, không bật side effect thật.
-- Task pack: [dashboard prices](docs/task-packs/2026-09-25-audit-dashboard-prices.md), [runtime packaging](docs/task-packs/2026-09-25-audit-runtime-packaging.md), [integrity](docs/task-packs/2026-09-25-audit-integrity.md). Trạng thái PR/CI mới nhất phải đọc GitHub.
+DEAL: observation đầy đủ trong deal-facts.v1, evidence giữ payload khử nhạy cảm và hai hash
+nguồn/bản lưu; permission attestation/expiry/tombstone. Eligibility độc lập score, variant,
+stock, stale/future, coupon/conditions. Renderer giữ link/disclosure/điều kiện và payload
+hash/version/channel. Nhập manual tạo ID/hash phía server; preview không ghi DB thực.
+Model tùy chọn chỉ chọn introduction/order fact IDs đã khóa, không tự tạo số/link/text.
+Không có adapter LLM trả phí được bật hoặc provider benchmark/live verification.
 
-## PR đã hoàn tất trong chuỗi hiện tại
+## Còn thiếu hoặc bị chặn
 
-- #40 — SH-007 candidate approval projection sau approve/reject và reload SQLite
-- #38 — kiểm integrity hash và current approval trước side effect; UTC, preflight đa kênh (một phần SH-001/002/016/023)
-- #36 — SH-004 runtime packaging, clean-wheel artifact gate
-- #37 — SH-010 hiển thị giá/nền tảng đúng và cổng browser mobile bắt buộc
-- #35 — lưu audit 27 hạng mục (chỉ tài liệu)
-- #34 — đồng bộ `PROJECT-STATUS.md` sau khi PR #33 merge
-- #33 — hoàn thiện Phase 4: SQLite datastore bền vững, Token Auth và Web Operator Dashboard
-- #32 — đồng bộ `PROJECT-STATUS.md` sau khi PR #30 và #31 merge
-- #31 — dependabot: bump `astral-sh/setup-uv` từ 10.0.1 lên 10.1.0 (nhãn `no-changelog`)
-- #30 — dependabot: bump `ruff` từ 0.16.6 lên 0.16.7 (nhãn `no-changelog`)
-- #29 — đồng bộ `PROJECT-STATUS.md` sau khi PR #28 merge
-- #28 — ADR-0005 canonical draft hash cho multi-channel publishing
-- #27 — log dependabot metadata-gate trap trong TRAPS.md
-- #7 — dependabot: bump `astral-sh/setup-uv` từ 7.6.0 lên 10.0.1 (nhãn `no-changelog`)
-- #24 — đồng bộ `PROJECT-STATUS.md` sau khi #22/#23 merge
-- #23 — `tools/check_status_freshness.py` + job CI `status-freshness` đối chiếu file này với git thật
-- #22 — harden readiness
-- #20 — chuẩn hóa branding Sales-Hunter
-- #13 — Phase 1.5 publication candidate
-- #15 — Phase 2 manual observation + kill switch
-- #16 — Phase 3 approval + dry-run publisher
-- #17 — Phase 4 operator HTTP API skeleton
-- #18 — Phase 5 analytics + recall
-- #19 — Phase 6 runbook + production skeleton
+- PUB: final-payload scoped approval, outbox/lease/attempt/unknown outcome, pause bền vững,
+  kiểm freshness trước send, receipt/reconcile/recall và cooldown qua restart.
+- LEDGER: history giá theo variant, conversion/commission events bền vững và chống webhook trùng.
+- OPS/UI: CSV/form preview và inbox/bulk được phân quyền, doctor/backup/restore drill,
+  health/heartbeat/structured log, runtime configuration và deploy tái lập.
+- Production: framework/database ADR chưa được chấp nhận; Django/PostgreSQL không tự
+  triển khai hay coi là đã chọn. Quyền account/program/scope/quota official, zone/origin,
+  secret manager/on-call và staging evidence phải có trước live cutover.
+- T4 human review là gate riêng cho từng diff. AI review/CI không thay người ký.
 
-Tất cả PR trên đã được rebase/merge tuần tự vào `bootstrap/base` và qua CI/PR policy tại thời điểm merge. SHA trong snapshot là base đã đối chiếu trước PR tài liệu, không dự đoán SHA merge của chính PR.
+## Tài liệu và resume
 
-## Blocker sau audit
+1. Đọc file này, xác minh base/PR mở/checks/review trên GitHub; không reset về audit #35.
+2. Đọc AGENTS/TRAPS/ARCHITECTURE/CODEMAP và ADR/task pack liên quan.
+3. Làm trên một branch mỗi epic; một integrator, không có subagent thật trong phiên này.
+4. Giữ nguyên historic audit; ghi test/HEAD/CI mới vào session và execution matrix.
+5. Source chỉ được đánh dấu merged khi đọc lại merge SHA/base/checks; stack chưa được
+   tích hợp không được coi là complete. Không ép merge hoặc chạy migration user data.
 
-- SH-001/002: PR #38 đã sửa phần hash và trusted approval; identity/role, immutable revision, channel scope còn mở tới khi có PR và bằng chứng tương ứng.
-- SH-003: PR #39 sửa local auth fail-closed và bỏ token khỏi URL, đang chờ T4 review; external deploy còn cần TLS/role/session production. SH-004 packaging đã merge trong #36.
-- SH-005: chống đăng trùng phải bền vững, có đối soát khi chưa rõ kết quả; dict trong Publisher chưa phải bảo đảm sau restart.
-- SH-006–018: hợp đồng sau duyệt, transaction/revision, giá dashboard, payload/disclosure, freshness, điều kiện deal, URL, UTC, pause và HTTP production cần nghiệm thu như báo cáo.
-- Chưa có bằng chứng deploy, restore hoặc quyền client nền tảng thật. CI xanh và báo cáo đã lưu không thay thế các bằng chứng đó.
-
-## Việc tiếp theo
-
-1. Chạy lại CI cho PR #39 trên HEAD mới, lấy human T4 review trước merge. Tiếp tục SH-006/008/009 và outbox trong PR riêng. Chưa bật mạng/publish thật.
-2. Sau đợt A, lần lượt identity/transaction → operator workflow → outbox/pause/reconcile → staging có thể phục hồi → pilot hẹp → tối ưu có dữ liệu. Mỗi bước có cổng nghiệm thu trong báo cáo.
-3. Django LTS/PostgreSQL/server-rendered là **đề xuất**, cần ADR và migration plan riêng; chưa thay runtime stdlib/SQLite hiện tại. Không coi yêu cầu tạo PR báo cáo là đã phê duyệt cutover hay cấp quyền tài khoản nền tảng.
-4. ADR-0003 và ADR-0004 đã được owner chấp nhận có điều kiện ngày 2026-09-12; điều kiện checklist và evidence vẫn bắt buộc. Không cutover trước khi `docs/PRODUCTION-CHECKLIST.md` được duyệt/tick bằng evidence thực tế và blocker audit được xử lý.
-5. Khi tích hợp thật phải xác minh account/program, tài liệu official áp dụng, scope/quota và owner; không scraping/endpoint không được phép. Trước external deploy cần owner zone/origin/secret manager/on-call.
-6. ADR-0005 (canonical content hash channel-agnostic) đã triển khai; audit yêu cầu kiểm lại hash thực tế và scope payload/approval. ADR-0006 (SQLite/Token/Dashboard) đã triển khai nhưng không tự chứng minh external staging an toàn.
-
-## Quy tắc resume cho mọi phiên
-
-1. Đọc `PROJECT-STATUS.md` **đầu tiên**.
-2. Đối chiếu `bootstrap/base`, PR mở và CI để xác nhận snapshot chưa stale.
-3. Chỉ sau đó đọc `docs/ROADMAP.md`, `AGENTS.md`, `TRAPS.md`, `ARCHITECTURE.md` và phần CODEMAP liên quan.
-4. Sau mỗi merge, thay đổi phase, blocker hoặc quyết định kiến trúc, cập nhật file này **trong cùng PR**.
-5. Cuối phiên, ghi session note trong `docs/sessions/` và bảo đảm mục “Việc tiếp theo” ở đây khớp với thực tế.
-6. Nếu `PROJECT-STATUS.md` mâu thuẫn với GitHub, GitHub là bằng chứng thực tế; sửa file này ngay trong PR kế tiếp.
-
-## Phân biệt tài liệu
-
-- `PROJECT-STATUS.md`: tiến độ thực thi thực tế + điểm resume.
-- `docs/ROADMAP.md`: lộ trình/mục tiêu sản phẩm.
-- `docs/audits/`: đánh giá tại commit cố định và bằng chứng lịch sử; không phải danh sách sửa lỗi đã hoàn tất.
-- `docs/sessions/`: lịch sử từng phiên và bằng chứng bàn giao.
-- `CHANGELOG.md`: thay đổi đáng kể đã đưa vào code/docs.
+- [Task pack toàn đợt](docs/task-packs/2026-09-25-completion.md)
+- [Ma trận 27 hạng mục](docs/implementation/2026-09-25/execution-matrix.md)
+- [Audit lịch sử](docs/audits/2026-09-25/README.md)
+- [Roadmap](docs/ROADMAP.md) và [Checklist production](docs/PRODUCTION-CHECKLIST.md)
