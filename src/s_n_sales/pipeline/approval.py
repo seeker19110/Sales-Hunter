@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from datetime import UTC, datetime
 from functools import lru_cache
 from importlib.resources import files
@@ -10,6 +11,8 @@ from typing import Any
 from uuid import uuid4
 
 from jsonschema import Draft202012Validator, FormatChecker
+
+from s_n_sales.pipeline.publication import PublicationBuildError, assert_candidate_integrity
 
 
 class ApprovalError(ValueError):
@@ -34,6 +37,11 @@ def decide_approval(
     approval_id: str | None = None,
 ) -> dict[str, Any]:
     """Tạo approval-record.v1 gắn đúng draft_sha256 của candidate hiện tại."""
+    publication_candidate = deepcopy(publication_candidate)
+    try:
+        assert_candidate_integrity(publication_candidate)
+    except PublicationBuildError as exc:
+        raise ApprovalError(str(exc)) from exc
     if status not in ("approved", "rejected"):
         raise ApprovalError("status phải là approved hoặc rejected")
     if not isinstance(decided_by, str) or not decided_by.strip():
@@ -72,6 +80,14 @@ def assert_approval_matches_draft(
     publication_candidate: dict[str, Any],
 ) -> None:
     """Sửa draft → approval cũ vô hiệu."""
+    try:
+        assert_candidate_integrity(publication_candidate)
+    except PublicationBuildError as exc:
+        raise ApprovalError(str(exc)) from exc
+    if not _approval_validator().is_valid(approval):
+        raise ApprovalError("approval-record does not match the complete contract")
+    if not approval["decided_by"].strip():
+        raise ApprovalError("approval actor must not be blank")
     if approval.get("status") != "approved":
         raise ApprovalError("chỉ bản approved mới được dùng để publish")
     if approval.get("publication_id") != publication_candidate.get("publication_id"):

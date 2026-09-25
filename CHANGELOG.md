@@ -25,6 +25,9 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Sửa
 
+- Wheel smoke sau SH-001/002 dùng approval được commit vào trusted store trước khi gọi fake publisher, giữ cổng artifact chạy đủ vòng ngoài checkout.
+- SH-001/002/016/023: tính lại canonical hash tại ingest/approve/publish; kiểm approval đầy đủ và đối chiếu approval hiện hành từ store cấu hình phía server trước gửi hoặc trả receipt cache; chặn approval tự khai/rejected sau restart. Đóng băng candidate qua lời gọi client, chuẩn UTC và preflight toàn bộ tên kênh. T4 chờ người duyệt; chưa hoàn thiện identity/revision/outbox hay payload scope mới.
+
 - SH-010: danh sách/chi tiết dashboard dùng chung read model lấy đúng `claim_snapshot.*_price_minor` và nền tảng; hiển thị VND bằng số nguyên, giá chưa xác minh không biến thành 0. Thêm regression builder thật và cổng browser mobile bắt buộc trong `quality`; không đổi auth/approval/publish.
 - SH-004: khai báo `jsonschema[format-nongpl]` là runtime dependency, đóng gói năm schema v1 byte-for-byte trong wheel và tải contract qua package resources; job artifact kiểm wheel cài ngoài checkout với chỉ runtime dependencies.
 

@@ -12,7 +12,7 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 import s_n_sales
-from s_n_sales.pipeline.approval import decide_approval
+from s_n_sales.api.store import OperatorStore
 from s_n_sales.pipeline.draft import observation_to_rank, validate_observation
 from s_n_sales.pipeline.publication import build_publication_candidate
 from s_n_sales.pipeline.publisher import FakePlatformClient, Publisher, PublishError
@@ -66,9 +66,9 @@ def main() -> None:
         affiliate_url="https://example.com/affiliate",
         target_channel="manual_export",
     )
-    approval = decide_approval(
-        candidate, status="approved", decided_by="artifact-smoke", decided_at=now
-    )
+    store = OperatorStore()
+    store.upsert_candidate(candidate)
+    approval = store.approve(candidate["publication_id"], decided_by="artifact-smoke", now=now)
     client = FakePlatformClient()
     try:
         Publisher(client=client).publish(candidate, approval, now=now)
@@ -79,7 +79,9 @@ def main() -> None:
         raise AssertionError("default publisher did not refuse a side effect")
     if client.posts:
         raise AssertionError("dry-run contacted the client")
-    receipt = Publisher(client=client, dry_run=False).publish(candidate, approval, now=now)
+    receipt = Publisher(client=client, dry_run=False, approval_source=store).publish(
+        candidate, approval, now=now
+    )
     if receipt["publication_id"] != candidate["publication_id"]:
         raise AssertionError("fake receipt does not match candidate")
     print("runtime-only wheel: validation, candidate, approval, dry-run and fake receipt OK")

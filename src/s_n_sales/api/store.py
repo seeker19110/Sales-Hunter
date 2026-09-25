@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from s_n_sales.pipeline.approval import decide_approval
+from s_n_sales.pipeline.publication import assert_candidate_integrity
 
 
 class OperatorStore:
@@ -18,6 +19,8 @@ class OperatorStore:
         pass
 
     def upsert_candidate(self, candidate: dict[str, Any]) -> dict[str, Any]:
+        candidate = deepcopy(candidate)
+        assert_candidate_integrity(candidate)
         pub_id = candidate.get("publication_id")
         if not isinstance(pub_id, str) or not pub_id:
             raise ValueError("publication_id bắt buộc")
