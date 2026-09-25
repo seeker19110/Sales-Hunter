@@ -6,18 +6,19 @@
 
 - Ngày cập nhật: 2026-09-25
 - Base branch: `bootstrap/base`
-- Base hiện tại: `d17d33eae7230aeccc56047db5dd48bf35cdcb1d`
+- Base hiện tại: `2522c4db9e168865957d128cab1e597dbb41abb4`
 - Trạng thái: Phase 1 → Phase 6 skeleton đã hợp nhất vào base; PR #30–#34 đã hoàn tất. ADR-0006 đã triển khai SQLite, Token Auth và Web Operator Dashboard. Audit 25/09 đã được lưu cùng bằng chứng và lộ trình; **các sửa lỗi/nâng cấp trong audit chưa được triển khai bởi PR tài liệu này**.
 - Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
 - Báo cáo: [audit 25/09/2026](docs/audits/2026-09-25/README.md), 27 hạng mục và cổng nghiệm thu A–G. Chưa coi skeleton là đủ điều kiện external staging/production.
 
 ## Đợt thực thi audit 25/09/2026
 
-- PR #35 đã merge: tài liệu audit, không phải sửa mã.
-- PR #36 đang draft: SH-004 đã tái hiện đỏ trên CI; runtime dependency/resources đang sửa riêng.
-- Epic SH-010 trên `fix/audit-dashboard-prices-2026-09-25`: sửa giá/nền tảng và read model, thêm 7 regression trong discovery và browser gate bắt buộc; 82 test diagnostic cục bộ đạt. Browser cục bộ bị chính sách môi trường chặn (`ERR_BLOCKED_BY_ADMINISTRATOR`), phải đạt CI trước merge.
+- PR #35 đã merge báo cáo; PR #37 đã merge sửa dashboard SH-010 và browser gate đã qua CI.
+- PR #36 xử lý SH-004 runtime packaging trong nhánh này; cần CI trên HEAD mới và merge trước khi coi là hoàn tất.
+- PR #38 xử lý integrity SH-001/002/016/023, CI xanh nhưng phải có human T4 review trên đúng HEAD trước merge.
 - T4 identity/publisher/ADR vẫn cần human review. Django/PostgreSQL chưa được chấp nhận. Chưa staging/production, không bật side effect thật.
-- Task pack: [dashboard prices](docs/task-packs/2026-09-25-audit-dashboard-prices.md). Trạng thái PR/CI mới nhất phải đọc GitHub, không suy từ checkpoint này.
+- Task pack: [dashboard prices](docs/task-packs/2026-09-25-audit-dashboard-prices.md), [runtime packaging](docs/task-packs/2026-09-25-audit-runtime-packaging.md). Trạng thái PR/CI mới nhất phải đọc GitHub.
+
 
 ## PR đã hoàn tất trong chuỗi hiện tại
 
@@ -53,7 +54,7 @@ Tất cả PR trên đã được rebase/merge tuần tự vào `bootstrap/base`
 
 ## Việc tiếp theo
 
-1. Bắt đầu đợt A trong audit: các PR nhỏ có regression cho hash/approval, runtime-only packaging và auth fail-closed. Chưa bật mạng/publish thật; không chờ migration framework mới sửa integrity.
+1. Hoàn tất CI và merge PR #36; lấy human T4 review trên đúng HEAD cho PR #38 trước merge. Tiếp tục auth fail-closed trong PR riêng. Chưa bật mạng/publish thật.
 2. Sau đợt A, lần lượt identity/transaction → operator workflow → outbox/pause/reconcile → staging có thể phục hồi → pilot hẹp → tối ưu có dữ liệu. Mỗi bước có cổng nghiệm thu trong báo cáo.
 3. Django LTS/PostgreSQL/server-rendered là **đề xuất**, cần ADR và migration plan riêng; chưa thay runtime stdlib/SQLite hiện tại. Không coi yêu cầu tạo PR báo cáo là đã phê duyệt cutover hay cấp quyền tài khoản nền tảng.
 4. ADR-0003 và ADR-0004 đã được owner chấp nhận có điều kiện ngày 2026-09-12; điều kiện checklist và evidence vẫn bắt buộc. Không cutover trước khi `docs/PRODUCTION-CHECKLIST.md` được duyệt/tick bằng evidence thực tế và blocker audit được xử lý.

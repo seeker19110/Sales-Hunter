@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Khung phát triển hệ thống săn sale và affiliate đa nền tảng (subdomain donghanhcungban.org)"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["jsonschema[format-nongpl]>=4.26.0"]
 
 [build-system]
 requires = ["hatchling>=1.27.0"]
@@ -18,7 +18,6 @@ packages = ["src/s_n_sales"]
 
 [dependency-groups]
 dev = [
-    "jsonschema[format-nongpl]>=4.26.0",
     "pip-audit>=2.10.1",
     "pyright>=1.1.414",
     "ruff==0.16.7",

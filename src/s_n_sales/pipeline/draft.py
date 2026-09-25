@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 from functools import lru_cache
-from pathlib import Path
+from importlib.resources import files
 from typing import Any
 from urllib.parse import urlparse
 
@@ -20,9 +20,8 @@ class ObservationValidationError(ValueError):
 
 @lru_cache(maxsize=1)
 def _observation_validator() -> Draft202012Validator:
-    root = Path(__file__).resolve().parents[3]
-    schema_path = root / "schemas" / "offer-observation.v1.json"
-    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    resource = files("s_n_sales").joinpath("schemas", "offer-observation.v1.json")
+    schema = json.loads(resource.read_text(encoding="utf-8"))
     return Draft202012Validator(schema, format_checker=FormatChecker())
 
 

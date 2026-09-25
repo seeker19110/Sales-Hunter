@@ -16,6 +16,7 @@
 | Operator API & Web Dashboard | `src/s_n_sales/api/app.py`, `store_sqlite.py`, ADR-0006 | auth token, XSS escaping, TDD |
 | Hiển thị giá/nền tảng operator | `src/s_n_sales/api/read_model.py`; `tests/test_dashboard_prices.py`; `tools/browser_dashboard_smoke.py` | integer VND, null/zero, browser gate trong quality; không thay identity |
 | Publication candidate builder | `src/s_n_sales/pipeline/` + `docs/impl/PHASE-1.5-IMPLEMENTATION.md` | disclosure + draft_sha256 |
+| Đóng gói runtime/schema | `pyproject.toml`, `uv.lock`, `src/s_n_sales/schemas/`, `tests/test_runtime_packaging.py`, `tools/runtime_smoke.py` | schema package khớp root byte-for-byte; wheel chạy ngoài checkout với runtime dependencies |
 | Fake fixture adapter | `src/s_n_sales/adapters/fake.py` | không mạng |
 | Thêm nền tảng | adapter mới + tài liệu nguồn chính thức + contract test | rate limit, domain allowlist, ToS; subtask ≥ T4 |
 | Lộ trình phát triển | `docs/ROADMAP.md`, `docs/PHASES.md`, `docs/impl/` | task pack + subtask theo convention |

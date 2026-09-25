@@ -821,19 +821,24 @@ name = "sales-hunter"
 version = "0.1.0"
 source = { editable = "." }
 
+dependencies = [
+    { name = "jsonschema", extra = ["format-nongpl"] },
+]
+
 [package.dev-dependencies]
 dev = [
-    { name = "jsonschema", extra = ["format-nongpl"] },
     { name = "pip-audit" },
     { name = "pyright" },
     { name = "ruff" },
 ]
 
 [package.metadata]
+requires-dist = [
+    { name = "jsonschema", extras = ["format-nongpl"], specifier = ">=4.26.0" },
+]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "jsonschema", extras = ["format-nongpl"], specifier = ">=4.26.0" },
     { name = "pip-audit", specifier = ">=2.10.1" },
     { name = "pyright", specifier = ">=1.1.414" },
     { name = "ruff", specifier = "==0.16.7" },

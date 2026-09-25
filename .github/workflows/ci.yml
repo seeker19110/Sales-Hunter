@@ -115,6 +115,43 @@ jobs:
       - name: Builder to SQLite to HTTP to mobile browser
         run: uv run python tools/browser_dashboard_smoke.py
 
+  artifact:
+    name: artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          enable-cache: true
+          python-version: "3.11"
+      - run: uv sync --locked
+      - name: Build immutable distribution and locked runtime manifest
+        run: |
+          uv build --no-sources
+          uv export --locked --no-dev --no-emit-project --format requirements-txt > dist/runtime-requirements.txt
+          sha256sum dist/* > dist/SHA256SUMS
+      - name: Retain distribution for review (not a deployment)
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: dist-${{ github.event.pull_request.head.sha || github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Runtime-only wheel outside checkout
+        run: |
+          runtime="$RUNNER_TEMP/sales-hunter-runtime"
+          uv venv --python 3.11 "$runtime/venv"
+          uv pip install --python "$runtime/venv/bin/python" --require-hashes -r dist/runtime-requirements.txt
+          uv pip install --python "$runtime/venv/bin/python" --no-deps dist/*.whl
+          cp tools/runtime_smoke.py "$runtime/smoke.py"
+          cd "$runtime"
+          env -u PYTHONPATH "$runtime/venv/bin/python" -I smoke.py "$GITHUB_WORKSPACE"
+
   dependency-audit:
     name: dependency-audit
     runs-on: ubuntu-latest
@@ -172,7 +209,7 @@ jobs:
   quality:
     name: quality
     if: always()
-    needs: [static, typecheck, schema, unit, browser, dependency-audit, audit]
+    needs: [static, typecheck, schema, unit, browser, artifact, dependency-audit, audit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -185,10 +222,11 @@ jobs:
           SCHEMA: ${{ needs.schema.result }}
           UNIT: ${{ needs.unit.result }}
           BROWSER: ${{ needs.browser.result }}
+          ARTIFACT: ${{ needs.artifact.result }}
           DEPENDENCY_AUDIT: ${{ needs.dependency-audit.result }}
           AUDIT: ${{ needs.audit.result }}
         run: |
-          for result in "$STATIC" "$TYPECHECK" "$SCHEMA" "$UNIT" "$BROWSER" "$DEPENDENCY_AUDIT" "$AUDIT"; do
+          for result in "$STATIC" "$TYPECHECK" "$SCHEMA" "$UNIT" "$BROWSER" "$ARTIFACT" "$DEPENDENCY_AUDIT" "$AUDIT"; do
             if [ "$result" != "success" ]; then
               echo "Cổng con chưa xanh" >&2
               exit 1

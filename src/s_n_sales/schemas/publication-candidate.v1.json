@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.s-n-sales.local/publication-candidate.v1.json",
+  "title": "Publication candidate v1",
+  "description": "Bản nháp nội dung affiliate gắn với snapshot claim và quyết định duyệt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "publication_id",
+    "observation_id",
+    "target_channel",
+    "content",
+    "affiliate_url",
+    "affiliate_disclosure",
+    "claim_snapshot",
+    "draft_sha256",
+    "approval",
+    "idempotency_key"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "publication-candidate.v1"
+    },
+    "publication_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "observation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "target_channel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20000
+    },
+    "affiliate_url": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 4096
+    },
+    "affiliate_disclosure": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "claim_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "observed_at", "currency", "sale_price_minor", "source_url"],
+      "properties": {
+        "platform": {
+          "enum": ["shopee", "tiktok_shop"]
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "currency": {
+          "const": "VND"
+        },
+        "list_price_minor": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "sale_price_minor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 4096
+        }
+      }
+    },
+    "draft_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "draft_sha256"],
+      "properties": {
+        "status": {
+          "enum": ["pending", "approved", "rejected"]
+        },
+        "draft_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "decided_by": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "decided_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reason": {
+          "type": ["string", "null"],
+          "maxLength": 2000
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": ["approved", "rejected"]
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "required": ["decided_by", "decided_at"]
+          }
+        }
+      ]
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    }
+  }
+}
