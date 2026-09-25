@@ -6,6 +6,8 @@ import unittest
 from datetime import UTC, datetime
 from pathlib import Path
 
+from jsonschema import Draft202012Validator, FormatChecker
+
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
 from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.publication import build_publication_candidate
@@ -134,6 +136,71 @@ class SqliteStoreTests(unittest.TestCase):
             self.assertEqual(approval2["decided_by"], "op1")
         finally:
             store2.close()
+
+    def test_candidate_projection_remains_schema_valid_after_decisions_and_reload(self) -> None:
+        candidate_schema = json.loads(
+            (ROOT / "schemas/publication-candidate.v1.json").read_text(encoding="utf-8")
+        )
+        approval_schema = json.loads(
+            (ROOT / "schemas/approval-record.v1.json").read_text(encoding="utf-8")
+        )
+        candidate_validator = Draft202012Validator(candidate_schema, format_checker=FormatChecker())
+        approval_validator = Draft202012Validator(approval_schema, format_checker=FormatChecker())
+        pub_id = self.candidate["publication_id"]
+
+        created = self.store.upsert_candidate(self.candidate)
+        candidate_validator.validate(created)
+        candidate_validator.validate(self.store.get_candidate(pub_id))
+
+        for status in ("approved", "rejected"):
+            with self.subTest(status=status):
+                clock = datetime(2026, 9, 12, 10, 0, tzinfo=UTC)
+                decision = getattr(self.store, "approve" if status == "approved" else "reject")(
+                    pub_id, decided_by="operator@example.com", reason="Checked", now=clock
+                )
+                approval_validator.validate(decision)
+                self.assertEqual(self.store.get_approval(pub_id), decision)
+
+                candidate = self.store.get_candidate(pub_id)
+                candidate_validator.validate(candidate)
+                assert candidate is not None
+                self.assertEqual(candidate["approval"]["status"], status)
+                self.assertEqual(candidate["approval"]["draft_sha256"], decision["draft_sha256"])
+
+                self.store.close()
+                self.store = SqliteOperatorStore(db_path=self.db_path)
+                reloaded = self.store.get_candidate(pub_id)
+                candidate_validator.validate(reloaded)
+                self.assertEqual(reloaded, candidate)
+                self.assertEqual(self.store.get_approval(pub_id), decision)
+
+    def test_legacy_full_nested_approval_is_projected_on_read(self) -> None:
+        schema = json.loads(
+            (ROOT / "schemas/publication-candidate.v1.json").read_text(encoding="utf-8")
+        )
+        validator = Draft202012Validator(schema, format_checker=FormatChecker())
+        pub_id = self.candidate["publication_id"]
+        self.store.upsert_candidate(self.candidate)
+        record = self.store.approve(pub_id, decided_by="operator@example.com")
+        legacy = dict(self.candidate, approval=record)
+        with self.store._lock, self.store._conn:
+            self.store._conn.execute(
+                "UPDATE candidates SET candidate_json = ? WHERE publication_id = ?",
+                (json.dumps(legacy), pub_id),
+            )
+        self.store.close()
+        self.store = SqliteOperatorStore(db_path=self.db_path)
+
+        fetched = self.store.get_candidate(pub_id)
+        validator.validate(fetched)
+        assert fetched is not None
+        self.assertEqual(fetched["approval"]["status"], "approved")
+        self.assertEqual(fetched["approval"]["draft_sha256"], record["draft_sha256"])
+        self.assertNotIn("approval_id", fetched["approval"])
+        listing = self.store.list_candidates(status="approved")
+        self.assertEqual(len(listing), 1)
+        validator.validate(listing[0])
+        self.assertEqual(self.store.get_approval(pub_id), record)
 
     def test_receipt_storage_and_idempotency(self) -> None:
         receipt = {
