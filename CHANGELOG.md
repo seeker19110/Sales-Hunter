@@ -25,6 +25,8 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Sửa
 
+- SH-010: danh sách/chi tiết dashboard dùng chung read model lấy đúng `claim_snapshot.*_price_minor` và nền tảng; hiển thị VND bằng số nguyên, giá chưa xác minh không biến thành 0. Thêm regression builder thật và cổng browser mobile bắt buộc trong `quality`; không đổi auth/approval/publish.
+
 - Đồng bộ `PROJECT-STATUS.md` tới baseline `0159c42` sau #34, bổ sung blocker audit và phân biệt rõ “đã lưu kế hoạch” với “đã triển khai/đủ điều kiện production”.
 - Cập nhật `PROJECT-STATUS.md` sau khi PR #33 (Phase 4 SQLite & Operator Dashboard) merge; base hiện tại `fbc2a1b`.
 - Cập nhật `PROJECT-STATUS.md` sau khi PR #30 (ruff 0.16.7) và PR #31 (setup-uv 10.1.0) merge; base hiện tại `c620c10`.

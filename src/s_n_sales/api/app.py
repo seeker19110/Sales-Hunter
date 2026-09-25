@@ -8,6 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Protocol
 from urllib.parse import parse_qs, urlparse
 
+from s_n_sales.api.read_model import CandidatePriceView
 from s_n_sales.pipeline.approval import ApprovalError
 
 
@@ -110,6 +111,16 @@ input[type="text"] {
     background: #dc2626; color: white; padding: 10px 16px;
     border: none; border-radius: 4px; font-weight: 600; cursor: pointer; width: 100%;
 }
+.table-scroll { overflow-x: auto; }
+.value, .content-box { overflow-wrap: anywhere; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+@media (max-width: 600px) {
+    body { padding: 8px; }
+    .container { padding: 12px; }
+    .actions { flex-direction: column; }
+    .tab { margin-right: 0; }
+}
 """
 
 
@@ -124,16 +135,11 @@ def _render_dashboard_list(
     rows_html: list[str] = []
     for c in candidates:
         pub_id = html.escape(str(c.get("publication_id", "")))
-        platform = html.escape(str(c.get("platform", "")))
+        view = CandidatePriceView.from_candidate(c)
+        platform = html.escape(view.platform)
         content = html.escape(str(c.get("content", "")))[:60]
         approval = c.get("approval", {})
         status = html.escape(str(approval.get("status", "pending")))
-
-        claim = c.get("claim_snapshot", {})
-        price_sale = claim.get("sale_price_units", 0)
-        price_list = claim.get("list_price_units", 0)
-        currency = html.escape(str(claim.get("currency", "VND")))
-        discount_pct = round(claim.get("discount_ratio", 0) * 100)
 
         color = (
             "#eab308" if status == "pending" else "#22c55e" if status == "approved" else "#ef4444"
@@ -150,9 +156,8 @@ def _render_dashboard_list(
             f'style="font-weight: 600; color: #2563eb; text-decoration: none;">{pub_id}</a>'
         )
         prices = (
-            f"<strong>{price_sale:,}</strong> / "
-            f'<span style="text-decoration: line-through; color: #6b7280;">{price_list:,}</span> '
-            f"{currency}"
+            f"<strong>{view.sale}</strong> / "
+            f'<span style="text-decoration: line-through; color: #6b7280;">{view.listed}</span>'
         )
         btn = (
             f'<a href="{detail_url}" style="background: #f3f4f6; padding: 4px 10px; '
@@ -161,12 +166,12 @@ def _render_dashboard_list(
         )
 
         rows_html.append(f"""
-        <tr>
+        <tr data-publication-id="{pub_id}">
             <td>{link}</td>
             <td>{platform}</td>
             <td>{content}</td>
             <td>{prices}</td>
-            <td style="font-weight: bold; color: #dc2626;">-{discount_pct}%</td>
+            <td style="font-weight: bold; color: #dc2626;">{view.discount}</td>
             <td>{badge}</td>
             <td>{btn}</td>
         </tr>
@@ -186,6 +191,7 @@ def _render_dashboard_list(
 <html lang="vi">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sales-Hunter Operator Dashboard</title>
     <style>{_CSS_COMMON}</style>
 </head>
@@ -198,6 +204,7 @@ def _render_dashboard_list(
             <a href="/dashboard?status=approved{token_query_base}" class="tab {t_appr}">Đã duyệt</a>
             <a href="/dashboard?status=rejected{token_query_base}" class="tab {t_rej}">Từ chối</a>
         </div>
+        <div class="table-scroll" role="region" aria-label="Danh sách ưu đãi" tabindex="0">
         <table>
             <thead>
                 <tr>
@@ -214,6 +221,7 @@ def _render_dashboard_list(
                 {rows_str}
             </tbody>
         </table>
+        </div>
     </div>
 </body>
 </html>"""
@@ -221,7 +229,8 @@ def _render_dashboard_list(
 
 def _render_dashboard_detail(candidate: dict[str, Any], token: str | None) -> str:
     pub_id = html.escape(str(candidate.get("publication_id", "")))
-    platform = html.escape(str(candidate.get("platform", "")))
+    view = CandidatePriceView.from_candidate(candidate)
+    platform = html.escape(view.platform)
     channel = html.escape(str(candidate.get("target_channel", "")))
     draft_sha256 = html.escape(str(candidate.get("draft_sha256", "")))
     content = html.escape(str(candidate.get("content", "")))
@@ -232,12 +241,6 @@ def _render_dashboard_detail(candidate: dict[str, Any], token: str | None) -> st
     status = html.escape(str(approval.get("status", "pending")))
     decided_by = html.escape(str(approval.get("decided_by", "")))
     reason = html.escape(str(approval.get("reason", "")))
-
-    claim = candidate.get("claim_snapshot", {})
-    price_sale = claim.get("sale_price_units", 0)
-    price_list = claim.get("list_price_units", 0)
-    currency = html.escape(str(claim.get("currency", "VND")))
-    discount_pct = round(claim.get("discount_ratio", 0) * 100)
 
     token_param = f"?token={html.escape(token)}" if token else ""
     token_input = (
@@ -260,6 +263,7 @@ def _render_dashboard_detail(candidate: dict[str, Any], token: str | None) -> st
 <html lang="vi">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Duyệt Deal: {pub_id} — Sales-Hunter</title>
     <style>{_CSS_COMMON}</style>
 </head>
@@ -287,12 +291,12 @@ def _render_dashboard_detail(candidate: dict[str, Any], token: str | None) -> st
             <div class="label">Claim Snapshot Giá</div>
             <div class="value">
                 Giá khuyến mãi: <strong style="color: #dc2626; font-size: 18px;">
-                    {price_sale:,} {currency}
+                    {view.sale}
                 </strong> &nbsp;|&nbsp;
                 Giá gốc: <span style="text-decoration: line-through; color: #6b7280;">
-                    {price_list:,} {currency}
+                    {view.listed}
                 </span> &nbsp;|&nbsp;
-                Giảm: <strong>{discount_pct}%</strong>
+                Giảm: <strong>{view.discount}</strong>
             </div>
         </div>
 

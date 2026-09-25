@@ -92,6 +92,29 @@ jobs:
           PYTHONPATH: src
         run: uv run python -m unittest discover -s tests -v
 
+  browser:
+    name: browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          enable-cache: true
+          python-version: "3.11"
+      - run: uv sync --locked
+      - name: Required browser runtime (no npm dependencies)
+        run: |
+          node --version
+          node -e 'if (typeof WebSocket !== "function") process.exit(1)'
+          google-chrome --version
+      - name: Builder to SQLite to HTTP to mobile browser
+        run: uv run python tools/browser_dashboard_smoke.py
+
   dependency-audit:
     name: dependency-audit
     runs-on: ubuntu-latest
@@ -149,7 +172,7 @@ jobs:
   quality:
     name: quality
     if: always()
-    needs: [static, typecheck, schema, unit, dependency-audit, audit]
+    needs: [static, typecheck, schema, unit, browser, dependency-audit, audit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -161,10 +184,11 @@ jobs:
           TYPECHECK: ${{ needs.typecheck.result }}
           SCHEMA: ${{ needs.schema.result }}
           UNIT: ${{ needs.unit.result }}
+          BROWSER: ${{ needs.browser.result }}
           DEPENDENCY_AUDIT: ${{ needs.dependency-audit.result }}
           AUDIT: ${{ needs.audit.result }}
         run: |
-          for result in "$STATIC" "$TYPECHECK" "$SCHEMA" "$UNIT" "$DEPENDENCY_AUDIT" "$AUDIT"; do
+          for result in "$STATIC" "$TYPECHECK" "$SCHEMA" "$UNIT" "$BROWSER" "$DEPENDENCY_AUDIT" "$AUDIT"; do
             if [ "$result" != "success" ]; then
               echo "Cổng con chưa xanh" >&2
               exit 1
