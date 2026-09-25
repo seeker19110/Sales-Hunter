@@ -11,7 +11,7 @@ import secrets
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
 from s_n_sales.api.contracts import RevisionConflict, RevisionRequired
@@ -424,7 +424,7 @@ def create_handler_class(
             self.connection.settimeout(5)
 
         def _request_boundary(self) -> bool:
-            port = self.server.server_address[1]
+            port = cast(ThreadingHTTPServer, self.server).server_port
             allowed = {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
             host = self.headers.get("Host", "").lower()
             if len(self.headers.get_all("Host", [])) != 1 or host not in allowed:

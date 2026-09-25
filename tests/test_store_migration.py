@@ -7,6 +7,7 @@ import json
 import sqlite3
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
@@ -38,7 +39,7 @@ class MigrationTests(unittest.TestCase):
         candidate = dict(self.candidate)
         if invalid:
             candidate["content"] = "Tampered but old hash"
-        with sqlite3.connect(self.path) as connection:
+        with closing(sqlite3.connect(self.path)) as connection, connection:
             connection.execute(
                 """CREATE TABLE candidates (publication_id TEXT PRIMARY KEY,
                 draft_sha256 TEXT NOT NULL, status TEXT NOT NULL, candidate_json TEXT NOT NULL,
@@ -79,7 +80,7 @@ class MigrationTests(unittest.TestCase):
         self.legacy(invalid=True)
         with self.assertRaises(ValueError):
             SqliteOperatorStore(self.path)
-        with sqlite3.connect(self.path) as connection:
+        with closing(sqlite3.connect(self.path)) as connection, connection:
             columns = [row[1] for row in connection.execute("PRAGMA table_info(candidates)")]
             self.assertNotIn("revision", columns)
             payload = connection.execute("SELECT candidate_json FROM candidates").fetchone()[0]

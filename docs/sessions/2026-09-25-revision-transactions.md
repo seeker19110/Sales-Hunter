@@ -19,3 +19,12 @@ không gọi local suite là locked CI.
 No live API/publish/credential/DNS/deploy/migration user data. ADR0008 đề xuất; human T4
 bắt buộc trước merge. PostgreSQL/RBAC production và các epic PUB/DEAL/LEDGER/OPS chưa nằm
 trong phạm vi nghiệm thu DATA. Rerun rollback bằng database fixture, không production.
+
+## CI portability follow-up
+
+Run 36155847970 at HEAD1f569eb: artifact/runtime-only wheel, browser, Ubuntu unit,
+static/schema/security passed. Windows unit reports three cleanup errors: fixture
+connections used a transaction context without closing the file. Fix closes fixture
+connections explicitly with contextlib.closing; no test/cleanup assertion removed.
+Pyright reports one generic BaseServer address union error; narrow to the actual
+ThreadingHTTPServer and use its server_port. Updated HEAD must rerun all gates.
