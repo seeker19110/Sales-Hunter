@@ -142,6 +142,14 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 7
+      - name: Retain locked Ruff for offline review
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ruff-review-${{ github.event.pull_request.head.sha }}
+          path: .venv/bin/ruff
+          if-no-files-found: error
+          retention-days: 1
       - name: Runtime-only wheel outside checkout
         run: |
           runtime="$RUNNER_TEMP/sales-hunter-runtime"

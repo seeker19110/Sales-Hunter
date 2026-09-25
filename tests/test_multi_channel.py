@@ -31,7 +31,10 @@ class MultiChannelTests(unittest.TestCase):
         self.store = OperatorStore()
         self.store.upsert_candidate(self.candidate)
         self.approval = self.store.approve(
-            self.candidate["publication_id"], decided_by="op", now=self.now
+            self.candidate["publication_id"],
+            decided_by="op",
+            now=self.now,
+            expected_revision=self.store.get_revision(self.candidate["publication_id"]),
         )
 
     def test_dry_run_reports_error_per_channel(self) -> None:

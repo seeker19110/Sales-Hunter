@@ -112,6 +112,17 @@ class OperatorAuthSecurityTests(unittest.TestCase):
         self.assertEqual(status, 401)
         self.assertIsNone(self.store.get_approval(self.publication_id))
 
+    def test_non_ascii_csrf_is_forbidden_not_server_error(self) -> None:
+        cookie, _ = self.login()
+        status, _, _ = self.request(
+            "POST",
+            f"/dashboard/candidates/{self.publication_id}/approve",
+            body={"csrf_token": "sai-mã", "expected_revision": "1"},
+            headers={"Cookie": cookie},
+        )
+        self.assertEqual(status, 403)
+        self.assertIsNone(self.store.get_approval(self.publication_id))
+
     def test_dashboard_session_and_csrf_contract(self) -> None:
         status, _, _ = self.request("GET", "/dashboard/login")
         self.assertEqual(status, 200)
@@ -144,7 +155,12 @@ class OperatorAuthSecurityTests(unittest.TestCase):
         status, headers, _ = self.request(
             "POST",
             f"/dashboard/candidates/{self.publication_id}/approve",
-            body={"reason": "verified", "csrf_token": csrf, "decided_by": "forged"},
+            body={
+                "reason": "verified",
+                "csrf_token": csrf,
+                "decided_by": "forged",
+                "expected_revision": "1",
+            },
             headers={"Cookie": cookie},
         )
         self.assertEqual(status, 303)
@@ -193,7 +209,7 @@ class OperatorAuthConfigurationTests(unittest.TestCase):
                 connection.request(
                     "POST",
                     f"/api/v1/candidates/{publication_id}/approve",
-                    body=b'{"decided_by":"attacker"}',
+                    body=b'{"decided_by":"attacker","expected_revision":1}',
                     headers={
                         "Authorization": "Bearer secret",
                         "Content-Type": "application/json",

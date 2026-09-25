@@ -17,6 +17,7 @@ from uuid import uuid4
 
 from jsonschema import Draft202012Validator, FormatChecker
 
+from s_n_sales.domain.publication_state import CandidateSnapshot
 from s_n_sales.pipeline.approval import ApprovalError, assert_approval_matches_draft
 
 
@@ -40,8 +41,7 @@ class PlatformClient(Protocol):
 class ApprovalSource(Protocol):
     """Server-configured authority; never constructed from a publish request."""
 
-    def get_approval(self, publication_id: str) -> dict[str, Any] | None: ...
-    def get_candidate(self, publication_id: str) -> dict[str, Any] | None: ...
+    def get_snapshot(self, publication_id: str) -> CandidateSnapshot | None: ...
 
 
 @dataclass
@@ -95,17 +95,14 @@ class Publisher:
             return  # No client call or delivery success is possible in dry-run mode.
         if self.approval_source is None:
             raise ApprovalError("a trusted approval_source is required before publish")
-        current = self.approval_source.get_approval(candidate["publication_id"])
-        if current is None:
+        snapshot = self.approval_source.get_snapshot(candidate["publication_id"])
+        if snapshot is None or snapshot.approval is None:
             raise ApprovalError("no current approval in the trusted source")
-        current = deepcopy(current)
+        current = deepcopy(snapshot.approval)
         assert_approval_matches_draft(current, candidate)
+        assert_approval_matches_draft(current, snapshot.candidate)
         if current != approval:
             raise ApprovalError("supplied approval is not the current trusted approval")
-        current_candidate = self.approval_source.get_candidate(candidate["publication_id"])
-        if current_candidate is None:
-            raise ApprovalError("no current candidate in the trusted source")
-        assert_approval_matches_draft(current, deepcopy(current_candidate))
 
     def publish(
         self,

@@ -40,7 +40,10 @@ class IntegrityBoundaryTests(unittest.TestCase):
         self.store = OperatorStore()
         self.store.upsert_candidate(self.candidate)
         self.approval = self.store.approve(
-            self.candidate["publication_id"], decided_by="reviewer", now=self.now
+            self.candidate["publication_id"],
+            decided_by="reviewer",
+            now=self.now,
+            expected_revision=self.store.get_revision(self.candidate["publication_id"]),
         )
 
     def changed_candidates(self) -> list[dict[str, Any]]:
@@ -198,7 +201,12 @@ class IntegrityBoundaryTests(unittest.TestCase):
             client=FakePlatformClient(), dry_run=False, approval_source=self.store
         )
         publisher.publish(self.candidate, self.approval, now=self.now)
-        self.store.reject(self.candidate["publication_id"], decided_by="reviewer", now=self.now)
+        self.store.reject(
+            self.candidate["publication_id"],
+            decided_by="reviewer",
+            now=self.now,
+            expected_revision=self.store.get_revision(self.candidate["publication_id"]),
+        )
         with self.assertRaises(ApprovalError):
             publisher.publish(self.candidate, self.approval, now=self.now)
 
@@ -208,9 +216,17 @@ class IntegrityBoundaryTests(unittest.TestCase):
             store = SqliteOperatorStore(path)
             store.upsert_candidate(self.candidate)
             approval = store.approve(
-                self.candidate["publication_id"], decided_by="reviewer", now=self.now
+                self.candidate["publication_id"],
+                decided_by="reviewer",
+                now=self.now,
+                expected_revision=store.get_revision(self.candidate["publication_id"]),
             )
-            store.reject(self.candidate["publication_id"], decided_by="reviewer", now=self.now)
+            store.reject(
+                self.candidate["publication_id"],
+                decided_by="reviewer",
+                now=self.now,
+                expected_revision=store.get_revision(self.candidate["publication_id"]),
+            )
             store.close()
             store = SqliteOperatorStore(path)
             client = FakePlatformClient()
@@ -232,7 +248,10 @@ class IntegrityBoundaryTests(unittest.TestCase):
             observation_id=edited["observation_id"],
             claim_snapshot=edited["claim_snapshot"],
         )
-        self.store.upsert_candidate(edited)
+        edited["approval"] = {"status": "pending", "draft_sha256": edited["draft_sha256"]}
+        self.store.upsert_candidate(
+            edited, expected_revision=self.store.get_revision(edited["publication_id"])
+        )
         client = FakePlatformClient()
         with self.assertRaises(ApprovalError):
             Publisher(client=client, dry_run=False, approval_source=self.store).publish(
