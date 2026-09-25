@@ -4,6 +4,11 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Deal chất lượng và nội dung có chứng cứ (chờ T4)
+
+- SH-011–015/025/026/027: facts v1 chứa toàn observation và provenance; retained evidence được phép lưu, khử nhạy cảm, expiry/thu hồi; eligibility tách ranking; final payload có link/disclosure và scope/hash/version; manual input tạo ID/hash server, preview read-only và binding bất biến. Giữ schema v1 cũ.
+- Grounded composer tùy chọn chỉ chọn introduction/order fact IDs, có budget/cache/version và fallback template; không tự sinh số/link/claims hoặc gọi API trả phí. Cổng runtime-only smoke mở rộng cho luồng mới; chưa có durable publish hoặc live connector.
+
 ### Dữ liệu và giao dịch (chờ review T4)
 
 - SH-006/008/009/026: nhập pending đúng schema, revision bắt buộc khi sửa/duyệt, transaction SQLite, history chỉ-thêm, vô hiệu approval khi edit và đọc authority nguyên tử. HTTP 409/428, form version, Host/Origin và UTF-8/framing giới hạn. Migration preview chỉ đọc, manifest và rollback khi legacy data lỗi; chưa chọn PostgreSQL/production.
@@ -42,8 +47,8 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 - Cập nhật `PROJECT-STATUS.md` sau khi PR #30 (ruff 0.16.7) và PR #31 (setup-uv 10.1.0) merge; base hiện tại `c620c10`.
 - Cập nhật `PROJECT-STATUS.md` sau khi PR #28 merge.
 - Thêm ADR-0005: Chuẩn hóa `draft_sha256` thành channel-agnostic content hash; giải quyết dứt điểm mâu thuẫn bất biến hash giữa `publication-candidate.v1`, `approval-record.v1` và `publish_multi_channel`.
-- Cập nhật `PROJECT-STATUS.md` sau khi #7 (dependabot `astral-sh/setup-uv` → 10.0.1) merge; base hiện tại `ab1586d`.
 - Cập nhật `PROJECT-STATUS.md`: base hiện tại là `2b8402f` (sau #22, #23), thêm #22/#23 vào danh sách PR đã hoàn tất.
+- Cập nhật `PROJECT-STATUS.md` sau khi #7 (dependabot `astral-sh/setup-uv` → 10.0.1) merge; base hiện tại `ab1586d`.
 - Cài Sales-Hunter editable bằng Hatchling để các lệnh quality bắt buộc chạy trực tiếp được trên PowerShell/Windows, không còn phụ thuộc `PYTHONPATH` của Makefile.
 - Đồng bộ trạng thái skeleton Phase 1–6 trong roadmap, kiến trúc và tài liệu deploy; giữ rõ các điều kiện T4/production chưa hoàn tất.
 - Chuẩn hóa toàn bộ tên hiển thị còn lại thành Sales-Hunter; giữ nguyên package `s_n_sales` và schema v1 là định danh kỹ thuật tương thích.

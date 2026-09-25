@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.s-n-sales.local/publication-payload.v1.json",
+  "title": "Final grounded payload scoped to facts and channel",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "facts_id",
+    "target_channel",
+    "draft_sha256",
+    "renderer_version",
+    "capability_version",
+    "text",
+    "composition",
+    "content_mode",
+    "model_id",
+    "prompt_version",
+    "payload_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "publication-payload.v1"
+    },
+    "facts_id": {
+      "type": "string",
+      "pattern": "^fact-[0-9a-f]{64}$"
+    },
+    "target_channel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "draft_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "renderer_version": {
+      "const": "grounded-text-v1"
+    },
+    "capability_version": {
+      "const": "manual-text-v1"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16000
+    },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "style",
+        "order"
+      ],
+      "properties": {
+        "style": {
+          "enum": [
+            "neutral",
+            "friendly",
+            "compact"
+          ]
+        },
+        "order": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "title",
+              "identity",
+              "sale",
+              "list",
+              "shipping",
+              "conditions",
+              "coupons",
+              "total",
+              "freshness",
+              "facts",
+              "evidence",
+              "affiliate",
+              "disclosure"
+            ]
+          },
+          "minItems": 13,
+          "maxItems": 13,
+          "uniqueItems": true
+        }
+      }
+    },
+    "content_mode": {
+      "enum": [
+        "template",
+        "template_fallback",
+        "model",
+        "model_cache"
+      ]
+    },
+    "model_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "prompt_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "payload_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

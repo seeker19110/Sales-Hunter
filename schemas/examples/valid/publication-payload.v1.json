@@ -1,0 +1,31 @@
+{
+  "schema_version": "publication-payload.v1",
+  "facts_id": "fact-216477e901a854be0273743350082206d852951daaaa5fab48dcaa9bd39cfe41",
+  "target_channel": "manual_export",
+  "draft_sha256": "926ba32f8e1d6b32222a1e2d0036f9bd99409235a2155e0104822d1600872bb4",
+  "renderer_version": "grounded-text-v1",
+  "capability_version": "manual-text-v1",
+  "text": "Tên sản phẩm theo nguồn: Sản phẩm minh họa không phải dữ liệu thật\nNền tảng: shopee; shop: merchant-demo-001; sản phẩm: item-demo-001; biến thể: blue-128.\nGiá bán ghi nhận: 80.000 VND.\nGiá niêm yết theo nguồn: 100.000 VND.\nPhí vận chuyển: chưa xác minh.\nĐiều kiện mua: Nguồn ghi áp dụng cho mọi người dùng.; phạm vi: all_users.\nMã giảm giá theo nguồn: không ghi nhận. Không tự trừ mã vào giá bán.\nGiá cuối: chưa xác minh; không tự cộng/trừ coupon hoặc suy ra tổng thanh toán.\nQuan sát lúc 2026-09-25T00:00:00.000000Z; tồn kho theo nguồn: in_stock. Hết hạn theo nguồn: 2026-09-25T02:00:00.000000Z. Giá và tồn kho có thể thay đổi.\nMã dữ kiện: fact-216477e901a854be0273743350082206d852951daaaa5fab48dcaa9bd39cfe41\nNguồn chứng cứ: https://example.com/source; mã chứng cứ: ev-7c32d25c1fe28c2d9ce3570f3fd5be35ea714d6fc46942ce71a5806a4339166f.\nLink tiếp thị liên kết: https://example.com/aff\n#affiliate — Bài viết có thể chứa liên kết tiếp thị liên kết. Giá và tồn kho được quan sát tại thời điểm ghi nhận, có thể đã thay đổi.",
+  "composition": {
+    "style": "neutral",
+    "order": [
+      "title",
+      "identity",
+      "sale",
+      "list",
+      "shipping",
+      "conditions",
+      "coupons",
+      "total",
+      "freshness",
+      "facts",
+      "evidence",
+      "affiliate",
+      "disclosure"
+    ]
+  },
+  "content_mode": "template",
+  "model_id": "disabled:template",
+  "prompt_version": "fact-order-v1",
+  "payload_sha256": "269f7bbf1e11c93af5d5dd59be0678ffa17a09c407f6963dea4e5cc9a6a6d92d"
+}

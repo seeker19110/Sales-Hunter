@@ -14,6 +14,9 @@
 | Đổi xếp hạng | `src/s_n_sales/domain/ranking.py`, `schemas/rank-result.v1.json` | reasons + rank_version, không model |
 | Đổi Money / tiền | `src/s_n_sales/domain/money.py` | không float; test biên |
 | Pipeline draft từ observation | `src/s_n_sales/pipeline/draft.py` | unit test |
+| Facts/eligibility/manual draft | `quality/facts.py`, `quality/repository.py`, `quality/urls.py`; schemas `deal-facts.v1`, `publication-payload.v1` | source/evidence/variant/condition, gate độc lập ranking; tests DEAL |
+| Evidence retention | `evidence/vault.py` | source/retained digests khác nhau, payload thực, permission expiry/tombstone, known-sensitive redaction |
+| Final payload/grounded composition | `content/render.py`, `content/grounded.py` | text=preview, facts hash/channel/version, không bỏ điều kiện hoặc thêm model claim |
 | Revision/transaction/migration pilot | `api/contracts.py`, `api/store_sqlite.py`, `api/migration.py`; `tests/test_revision_store.py`, `tests/test_store_migration.py` | If-Match/409/428; history append-only; migration preview/rollback; T4 |
 | Operator API & Web Dashboard | `src/s_n_sales/api/app.py`, `store_sqlite.py`, ADR-0006 | auth token, XSS escaping, TDD |
 | Identity operator loopback | `src/s_n_sales/api/app.py`, `__main__.py`, `docs/adr/0007-operator-auth-hardening.md`, `tests/test_operator_auth_security.py` | Bearer API, session/CSRF dashboard, actor server; T4 human review before merge |
