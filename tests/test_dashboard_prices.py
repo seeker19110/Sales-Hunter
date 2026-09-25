@@ -30,8 +30,8 @@ def candidate_for_prices(sale: int = 80000, listed: int | None = 100000) -> dict
 class DashboardPriceTests(unittest.TestCase):
     def render_both(self, candidate: dict[str, Any]) -> tuple[str, str]:
         return (
-            _render_dashboard_list([candidate], None, None),
-            _render_dashboard_detail(candidate, None),
+            _render_dashboard_list([candidate], None, ""),
+            _render_dashboard_detail(candidate, ""),
         )
 
     def test_real_builder_fields_on_list_and_detail(self) -> None:

@@ -25,6 +25,8 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Sửa
 
+- Khắc phục CI các PR bảo trì công cụ: đồng bộ nhánh với base sau #39 và ghi CHANGELOG để cổng metadata kiểm đúng, không dùng miễn kiểm tra. Phiên bản công cụ và bằng chứng riêng của từng PR nằm trong session note tương ứng.
+- SH-003 (local operator): xác thực fail-closed, API chỉ nhận Bearer header, dashboard dùng session/CSRF và actor cấu hình phía server; bỏ query/form token và CLI argv secret, chặn bind ngoài loopback. Chưa cho phép external staging/production.
 - SH-007: candidate sau approve/reject và khi đọc bản ghi SQLite cũ chỉ chứa approval projection hợp lệ theo schema v1; approval record đầy đủ vẫn nằm trong bảng và endpoint riêng.
 - Wheel smoke sau SH-001/002 dùng approval được commit vào trusted store trước khi gọi fake publisher, giữ cổng artifact chạy đủ vòng ngoài checkout.
 - SH-001/002/016/023: tính lại canonical hash tại ingest/approve/publish; kiểm approval đầy đủ và đối chiếu approval hiện hành từ store cấu hình phía server trước gửi hoặc trả receipt cache; chặn approval tự khai/rejected sau restart. Đóng băng candidate qua lời gọi client, chuẩn UTC và preflight toàn bộ tên kênh. T4 chờ người duyệt; chưa hoàn thiện identity/revision/outbox hay payload scope mới.
