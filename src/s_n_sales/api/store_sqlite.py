@@ -14,6 +14,20 @@ from typing import Any
 from s_n_sales.pipeline.approval import decide_approval
 from s_n_sales.pipeline.publication import assert_candidate_integrity
 
+_CANDIDATE_APPROVAL_FIELDS = ("status", "draft_sha256", "decided_by", "decided_at", "reason")
+
+
+def _candidate_approval_projection(approval: dict[str, Any]) -> dict[str, Any]:
+    return {field: approval[field] for field in _CANDIDATE_APPROVAL_FIELDS if field in approval}
+
+
+def _candidate_from_json(payload: str) -> dict[str, Any]:
+    candidate: dict[str, Any] = json.loads(payload)
+    approval = candidate.get("approval")
+    if isinstance(approval, dict):
+        candidate["approval"] = _candidate_approval_projection(approval)
+    return candidate
+
 
 class SqliteOperatorStore:
     def __init__(self, db_path: str | Path | None = None) -> None:
@@ -121,7 +135,7 @@ class SqliteOperatorStore:
                     "SELECT candidate_json FROM candidates ORDER BY created_at DESC"
                 )
             rows = cur.fetchall()
-        return [json.loads(row["candidate_json"]) for row in rows]
+        return [_candidate_from_json(row["candidate_json"]) for row in rows]
 
     def get_candidate(self, publication_id: str) -> dict[str, Any] | None:
         with self._lock:
@@ -132,7 +146,7 @@ class SqliteOperatorStore:
             row = cur.fetchone()
         if row is None:
             return None
-        return json.loads(row["candidate_json"])
+        return _candidate_from_json(row["candidate_json"])
 
     def approve(
         self,
@@ -155,7 +169,7 @@ class SqliteOperatorStore:
             reason=reason,
         )
 
-        candidate["approval"] = record
+        candidate["approval"] = _candidate_approval_projection(record)
         candidate_json = json.dumps(candidate, ensure_ascii=False)
         approval_json = json.dumps(record, ensure_ascii=False)
         updated_at = clock.isoformat()
@@ -216,7 +230,7 @@ class SqliteOperatorStore:
             reason=reason,
         )
 
-        candidate["approval"] = record
+        candidate["approval"] = _candidate_approval_projection(record)
         candidate_json = json.dumps(candidate, ensure_ascii=False)
         approval_json = json.dumps(record, ensure_ascii=False)
         updated_at = clock.isoformat()

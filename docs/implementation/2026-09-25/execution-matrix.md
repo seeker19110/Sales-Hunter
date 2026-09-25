@@ -20,10 +20,10 @@ Each evidence key resolves PR, HEAD, CI, merge and verification limits above. â€
 | SH-001 | Local verified: recompute all five protected fields at both stores, approve and publish; freeze candidate | INT CI + human T4; immutable revision/CAS in SH-008/009 | INT |
 | SH-002 | Partial local verified: full approval contract; configured authority; reject missing/forged/currently rejected records and cached receipt after reject/restart | SH-003 identity; SH-008/009 revision/history; SH-011 final payload/channel scope; T4 | INT |
 | SH-003 | Not started: optional token/query credential path remains | Session/CSRF/roles/actor from identity; fail-closed external config; revoke/logout/browser tests; accepted architecture decision | NONE |
-| SH-004 | In progress: required runtime-only artifact gate reproduces real failure; local fix prepared | Commit runtime metadata and lock plus resources; clean wheel outside checkout, no dev deps/PYTHONPATH; all CI | PKG |
+| SH-004 | Merged #36: runtime metadata/resources and clean-wheel artifact gate | External deployment evidence remains separate | PKG |
 | SH-005 | Not started: RAM idempotency remains | Durable intent/outbox, unique key, leases, attempts, finite retry, unknown-outcome reconciliation; restart/concurrency/crash tests; T4 | NONE |
 | SH-006 | Partial: hash integrity now checked on ingest; caller/server DTO separation NOT done | Reject caller-owned approval/hash metadata; full candidate input schema and stable API errors | INT |
-| SH-007 | Not started: nested candidate approval still inconsistent after SQLite transition | Correct projection contract after create/edit/approve/reject/reload/API, migration/legacy checks | NONE |
+| SH-007 | PR in progress: SQLite writes and reads five-field candidate approval projection; standalone approval remains full; legacy nested records projected on read | Full CI on exact HEAD and merge; revision/history remain SH-008/009 | PROJ |
 | SH-008 | Not started: current authority lookup is NOT revision CAS | Atomic update/approve expected-revision transaction; controlled race tests on selected production database | NONE |
 | SH-009 | Partial: current rejection rechecked before send; history still overwritten | Append-only approval/revision events, transactional invalidation and consistent projections | INT |
 | SH-010 | Merged and CI verified: canonical integer VND, platform, null/zero/large values, mobile display | No production claim; full inbox workflow remains SH-024 | UI |
