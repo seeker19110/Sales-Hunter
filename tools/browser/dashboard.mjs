@@ -69,21 +69,28 @@ try {
     const selector = item.row_id ? `[data-publication-id="${item.row_id}"]` : "body";
     let rendered;
     for (let attempt = 0; attempt < 100; attempt++) {
-      rendered = await call('Runtime.evaluate', {
-        expression: `JSON.stringify({ready:document.readyState, href:location.href,
-          text:document.querySelector(${JSON.stringify(selector)})?.innerText, scripts:document.scripts.length,
-          width:innerWidth, scroll:document.documentElement.scrollWidth})`,
+      const evaluation = await call('Runtime.evaluate', {
+        expression: `(() => {
+          if (document.readyState !== 'complete' || !document.documentElement) return null;
+          return {ready:document.readyState, href:location.href,
+            text:document.querySelector(${JSON.stringify(selector)})?.innerText,
+            scripts:document.scripts.length, width:innerWidth,
+            scroll:document.documentElement.scrollWidth};
+        })()`,
         returnByValue: true,
       }, sessionId);
-      rendered = JSON.parse(rendered.result.value);
-      if (rendered.ready === 'complete' && rendered.href === item.url) break;
+      if (evaluation.exceptionDetails) {
+        throw new Error(`Browser evaluation failed: ${JSON.stringify(evaluation.exceptionDetails)}`);
+      }
+      rendered = evaluation.result.value;
+      if (rendered?.ready === 'complete' && rendered.href === item.url) break;
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
-    if (rendered.ready !== 'complete' || rendered.href !== item.url) {
+    if (rendered?.ready !== 'complete' || rendered.href !== item.url) {
       throw new Error(`Page did not load: ${item.url}`);
     }
     for (const expected of item.expected) {
-      if (!rendered.text.includes(expected)) throw new Error(`Missing ${expected}: ${item.url}`);
+      if (typeof rendered.text !== 'string' || !rendered.text.includes(expected)) throw new Error(`Missing ${expected}: ${item.url}`);
     }
     if (rendered.scripts !== 0) throw new Error(`Unescaped script: ${item.url}`);
     if (rendered.scroll > rendered.width) throw new Error(`Viewport overflow: ${item.url}`);
