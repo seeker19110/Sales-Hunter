@@ -112,9 +112,9 @@ class PublicationFollowupTests(unittest.TestCase):
         original = self.transport.withdraw
         calls = []
 
-        def uncertain(key, *, now):
-            calls.append(key)
-            original(key, now=now)
+        def uncertain(idempotency_key, *, now):
+            calls.append(idempotency_key)
+            original(idempotency_key, now=now)
             raise TimeoutError("ambiguous")
 
         self.transport.withdraw = uncertain
