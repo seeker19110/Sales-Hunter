@@ -50,7 +50,7 @@ def main() -> None:
     )
     with TemporaryDirectory(prefix="sales-hunter-browser-") as directory:
         store = SqliteOperatorStore(Path(directory) / "operator.db")
-        server = make_server(store)
+        server = make_server(store, allow_unauthenticated_local=True)
         worker = threading.Thread(target=server.serve_forever, daemon=True)
         worker.start()
         browser_cases = []

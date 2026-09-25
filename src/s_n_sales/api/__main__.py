@@ -23,9 +23,9 @@ def main() -> None:
         help="Đường dẫn SQLite database file (mặc định var/operator.db)",
     )
     parser.add_argument(
-        "--token",
-        default=os.environ.get("OPERATOR_TOKEN"),
-        help="Token xác thực cho Operator API và Dashboard",
+        "--allow-unauthenticated-local",
+        action="store_true",
+        help="Chỉ dùng phát triển/kiểm thử trên loopback; không có xác thực",
     )
     parser.add_argument(
         "--in-memory",
@@ -33,6 +33,19 @@ def main() -> None:
         help="Sử dụng in-memory store thay cho SQLite",
     )
     args = parser.parse_args()
+    auth_token = os.environ.get("OPERATOR_TOKEN")
+    auth_actor = os.environ.get("OPERATOR_ACTOR", "operator")
+    if bool(auth_token) == args.allow_unauthenticated_local:
+        parser.error("Set OPERATOR_TOKEN or --allow-unauthenticated-local (choose one)")
+    # Validate authentication/bind before opening the SQLite database.
+    if args.host != "localhost":
+        try:
+            from ipaddress import ip_address
+
+            if not ip_address(args.host).is_loopback:
+                parser.error("--host must be loopback")
+        except ValueError:
+            parser.error("--host must be loopback")
 
     if args.in_memory:
         store = OperatorStore()
@@ -42,12 +55,18 @@ def main() -> None:
         store = SqliteOperatorStore(db_path=db_path)
         store_desc = f"sqlite ({db_path})"
 
-    server = make_server(store, host=args.host, port=args.port, auth_token=args.token)
+    server = make_server(
+        store,
+        host=args.host,
+        port=args.port,
+        auth_token=auth_token,
+        auth_actor=auth_actor,
+        allow_unauthenticated_local=args.allow_unauthenticated_local,
+    )
     print(f"Sales-Hunter Operator listening on http://{args.host}:{args.port}")
     print(f"  Store:     {store_desc}")
     print(f"  Health:    http://{args.host}:{args.port}/healthz")
-    auth_suffix = f"?token={args.token}" if args.token else ""
-    print(f"  Dashboard: http://{args.host}:{args.port}/dashboard{auth_suffix}")
+    print(f"  Dashboard: http://{args.host}:{args.port}/dashboard/login")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
