@@ -8,6 +8,7 @@
 | Gắn platform DHCB / subdomain | `docs/PLATFORM.md`, `docs/adr/0002-platform-subdomain-dhcb.md` | không leak dữ liệu Learning |
 | Đổi trường quan sát ưu đãi | `schemas/offer-observation.v1.json`, `docs/HOP-DONG-DU-LIEU.md` | version mới nếu breaking; `make check` |
 | Đổi hợp đồng bản nháp đăng | `schemas/publication-candidate.v1.json`, `docs/HOP-DONG-DU-LIEU.md` | approval/hash/disclosure invariants |
+| Kiểm integrity và approval hiện hành | `pipeline/publication.py::assert_candidate_integrity`, `publisher.py::ApprovalSource`, `tests/test_integrity_boundaries.py` | mọi protected field, forged/rejected/restart; T4 human trước merge |
 | Đổi hợp đồng duyệt | `schemas/approval-record.v1.json` | draft_sha256 khớp, decided_by/at |
 | Đổi hợp đồng receipt đăng | `schemas/publish-receipt.v1.json` | read-back từ nền tảng, idempotency |
 | Đổi xếp hạng | `src/s_n_sales/domain/ranking.py`, `schemas/rank-result.v1.json` | reasons + rank_version, không model |

@@ -5,7 +5,7 @@ import unittest
 from datetime import UTC, datetime
 from pathlib import Path
 
-from s_n_sales.pipeline.approval import decide_approval
+from s_n_sales.api.store import OperatorStore
 from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.multi_channel import publish_multi_channel
 from s_n_sales.pipeline.publication import build_publication_candidate
@@ -28,11 +28,10 @@ class MultiChannelTests(unittest.TestCase):
             affiliate_url="https://example.com/aff/item-demo-001",
             target_channel="telegram:demo",
         )
-        self.approval = decide_approval(
-            self.candidate,
-            status="approved",
-            decided_by="op",
-            decided_at=self.now,
+        self.store = OperatorStore()
+        self.store.upsert_candidate(self.candidate)
+        self.approval = self.store.approve(
+            self.candidate["publication_id"], decided_by="op", now=self.now
         )
 
     def test_dry_run_reports_error_per_channel(self) -> None:
@@ -48,7 +47,7 @@ class MultiChannelTests(unittest.TestCase):
         self.assertIn("dry_run", results["telegram:b"]["error"])
 
     def test_fake_client_two_channels_distinct_posts(self) -> None:
-        pub = Publisher(dry_run=False, client=FakePlatformClient())
+        pub = Publisher(dry_run=False, client=FakePlatformClient(), approval_source=self.store)
         results = publish_multi_channel(
             self.candidate,
             self.approval,
@@ -68,7 +67,7 @@ class MultiChannelTests(unittest.TestCase):
         )
 
     def test_disabled_channel(self) -> None:
-        pub = Publisher(dry_run=False, client=FakePlatformClient())
+        pub = Publisher(dry_run=False, client=FakePlatformClient(), approval_source=self.store)
         results = publish_multi_channel(
             self.candidate,
             self.approval,
@@ -81,7 +80,7 @@ class MultiChannelTests(unittest.TestCase):
         self.assertEqual(results["telegram:a"]["status"], "published")
 
     def test_draft_sha256_remains_valid_across_channels(self) -> None:
-        pub = Publisher(dry_run=False, client=FakePlatformClient())
+        pub = Publisher(dry_run=False, client=FakePlatformClient(), approval_source=self.store)
         channels = ["telegram:channel_1", "tiktok_shop:channel_2"]
         results = publish_multi_channel(
             self.candidate,

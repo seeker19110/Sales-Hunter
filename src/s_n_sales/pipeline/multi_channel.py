@@ -26,6 +26,18 @@ def publish_multi_channel(
     """
     if not channels:
         raise PublishError("channels không được rỗng")
+    if any(
+        not isinstance(channel, str) or not channel.strip() or len(channel) > 200
+        for channel in channels
+    ):
+        raise PublishError("channels must contain nonblank names of at most 200 characters")
+    if len(set(channels)) != len(channels):
+        raise PublishError("duplicate channels are not allowed")
+    if now.tzinfo is None or now.utcoffset() is None:
+        raise PublishError("now phải có timezone")
+    publication_candidate = deepcopy(publication_candidate)
+    approval = deepcopy(approval)
+    publisher.preflight_approval(publication_candidate, approval)
     disabled = frozenset(disabled_channels or ())
     results: dict[str, dict[str, Any] | dict[str, str]] = {}
 

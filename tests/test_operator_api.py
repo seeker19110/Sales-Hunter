@@ -399,7 +399,7 @@ class OperatorEndToEndPipelineTests(unittest.TestCase):
 
         # 7. Execute idempotent publish with FakePlatformClient (dry_run=False in staging test)
         client = FakePlatformClient()
-        publisher = Publisher(client=client, dry_run=False)
+        publisher = Publisher(client=client, dry_run=False, approval_source=self.store)
         receipt = publisher.publish(candidate, approval, now=now)
         self.assertEqual(receipt["status"], "published")
         self.assertEqual(receipt["publication_id"], pub_id)

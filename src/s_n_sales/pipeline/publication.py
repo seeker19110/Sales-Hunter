@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from functools import lru_cache
+from hmac import compare_digest
 from importlib.resources import files
 from typing import Any
 from urllib.parse import urlparse
@@ -44,8 +45,34 @@ def compute_draft_sha256(
         ensure_ascii=False,
         sort_keys=True,
         separators=(",", ":"),
+        allow_nan=False,
     )
     return hashlib.sha256(canonical_json.encode("utf-8")).hexdigest()
+
+
+def assert_candidate_integrity(candidate: dict[str, Any]) -> None:
+    """Recompute ADR-0005 protected values; a caller-provided hash is not evidence."""
+    fields = ("content", "affiliate_url", "affiliate_disclosure", "observation_id")
+    if any(not isinstance(candidate.get(key), str) or not candidate[key].strip() for key in fields):
+        raise PublicationBuildError("protected draft text fields must be nonblank strings")
+    claim = candidate.get("claim_snapshot")
+    if not isinstance(claim, dict):
+        raise PublicationBuildError("claim_snapshot must be an object")
+    stored = candidate.get("draft_sha256")
+    if not isinstance(stored, str) or len(stored) != 64 or not stored.isascii():
+        raise PublicationBuildError("draft_sha256 is invalid")
+    try:
+        actual = compute_draft_sha256(
+            content=candidate["content"],
+            affiliate_url=candidate["affiliate_url"],
+            affiliate_disclosure=candidate["affiliate_disclosure"],
+            observation_id=candidate["observation_id"],
+            claim_snapshot=claim,
+        )
+    except (TypeError, ValueError) as exc:
+        raise PublicationBuildError("protected draft values are not canonical JSON") from exc
+    if not compare_digest(stored, actual):
+        raise PublicationBuildError("draft_sha256 does not match actual protected values")
 
 
 @lru_cache(maxsize=1)

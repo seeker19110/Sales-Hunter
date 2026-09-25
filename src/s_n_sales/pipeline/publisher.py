@@ -7,8 +7,9 @@ chế độ dry_run=False *và* có read-back (FakePlatformClient trong test).
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from functools import lru_cache
 from importlib.resources import files
 from typing import Any, Protocol
@@ -16,7 +17,7 @@ from uuid import uuid4
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-from s_n_sales.pipeline.approval import assert_approval_matches_draft
+from s_n_sales.pipeline.approval import ApprovalError, assert_approval_matches_draft
 
 
 class PublishError(ValueError):
@@ -34,6 +35,13 @@ class PlatformClient(Protocol):
     ) -> dict[str, str]:
         """Trả platform_post_id, platform_post_url, published_at (ISO)."""
         ...
+
+
+class ApprovalSource(Protocol):
+    """Server-configured authority; never constructed from a publish request."""
+
+    def get_approval(self, publication_id: str) -> dict[str, Any] | None: ...
+    def get_candidate(self, publication_id: str) -> dict[str, Any] | None: ...
 
 
 @dataclass
@@ -54,7 +62,7 @@ class FakePlatformClient:
             return self.posts[idempotency_key]
         post_id = f"fake-post-{uuid4().hex[:12]}"
         url = f"https://example.com/posts/{post_id}"
-        published_at = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+        published_at = now.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         payload = {
             "platform_post_id": post_id,
             "platform_post_url": url,
@@ -77,7 +85,27 @@ class Publisher:
 
     client: PlatformClient | None = None
     dry_run: bool = True
+    approval_source: ApprovalSource | None = None
     _receipts_by_key: dict[str, dict[str, Any]] = field(default_factory=dict)
+
+    def preflight_approval(self, candidate: dict[str, Any], approval: dict[str, Any]) -> None:
+        """Recheck the current authority even on retries and cached receipts."""
+        assert_approval_matches_draft(approval, candidate)
+        if self.dry_run:
+            return  # No client call or delivery success is possible in dry-run mode.
+        if self.approval_source is None:
+            raise ApprovalError("a trusted approval_source is required before publish")
+        current = self.approval_source.get_approval(candidate["publication_id"])
+        if current is None:
+            raise ApprovalError("no current approval in the trusted source")
+        current = deepcopy(current)
+        assert_approval_matches_draft(current, candidate)
+        if current != approval:
+            raise ApprovalError("supplied approval is not the current trusted approval")
+        current_candidate = self.approval_source.get_candidate(candidate["publication_id"])
+        if current_candidate is None:
+            raise ApprovalError("no current candidate in the trusted source")
+        assert_approval_matches_draft(current, deepcopy(current_candidate))
 
     def publish(
         self,
@@ -95,7 +123,10 @@ class Publisher:
         if now.tzinfo is None or now.utcoffset() is None:
             raise PublishError("now phải có timezone")
 
-        assert_approval_matches_draft(approval, publication_candidate)
+        now = now.astimezone(UTC)
+        publication_candidate = deepcopy(publication_candidate)
+        approval = deepcopy(approval)
+        self.preflight_approval(publication_candidate, approval)
 
         idempotency_key = publication_candidate.get("idempotency_key")
         if not isinstance(idempotency_key, str) or not idempotency_key:

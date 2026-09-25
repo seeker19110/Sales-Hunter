@@ -7,6 +7,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
 
+from s_n_sales.api.store import OperatorStore
 from s_n_sales.pipeline.approval import (
     ApprovalError,
     assert_approval_matches_draft,
@@ -83,14 +84,11 @@ class ApprovalPublisherTests(unittest.TestCase):
             pub.publish(self.candidate, approval, now=self.now, system_kill_switch=True)
 
     def test_publish_idempotent_with_fake_client(self) -> None:
-        approval = decide_approval(
-            self.candidate,
-            status="approved",
-            decided_by="op",
-            decided_at=self.now,
-        )
+        store = OperatorStore()
+        store.upsert_candidate(self.candidate)
+        approval = store.approve(self.candidate["publication_id"], decided_by="op", now=self.now)
         client = FakePlatformClient()
-        pub = Publisher(dry_run=False, client=client)
+        pub = Publisher(dry_run=False, client=client, approval_source=store)
         r1 = pub.publish(self.candidate, approval, now=self.now)
         r2 = pub.publish(self.candidate, approval, now=self.now)
         self.assertEqual(r1["idempotency_key"], r2["idempotency_key"])
