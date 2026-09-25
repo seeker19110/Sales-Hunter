@@ -26,6 +26,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 ### Sửa
 
 - SH-010: danh sách/chi tiết dashboard dùng chung read model lấy đúng `claim_snapshot.*_price_minor` và nền tảng; hiển thị VND bằng số nguyên, giá chưa xác minh không biến thành 0. Thêm regression builder thật và cổng browser mobile bắt buộc trong `quality`; không đổi auth/approval/publish.
+- SH-004: khai báo `jsonschema[format-nongpl]` là runtime dependency, đóng gói năm schema v1 byte-for-byte trong wheel và tải contract qua package resources; job artifact kiểm wheel cài ngoài checkout với chỉ runtime dependencies.
 
 - Đồng bộ `PROJECT-STATUS.md` tới baseline `0159c42` sau #34, bổ sung blocker audit và phân biệt rõ “đã lưu kế hoạch” với “đã triển khai/đủ điều kiện production”.
 - Cập nhật `PROJECT-STATUS.md` sau khi PR #33 (Phase 4 SQLite & Operator Dashboard) merge; base hiện tại `fbc2a1b`.

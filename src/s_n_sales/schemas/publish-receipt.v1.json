@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.s-n-sales.local/publish-receipt.v1.json",
+  "title": "Publish receipt v1",
+  "description": "Bằng chứng đã đăng thành công do publisher đọc lại từ nền tảng. Không được tạo từ model hay giả định cục bộ.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "publication_id",
+    "idempotency_key",
+    "target_channel",
+    "platform_post_id",
+    "platform_post_url",
+    "published_at",
+    "read_back_at",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "publish-receipt.v1"
+    },
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "publication_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "target_channel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "platform_post_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "platform_post_url": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 4096
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "read_back_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Thời điểm publisher xác nhận lại từ nền tảng."
+    },
+    "status": {
+      "enum": ["published", "failed", "unknown"]
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "maxLength": 200
+    },
+    "error_message": {
+      "type": ["string", "null"],
+      "maxLength": 2000
+    }
+  }
+}

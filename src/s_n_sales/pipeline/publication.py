@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from functools import lru_cache
-from pathlib import Path
+from importlib.resources import files
 from typing import Any
 from urllib.parse import urlparse
 
@@ -50,9 +50,8 @@ def compute_draft_sha256(
 
 @lru_cache(maxsize=1)
 def _publication_validator() -> Draft202012Validator:
-    root = Path(__file__).resolve().parents[3]
-    schema_path = root / "schemas" / "publication-candidate.v1.json"
-    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    resource = files("s_n_sales").joinpath("schemas", "publication-candidate.v1.json")
+    schema = json.loads(resource.read_text(encoding="utf-8"))
     return Draft202012Validator(schema, format_checker=FormatChecker())
 
 

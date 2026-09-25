@@ -10,7 +10,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import lru_cache
-from pathlib import Path
+from importlib.resources import files
 from typing import Any, Protocol
 from uuid import uuid4
 
@@ -66,8 +66,8 @@ class FakePlatformClient:
 
 @lru_cache(maxsize=1)
 def _receipt_validator() -> Draft202012Validator:
-    root = Path(__file__).resolve().parents[3]
-    schema = json.loads((root / "schemas" / "publish-receipt.v1.json").read_text(encoding="utf-8"))
+    resource = files("s_n_sales").joinpath("schemas", "publish-receipt.v1.json")
+    schema = json.loads(resource.read_text(encoding="utf-8"))
     return Draft202012Validator(schema, format_checker=FormatChecker())
 
 

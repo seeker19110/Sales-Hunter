@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.s-n-sales.local/rank-result.v1.json",
+  "title": "Rank result v1",
+  "description": "Kết quả xếp hạng xác định của một observation. Trọng số và công thức phải version hóa; lý do chọn phải giải thích được.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "rank_id",
+    "observation_id",
+    "score",
+    "rank_version",
+    "ranked_at",
+    "reasons"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "rank-result.v1"
+    },
+    "rank_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "observation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "score": {
+      "type": "number",
+      "description": "Điểm số xác định; không dùng model để sinh."
+    },
+    "rank_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Phiên bản công thức/trọng số ranking."
+    },
+    "ranked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reasons": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "weight": {
+            "type": ["number", "null"]
+          }
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["number", "string", "boolean", "null"]
+      },
+      "description": "Feature đã dùng để tính score (để audit, không phải input model)."
+    }
+  }
+}
