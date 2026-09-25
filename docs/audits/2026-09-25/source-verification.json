@@ -1,0 +1,26 @@
+[
+  {
+    "path": "src/s_n_sales/pipeline/approval.py",
+    "expected_git_blob_sha": "69e6bc09e63f0c2a4e484c853c372caa46dffab0",
+    "actual_git_blob_sha": "69e6bc09e63f0c2a4e484c853c372caa46dffab0",
+    "match": true
+  },
+  {
+    "path": "src/s_n_sales/pipeline/publisher.py",
+    "expected_git_blob_sha": "bb582b20d89e052c3f51911cc7fdf636bc80467c",
+    "actual_git_blob_sha": "bb582b20d89e052c3f51911cc7fdf636bc80467c",
+    "match": true
+  },
+  {
+    "path": "schemas/approval-record.v1.json",
+    "expected_git_blob_sha": "865422629831ff78ae3bb1ea31b0093b170835ed",
+    "actual_git_blob_sha": "865422629831ff78ae3bb1ea31b0093b170835ed",
+    "match": true
+  },
+  {
+    "path": "schemas/publish-receipt.v1.json",
+    "expected_git_blob_sha": "9f075bff63aeb77b7de55ff62e161c86934a2c50",
+    "actual_git_blob_sha": "9f075bff63aeb77b7de55ff62e161c86934a2c50",
+    "match": true
+  }
+]

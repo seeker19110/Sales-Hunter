@@ -6,6 +6,8 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Thêm
 
+- Audit 25/09/2026 tại `docs/audits/2026-09-25/`: báo cáo 27 hạng mục, lộ trình A–G ưu tiên chất lượng/dễ vận hành, 12 probe local và JSON bằng chứng có manifest SHA. Đây là bàn giao tài liệu; không phải đã sửa các phát hiện, thay kiến trúc hoặc bật publish thật.
+- Hướng dẫn đọc/chạy lại bộ audit và session note bàn giao; liên kết từ README và checkpoint tới các blocker trước external deploy.
 - ADR-0006 và Phase 4: `SqliteOperatorStore` (lưu trữ bền vững chuẩn stdlib sqlite3), xác thực Token Auth và Web Operator Dashboard (giao diện duyệt deal trực quan, xem claim/disclosure, form duyệt/từ chối, lọc trạng thái, chống XSS).
 - `TRAPS.md`: ghi bẫy PR dependabot kẹt ở cổng `metadata` vì không tự sửa được `CHANGELOG.md` (#7); cách rà và cách gỡ (nhãn `no-changelog`).
 - `tools/check_status_freshness.py` + job CI `status-freshness` (chạy khi push `bootstrap/base`): đối chiếu SHA/nhánh ghi trong `PROJECT-STATUS.md` với git thật, chặn tài liệu trạng thái lỗi thời âm thầm sau merge.
@@ -23,6 +25,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ### Sửa
 
+- Đồng bộ `PROJECT-STATUS.md` tới baseline `0159c42` sau #34, bổ sung blocker audit và phân biệt rõ “đã lưu kế hoạch” với “đã triển khai/đủ điều kiện production”.
 - Cập nhật `PROJECT-STATUS.md` sau khi PR #33 (Phase 4 SQLite & Operator Dashboard) merge; base hiện tại `fbc2a1b`.
 - Cập nhật `PROJECT-STATUS.md` sau khi PR #30 (ruff 0.16.7) và PR #31 (setup-uv 10.1.0) merge; base hiện tại `c620c10`.
 - Cập nhật `PROJECT-STATUS.md` sau khi PR #28 merge.

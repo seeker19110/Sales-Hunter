@@ -1,0 +1,140 @@
+{
+  "reviewed_commit": "0159c420ad8976939a98fb579bc9f5404bfcec89",
+  "audit_date": "2026-09-25",
+  "scope": "Isolated publisher/approval source modules, exact Git blob verified; synthetic local-only provider. Not the full repository test suite or a production test.",
+  "probe_count": 12,
+  "risk_reproduced_count": 9,
+  "safety_control_observed_count": 3,
+  "probe_error_count": 0,
+  "results": [
+    {
+      "id": "hash-tamper-content",
+      "description": "Modify content without changing stored hash.",
+      "status": "risk_reproduced",
+      "recalculated_hash_differs": true,
+      "receipt_status": "published",
+      "expected_safe_behavior": "Reject modified approved payload."
+    },
+    {
+      "id": "hash-tamper-affiliate_url",
+      "description": "Modify affiliate_url without changing stored hash.",
+      "status": "risk_reproduced",
+      "recalculated_hash_differs": true,
+      "receipt_status": "published",
+      "expected_safe_behavior": "Reject modified approved payload."
+    },
+    {
+      "id": "hash-tamper-affiliate_disclosure",
+      "description": "Modify affiliate_disclosure without changing stored hash.",
+      "status": "risk_reproduced",
+      "recalculated_hash_differs": true,
+      "receipt_status": "published",
+      "expected_safe_behavior": "Reject modified approved payload."
+    },
+    {
+      "id": "hash-tamper-claim_snapshot",
+      "description": "Modify claim_snapshot without changing stored hash.",
+      "status": "risk_reproduced",
+      "recalculated_hash_differs": true,
+      "receipt_status": "published",
+      "expected_safe_behavior": "Reject modified approved payload."
+    },
+    {
+      "id": "incomplete-approval",
+      "description": "Publisher accepts an incomplete approval record.",
+      "status": "risk_reproduced",
+      "receipt_status": "published",
+      "missing_fields_accepted": [
+        "approval_id",
+        "decided_by",
+        "decided_at",
+        "schema_version"
+      ]
+    },
+    {
+      "id": "outgoing-required-fields",
+      "description": "Inspect final text passed to local fake.",
+      "status": "risk_reproduced",
+      "missing_from_outgoing_content": [
+        "affiliate_url",
+        "affiliate_disclosure"
+      ],
+      "note": "Fields exist in candidate metadata but are not composed into outgoing text."
+    },
+    {
+      "id": "publisher-restart",
+      "description": "Use the same candidate with two Publisher instances.",
+      "status": "risk_reproduced",
+      "provider_call_count_after_new_publisher_instance": 2,
+      "distinct_fake_remote_posts": true,
+      "limitation": "Duplicate remote posts occur in this simulation because the fake provider does not deduplicate. Real provider behavior has not been tested."
+    },
+    {
+      "id": "stale-observation",
+      "description": "Publish boundary with an old observation.",
+      "status": "risk_reproduced",
+      "observed_at": "2000-01-01T00:00:00Z",
+      "published_at": "2026-09-25T03:00:00Z",
+      "note": "The publisher boundary itself applies no freshness policy."
+    },
+    {
+      "id": "utc-conversion",
+      "description": "Supply an aware Asia/Ho_Chi_Minh offset clock.",
+      "status": "risk_reproduced",
+      "input_time": "2026-09-25T10:00:00+07:00",
+      "actual_read_back_at": "2026-09-25T10:00:00Z",
+      "expected_read_back_at": "2026-09-25T03:00:00Z",
+      "fake_remote_published_at": "2026-09-25T03:00:00Z"
+    },
+    {
+      "id": "control-changed-hash",
+      "description": "Existing mismatched hash guard.",
+      "status": "safety_control_observed",
+      "blocked": true
+    },
+    {
+      "id": "control-dry-run",
+      "description": "Existing default dry-run guard.",
+      "status": "safety_control_observed",
+      "blocked": true,
+      "provider_calls": 0
+    },
+    {
+      "id": "control-kill-switch",
+      "description": "Existing explicit kill switch guard.",
+      "status": "safety_control_observed",
+      "blocked": true,
+      "provider_calls": 0
+    }
+  ],
+  "environment": {
+    "python": "3.13.5",
+    "jsonschema": "4.26.0"
+  },
+  "source_verification": [
+    {
+      "path": "src/s_n_sales/pipeline/approval.py",
+      "expected_git_blob_sha": "69e6bc09e63f0c2a4e484c853c372caa46dffab0",
+      "actual_git_blob_sha": "69e6bc09e63f0c2a4e484c853c372caa46dffab0",
+      "match": true
+    },
+    {
+      "path": "src/s_n_sales/pipeline/publisher.py",
+      "expected_git_blob_sha": "bb582b20d89e052c3f51911cc7fdf636bc80467c",
+      "actual_git_blob_sha": "bb582b20d89e052c3f51911cc7fdf636bc80467c",
+      "match": true
+    },
+    {
+      "path": "schemas/approval-record.v1.json",
+      "expected_git_blob_sha": "865422629831ff78ae3bb1ea31b0093b170835ed",
+      "actual_git_blob_sha": "865422629831ff78ae3bb1ea31b0093b170835ed",
+      "match": true
+    },
+    {
+      "path": "schemas/publish-receipt.v1.json",
+      "expected_git_blob_sha": "9f075bff63aeb77b7de55ff62e161c86934a2c50",
+      "actual_git_blob_sha": "9f075bff63aeb77b7de55ff62e161c86934a2c50",
+      "match": true
+    }
+  ]
+}
