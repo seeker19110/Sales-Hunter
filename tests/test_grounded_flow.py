@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def manual_request() -> dict[str, Any]:
     observation = json.loads(
-        (ROOT / "schemas/examples/valid/offer-observation.v1.json").read_text()
+        (ROOT / "schemas/examples/valid/offer-observation.v1.json").read_text(encoding="utf-8")
     )
     for key in ("schema_version", "observation_id", "source_method", "evidence"):
         del observation[key]

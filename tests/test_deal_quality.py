@@ -16,7 +16,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def observation() -> dict:
-    obj = json.loads((ROOT / "schemas/examples/valid/offer-observation.v1.json").read_text())
+    obj = json.loads(
+        (ROOT / "schemas/examples/valid/offer-observation.v1.json").read_text(encoding="utf-8")
+    )
     obj.update(
         observed_at="2026-09-25T00:00:00Z",
         variant_id="variant-1",
