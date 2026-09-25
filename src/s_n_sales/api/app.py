@@ -252,9 +252,7 @@ def _render_dashboard_detail(candidate: dict[str, Any], csrf_token: str) -> str:
     decided_by = html.escape(str(approval.get("decided_by", "")))
     reason = html.escape(str(approval.get("reason", "")))
 
-    csrf_input = (
-        f'<input type="hidden" name="csrf_token" value="{html.escape(csrf_token)}">'
-    )
+    csrf_input = f'<input type="hidden" name="csrf_token" value="{html.escape(csrf_token)}">'
 
     approve_action = f"/dashboard/candidates/{pub_id}/approve"
     reject_action = f"/dashboard/candidates/{pub_id}/reject"
