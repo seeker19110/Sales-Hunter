@@ -27,3 +27,11 @@ instruction, không có tool publish. Không tự chạy benchmark/API tính ph�
 
 Hiện tại legacy publisher chưa dùng durable queue/scoped approval; PUB tiếp theo là gate
 bắt buộc trước tuyên bố end-to-end posting. Manual/fake không phải live provider evidence.
+
+## CI follow-up
+
+HEAD77043c2/run36161188552: unit (Ubuntu/Windows 3.11/3.12), browser, clean-wheel,
+static, schema and security passed; Pyright reported nullable manual expiry at line244.
+Narrow the untrusted expiry once into a local typed value before evidence retention;
+reject wrong types, preserve explicit null. Add regression for both paths, not a cast
+that silences validation. New exact HEAD still requires full CI before ready review.

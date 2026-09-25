@@ -221,6 +221,10 @@ class DealRepository:
             )
         ):
             raise ValueError("manual_request_types_invalid")
+        valid_until_value = request["valid_until"]
+        if valid_until_value is not None and not isinstance(valid_until_value, str):
+            raise ValueError("manual_request_types_invalid")
+        valid_until = utc(valid_until_value) if isinstance(valid_until_value, str) else None
         source_url = self.url_policy.validate(request["source_url"])
         item = self.vault.retain(
             raw,
@@ -247,7 +251,7 @@ class DealRepository:
             evidence_id=item["evidence_id"],
             actor=actor,
             variant_scope=request["variant_scope"],
-            valid_until=utc(request["valid_until"]) if request["valid_until"] is not None else None,
+            valid_until=valid_until,
             adapter_version="manual-record-v1",
         )
         return self.save(

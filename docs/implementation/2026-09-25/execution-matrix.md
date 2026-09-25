@@ -27,7 +27,7 @@ Lịch sử audit không bị sửa. Đây là source checkpoint; đọc lại G
 | SH-008 | DATA revision CAS, HTTP409/428, hai connection chỉ một thắng | HumanT4/ADR0008 + merge; PostgreSQL concurrency chưa chạy | DATA |
 | SH-009 | DATA version/event chỉ-thêm, edit invalidate authority, ABA không hồi approval | Merge DATA; final-payload decision events PUB chưa có | DATA |
 | SH-010 | Canonical integer VND/null/zero/platform/mobile + browser đã merge | UI mới phải giữ đúng dữ liệu thực builder | BASE |
-| SH-011 | DEAL deterministic final payload link/disclosure/facts/hash/channel và binding bất biến | PUB duyệt đúng payload revision và gửi/readback chính payload đó |
+| SH-011 | DEAL deterministic final payload link/disclosure/facts/hash/channel và binding bất biến | PUB duyệt đúng payload revision và gửi/readback chính payload đó | DEAL |
 | SH-012 | DEAL eligibility kiểm freshness/stock/expiry/evidence | PUB kiểm lại trước send, recall intent/thực thi/xác nhận | DEAL |
 | SH-013 | DEAL eligible_rank chặn độc lập score | Queue mới phải cưỡng chế cùng policy; không gọi legacy score là authorization | DEAL |
 | SH-014 | DEAL facts.v1 giữ toàn observation/variant/coupon/ship/conditions/evidence, total có chứng cứ riêng | ADR0009/review; dữ kiện vẫn là nguồn manual có attestation, không platform-live proof | DEAL |
