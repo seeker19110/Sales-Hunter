@@ -27,9 +27,7 @@ class DurablePublicationTests(unittest.TestCase):
         self.policy = UrlPolicy(frozenset({"example.com"}))
         self.repo = DealRepository(self.store, url_policy=self.policy)
         self.queue = PublicationQueue(self.repo)
-        self.queue.set_pause(
-            "global", "*", paused=False, actor="admin", reason="fixture", now=NOW
-        )
+        self.queue.set_pause("global", "*", paused=False, actor="admin", reason="fixture", now=NOW)
         request = manual_request()
         request["target_channel"] = "fake:sales"
         self.package = self.repo.import_manual(canonical(request).encode(), actor="op", now=NOW)
@@ -84,7 +82,9 @@ class DurablePublicationTests(unittest.TestCase):
         worker = PublicationWorker(self.queue, self.transport, dry_run=False)
         self.assertEqual(worker.run_once(now=NOW)["status"], "idle")
         stored = self.queue.get(intent["intent_id"])
-        self.assertEqual(stored["receipt"]["payload_sha256"], self.package.payload["payload_sha256"])
+        self.assertEqual(
+            stored["receipt"]["payload_sha256"], self.package.payload["payload_sha256"]
+        )
         self.assertEqual(stored["receipt"]["proof_kind"], "fake")
         self.assertEqual(self.transport.post_count(), 1)
 

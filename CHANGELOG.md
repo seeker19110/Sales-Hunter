@@ -4,6 +4,11 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Publication bền vững (chờ review T4)
+
+- SH-002/005/011/012/017/023/027: khôi phục implementation đã bàn giao vào PR #43: duyệt payload/revision và scope nguyên tử, intent/attempt/receipt bền vững, lease fencing, retry hữu hạn, outcome_unknown và đối soát, pause/cooldown qua restart, thu hồi có read-back và manual export không giả thành công đăng. Chỉ transport mô phỏng cục bộ; chưa có tích hợp live hoặc production.
+- Sửa CI #43 bằng implementation thực, giữ nguyên các test đỏ; đồng bộ stack #41/#42 đã sửa xung đột và UTF-8. Sửa tham số expected_token bị thiếu trong luồng thu hồi, chặn token cũ/lease hết hạn/xác nhận không có quyền lease; thêm regression và mở rộng smoke wheel qua durable fake send/recall. CI và human T4 trên HEAD cuối vẫn là cổng riêng.
+
 ### Deal chất lượng và nội dung có chứng cứ (chờ T4)
 
 - SH-011–015/025/026/027: facts v1 chứa toàn observation và provenance; retained evidence được phép lưu, khử nhạy cảm, expiry/thu hồi; eligibility tách ranking; final payload có link/disclosure và scope/hash/version; manual input tạo ID/hash server, preview read-only và binding bất biến. Giữ schema v1 cũ.

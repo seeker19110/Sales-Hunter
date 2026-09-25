@@ -11,6 +11,7 @@
 | Kiểm integrity và approval hiện hành | `pipeline/publication.py::assert_candidate_integrity`, `publisher.py::ApprovalSource`, `tests/test_integrity_boundaries.py` | mọi protected field, forged/rejected/restart; T4 human trước merge |
 | Đổi hợp đồng duyệt | `schemas/approval-record.v1.json` | draft_sha256 khớp, decided_by/at |
 | Đổi hợp đồng receipt đăng | `schemas/publish-receipt.v1.json` | read-back từ nền tảng, idempotency |
+| Durable publishing/recall pilot | `src/s_n_sales/publishing/`; `tests/test_durable_publishing.py`, `test_publication_boundaries.py`, `test_publication_followup.py`, `test_recall_fencing.py` | payload/revision scope, transaction, restart/crash/unknown outcome, lease fencing, pause, fake read-back; ADR0010/T4 |
 | Đổi xếp hạng | `src/s_n_sales/domain/ranking.py`, `schemas/rank-result.v1.json` | reasons + rank_version, không model |
 | Đổi Money / tiền | `src/s_n_sales/domain/money.py` | không float; test biên |
 | Pipeline draft từ observation | `src/s_n_sales/pipeline/draft.py` | unit test |
