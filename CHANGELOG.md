@@ -4,6 +4,10 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Dữ liệu và giao dịch (chờ review T4)
+
+- SH-006/008/009/026: nhập pending đúng schema, revision bắt buộc khi sửa/duyệt, transaction SQLite, history chỉ-thêm, vô hiệu approval khi edit và đọc authority nguyên tử. HTTP 409/428, form version, Host/Origin và UTF-8/framing giới hạn. Migration preview chỉ đọc, manifest và rollback khi legacy data lỗi; chưa chọn PostgreSQL/production.
+
 ### Thêm
 
 - Audit 25/09/2026 tại `docs/audits/2026-09-25/`: báo cáo 27 hạng mục, lộ trình A–G ưu tiên chất lượng/dễ vận hành, 12 probe local và JSON bằng chứng có manifest SHA. Đây là bàn giao tài liệu; không phải đã sửa các phát hiện, thay kiến trúc hoặc bật publish thật.
@@ -26,6 +30,7 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 ### Sửa
 
 - Khắc phục CI các PR bảo trì công cụ: đồng bộ nhánh với base sau #39 và ghi CHANGELOG để cổng metadata kiểm đúng, không dùng miễn kiểm tra. Phiên bản công cụ và bằng chứng riêng của từng PR nằm trong session note tương ứng.
+
 - SH-003 (local operator): xác thực fail-closed, API chỉ nhận Bearer header, dashboard dùng session/CSRF và actor cấu hình phía server; bỏ query/form token và CLI argv secret, chặn bind ngoài loopback. Chưa cho phép external staging/production.
 - SH-007: candidate sau approve/reject và khi đọc bản ghi SQLite cũ chỉ chứa approval projection hợp lệ theo schema v1; approval record đầy đủ vẫn nằm trong bảng và endpoint riêng.
 - Wheel smoke sau SH-001/002 dùng approval được commit vào trusted store trước khi gọi fake publisher, giữ cổng artifact chạy đủ vòng ngoài checkout.
@@ -39,8 +44,8 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 - Cập nhật `PROJECT-STATUS.md` sau khi PR #30 (ruff 0.16.7) và PR #31 (setup-uv 10.1.0) merge; base hiện tại `c620c10`.
 - Cập nhật `PROJECT-STATUS.md` sau khi PR #28 merge.
 - Thêm ADR-0005: Chuẩn hóa `draft_sha256` thành channel-agnostic content hash; giải quyết dứt điểm mâu thuẫn bất biến hash giữa `publication-candidate.v1`, `approval-record.v1` và `publish_multi_channel`.
-- Cập nhật `PROJECT-STATUS.md` sau khi #7 (dependabot `astral-sh/setup-uv` → 10.0.1) merge; base hiện tại `ab1586d`.
 - Cập nhật `PROJECT-STATUS.md`: base hiện tại là `2b8402f` (sau #22, #23), thêm #22/#23 vào danh sách PR đã hoàn tất.
+- Cập nhật `PROJECT-STATUS.md` sau khi #7 (dependabot `astral-sh/setup-uv` → 10.0.1) merge; base hiện tại `ab1586d`.
 - Cài Sales-Hunter editable bằng Hatchling để các lệnh quality bắt buộc chạy trực tiếp được trên PowerShell/Windows, không còn phụ thuộc `PYTHONPATH` của Makefile.
 - Đồng bộ trạng thái skeleton Phase 1–6 trong roadmap, kiến trúc và tài liệu deploy; giữ rõ các điều kiện T4/production chưa hoàn tất.
 - Chuẩn hóa toàn bộ tên hiển thị còn lại thành Sales-Hunter; giữ nguyên package `s_n_sales` và schema v1 là định danh kỹ thuật tương thích.

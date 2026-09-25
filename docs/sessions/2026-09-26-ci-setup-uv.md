@@ -5,3 +5,7 @@ CI-DEPS T1, branching A on the existing Dependabot branch. Reviewed baseline dfd
 Baseline CI 36198806100 passed. PR policy 36198806883 failed specifically at the CHANGELOG step (job 108280651748). Repair supplies an actual changelog entry and this checkpoint, not a no-changelog exemption. A non-force merge sync includes current auth base edec94751e137423338f9d5e3619139df5a770bc; runtime source remains byte-identical to that base. PR #39 is already merged, independent T4 epics #41/#42/#43 are not imported here.
 
 Allowed files: original dependency diff, changelog, this session. No security/test gate is removed. Exact new-head CI and metadata must pass before integration; final run IDs are recorded in the PR conversation. User requested conflict/CI repair, not a production operation. No deployment or automatic approval. Rollback by ordinary revert commit on this branch.
+
+## Follow-up after #41 squash
+
+The first repair 23bc6bfb passed CI 36201277638 and metadata 36201277627. GitHub subsequently merged #41 into base e458f2130eb661553fb085ae9229a7b04d365c84 (base CI 36201882276 success). Synchronize again without force-push, preserving all newly merged data code and the additional locked-Ruff review artifact step. Only the existing eight setup-uv pins change to 10.2.0. No unmerged #42/#43 runtime code is imported. The old repair run is baseline only; verify the new head in its own CI.

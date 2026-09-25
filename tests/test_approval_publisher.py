@@ -86,7 +86,12 @@ class ApprovalPublisherTests(unittest.TestCase):
     def test_publish_idempotent_with_fake_client(self) -> None:
         store = OperatorStore()
         store.upsert_candidate(self.candidate)
-        approval = store.approve(self.candidate["publication_id"], decided_by="op", now=self.now)
+        approval = store.approve(
+            self.candidate["publication_id"],
+            decided_by="op",
+            now=self.now,
+            expected_revision=store.get_revision(self.candidate["publication_id"]),
+        )
         client = FakePlatformClient()
         pub = Publisher(dry_run=False, client=client, approval_source=store)
         r1 = pub.publish(self.candidate, approval, now=self.now)

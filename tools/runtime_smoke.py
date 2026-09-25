@@ -68,7 +68,12 @@ def main() -> None:
     )
     store = OperatorStore()
     store.upsert_candidate(candidate)
-    approval = store.approve(candidate["publication_id"], decided_by="artifact-smoke", now=now)
+    approval = store.approve(
+        candidate["publication_id"],
+        decided_by="artifact-smoke",
+        now=now,
+        expected_revision=store.get_revision(candidate["publication_id"]),
+    )
     client = FakePlatformClient()
     try:
         Publisher(client=client).publish(candidate, approval, now=now)

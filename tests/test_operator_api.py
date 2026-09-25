@@ -98,7 +98,10 @@ class OperatorApiTests(unittest.TestCase):
         status, approval = self._json(
             "POST",
             f"/api/v1/candidates/{pub_id}/approve",
-            {"decided_by": "operator@example.com"},
+            {
+                "decided_by": "operator@example.com",
+                "expected_revision": self.store.get_revision(pub_id),
+            },
         )
         self.assertEqual(status, 200)
         self.assertEqual(approval["status"], "approved")
@@ -115,7 +118,11 @@ class OperatorApiTests(unittest.TestCase):
         status, approval = self._json(
             "POST",
             f"/api/v1/candidates/{pub_id}/reject",
-            {"decided_by": "op", "reason": "stale price"},
+            {
+                "decided_by": "op",
+                "reason": "stale price",
+                "expected_revision": self.store.get_revision(pub_id),
+            },
         )
         self.assertEqual(status, 200)
         self.assertEqual(approval["status"], "rejected")
@@ -232,6 +239,7 @@ class OperatorDashboardTests(unittest.TestCase):
         pub_id = self.candidate["publication_id"]
         form_data = urlencode(
             {
+                "expected_revision": self.store.get_revision(pub_id),
                 "decided_by": "operator@test.com",
                 "reason": "Verified deal quality",
             }
@@ -255,6 +263,7 @@ class OperatorDashboardTests(unittest.TestCase):
         pub_id = self.candidate["publication_id"]
         form_data = urlencode(
             {
+                "expected_revision": self.store.get_revision(pub_id),
                 "decided_by": "operator@test.com",
                 "reason": "Not enough discount",
             }
@@ -362,7 +371,11 @@ class OperatorSqliteIntegrationTests(unittest.TestCase):
                 status_code, record = api(
                     "POST",
                     f"/api/v1/candidates/{pub_id}/{action}",
-                    {"decided_by": "operator@example.com", "reason": "Checked"},
+                    {
+                        "decided_by": "operator@example.com",
+                        "reason": "Checked",
+                        "expected_revision": self.store.get_revision(pub_id),
+                    },
                 )
                 self.assertEqual(status_code, 200)
                 approval_validator.validate(record)
@@ -475,9 +488,12 @@ class OperatorEndToEndPipelineTests(unittest.TestCase):
             csrf_token = match.group(1)
             self.assertNotIn(self.token, detail)
 
-        # 4. Operator approves deal via Web Form submission
+        # 4. Operator approves the exact revision rendered in the Web Form.
+        revision_match = re.search(r'name="expected_revision" value="([0-9]+)"', detail)
+        assert revision_match is not None
         approve_form = urlencode(
             {
+                "expected_revision": revision_match.group(1),
                 "csrf_token": csrf_token,
                 "decided_by": "forged-reviewer",
                 "reason": "Verified price claim and affiliate disclosure",
