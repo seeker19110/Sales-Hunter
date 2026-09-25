@@ -11,6 +11,16 @@
 - Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
 - Báo cáo: [audit 25/09/2026](docs/audits/2026-09-25/README.md), 27 hạng mục và cổng nghiệm thu A–G. Chưa coi skeleton là đủ điều kiện external staging/production.
 
+## Phiên hoàn thiện tiếp theo
+
+- #40 đã merge SH-007 vào base `0fea065`; CI 36150453741 success.
+- #39 auth HEAD `f48346c` đã đồng bộ #40; CI 36150731331 success, vẫn chờ human T4.
+- Epic DATA `feat/audit-revision-transactions-20260925` dựa trên #39: input pending,
+  revision/CAS, lịch sử bất biến, migration preview và HTTP 409/428 có regression cục bộ.
+  Source đang nghiệm thu; chưa merge/triển khai. Chỉ tích hợp sau #39 và human T4.
+- [Task pack toàn đợt](docs/task-packs/2026-09-25-completion.md) chia DATA/DEAL/PUB/LEDGER/OPS;
+  không đồng nhất kiểm thử SQLite pilot với concurrency PostgreSQL hay production.
+
 ## Đợt thực thi audit 25/09/2026
 
 - PR #38 đã merge tại `6836837` sau human T4 review trên HEAD `9d8c290`; exact HEAD CI quality/artifact/browser/matrix đều xanh.
