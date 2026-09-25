@@ -20,7 +20,10 @@ from s_n_sales.pipeline.publication import build_publication_candidate
 
 def seeded_store() -> tuple[OperatorStore, str]:
     store = OperatorStore()
-    fixture = Path(__file__).resolve().parents[1] / "schemas/examples/valid/offer-observation.v1.json"
+    fixture = (
+        Path(__file__).resolve().parents[1]
+        / "schemas/examples/valid/offer-observation.v1.json"
+    )
     observation = json.loads(fixture.read_text(encoding="utf-8"))
     rank = observation_to_rank(observation, now=datetime(2026, 9, 11, 6, tzinfo=UTC))
     candidate = build_publication_candidate(
@@ -184,7 +187,9 @@ class OperatorAuthConfigurationTests(unittest.TestCase):
         try:
             thread = threading.Thread(target=server.serve_forever, daemon=True)
             thread.start()
-            connection = http.client.HTTPConnection("127.0.0.1", server.server_address[1], timeout=5)
+            connection = http.client.HTTPConnection(
+                "127.0.0.1", server.server_address[1], timeout=5
+            )
             try:
                 connection.request(
                     "POST",
