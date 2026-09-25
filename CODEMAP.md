@@ -14,6 +14,7 @@
 | Đổi Money / tiền | `src/s_n_sales/domain/money.py` | không float; test biên |
 | Pipeline draft từ observation | `src/s_n_sales/pipeline/draft.py` | unit test |
 | Operator API & Web Dashboard | `src/s_n_sales/api/app.py`, `store_sqlite.py`, ADR-0006 | auth token, XSS escaping, TDD |
+| Hiển thị giá/nền tảng operator | `src/s_n_sales/api/read_model.py`; `tests/test_dashboard_prices.py`; `tools/browser_dashboard_smoke.py` | integer VND, null/zero, browser gate trong quality; không thay identity |
 | Publication candidate builder | `src/s_n_sales/pipeline/` + `docs/impl/PHASE-1.5-IMPLEMENTATION.md` | disclosure + draft_sha256 |
 | Fake fixture adapter | `src/s_n_sales/adapters/fake.py` | không mạng |
 | Thêm nền tảng | adapter mới + tài liệu nguồn chính thức + contract test | rate limit, domain allowlist, ToS; subtask ≥ T4 |

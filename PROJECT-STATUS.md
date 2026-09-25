@@ -6,10 +6,18 @@
 
 - Ngày cập nhật: 2026-09-25
 - Base branch: `bootstrap/base`
-- Base hiện tại: `0159c420ad8976939a98fb579bc9f5404bfcec89`
+- Base hiện tại: `d17d33eae7230aeccc56047db5dd48bf35cdcb1d`
 - Trạng thái: Phase 1 → Phase 6 skeleton đã hợp nhất vào base; PR #30–#34 đã hoàn tất. ADR-0006 đã triển khai SQLite, Token Auth và Web Operator Dashboard. Audit 25/09 đã được lưu cùng bằng chứng và lộ trình; **các sửa lỗi/nâng cấp trong audit chưa được triển khai bởi PR tài liệu này**.
 - Side effect thật: **chưa bật**. Publisher vẫn mặc định dry-run; chưa DNS/TLS/cutover production; chưa client mạng thật.
 - Báo cáo: [audit 25/09/2026](docs/audits/2026-09-25/README.md), 27 hạng mục và cổng nghiệm thu A–G. Chưa coi skeleton là đủ điều kiện external staging/production.
+
+## Đợt thực thi audit 25/09/2026
+
+- PR #35 đã merge: tài liệu audit, không phải sửa mã.
+- PR #36 đang draft: SH-004 đã tái hiện đỏ trên CI; runtime dependency/resources đang sửa riêng.
+- Epic SH-010 trên `fix/audit-dashboard-prices-2026-09-25`: sửa giá/nền tảng và read model, thêm 7 regression trong discovery và browser gate bắt buộc; 82 test diagnostic cục bộ đạt. Browser cục bộ bị chính sách môi trường chặn (`ERR_BLOCKED_BY_ADMINISTRATOR`), phải đạt CI trước merge.
+- T4 identity/publisher/ADR vẫn cần human review. Django/PostgreSQL chưa được chấp nhận. Chưa staging/production, không bật side effect thật.
+- Task pack: [dashboard prices](docs/task-packs/2026-09-25-audit-dashboard-prices.md). Trạng thái PR/CI mới nhất phải đọc GitHub, không suy từ checkpoint này.
 
 ## PR đã hoàn tất trong chuỗi hiện tại
 
