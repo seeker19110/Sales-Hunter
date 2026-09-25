@@ -1,6 +1,6 @@
 # Audit execution matrix â€” 25/09/2026
 
-Historical audit is immutable. This is implementation status, not proof of production readiness. Base verified: `683683710dd0de99857912487d4b2d5341f05c0e`. Read GitHub for PR changes after this checkpoint.
+Historical audit is immutable. This is implementation status, not proof of production readiness. Base verified: `0fea06578b04b832c07df6b31c60444510d25c79`. Read GitHub for PR changes after this checkpoint.
 
 ## Evidence registry
 
@@ -9,6 +9,7 @@ Historical audit is immutable. This is implementation status, not proof of produ
 | UI | #37 | aedba6c5e9574290e40b72e8e0e6087c49b35c8a | 36139653615 success; metadata 36139653640 success; post-merge 36140091351 success | merged 2522c4db9e168865957d128cab1e597dbb41abb4 | 82 tests, real Chrome mobile list/detail from builder+SQLite; tree verified |
 | PKG | #36 | dae66501b8d1fdec4ce6d26194385c5682d9c26c | quality, artifact and matrix success | merged a61cffe5d95e335614375d35037cdd010e7e5fc6 | runtime dependency and five package schemas, clean wheel smoke outside checkout |
 | INT | #38 | 9d8c290a75640b45c27f7b82822c90270da6adad | quality, artifact, browser and matrix success | human T4 reviewed exact HEAD; merged 683683710dd0de99857912487d4b2d5341f05c0e | 16 integrity regressions, trusted approval authority and UTC; partial SH-002/023 |
+| PROJ | #40 | 6b5d50ce8633d65aaf59063a8644a768609179fb | quality, artifact, browser and matrix success | merged 0fea06578b04b832c07df6b31c60444510d25c79 | candidate nested approval v1 projection and legacy readback; 104 local tests |
 | AUTH | fix/audit-operator-auth-2026-09-25 | see PR HEAD | CI pending | T4 human review required | local-only fail-closed auth/session/CSRF; no external identity or deployment |
 | NONE | none | none | not run | not started | audit/code inspection is not implementation acceptance |
 
@@ -20,11 +21,11 @@ Each evidence key resolves PR, HEAD, CI, merge and verification limits above. â€
 |---|---|---|---|
 | SH-001 | Merged, CI verified: recompute all five protected fields at both stores, approve and publish; freeze candidate | immutable revision/CAS in SH-008/009 | INT |
 | SH-002 | Partial merged: full approval contract; configured authority; reject missing/forged/currently rejected records and cached receipt after reject/restart | SH-003 external identity/roles; SH-008/009 revision/history; SH-011 final payload/channel scope | INT |
-| SH-003 | Branch implementation: local auth fail-closed, Bearer API, dashboard session/CSRF, server actor and loopback-only bind | AUTH CI/T4 merge; production identity/roles, TLS/server and external staging decision | AUTH |
+| SH-003 | PR #39: local auth fail-closed, Bearer API, dashboard session/CSRF, server actor and loopback-only bind | CI on updated HEAD and T4 review/merge; production identity/roles, TLS/server and external staging decision | AUTH |
 | SH-004 | Merged, CI verified: runtime dependencies, package resources and clean wheel outside checkout | External deployment remains separate | PKG |
 | SH-005 | Not started: RAM idempotency remains | Durable intent/outbox, unique key, leases, attempts, finite retry, unknown-outcome reconciliation; restart/concurrency/crash tests; T4 | NONE |
 | SH-006 | Partial: hash integrity now checked on ingest; caller/server DTO separation NOT done | Reject caller-owned approval/hash metadata; full candidate input schema and stable API errors | INT |
-| SH-007 | Not started: nested candidate approval still inconsistent after SQLite transition | Correct projection contract after create/edit/approve/reject/reload/API, migration/legacy checks | NONE |
+| SH-007 | Merged #40, CI verified: SQLite writes and reads five-field candidate approval projection; standalone approval remains full; legacy nested records projected on read | Revision/history remain SH-008/009 | PROJ |
 | SH-008 | Not started: current authority lookup is NOT revision CAS | Atomic update/approve expected-revision transaction; controlled race tests on selected production database | NONE |
 | SH-009 | Partial: current rejection rechecked before send; history still overwritten | Append-only approval/revision events, transactional invalidation and consistent projections | INT |
 | SH-010 | Merged and CI verified: canonical integer VND, platform, null/zero/large values, mobile display | No production claim; full inbox workflow remains SH-024 | UI |

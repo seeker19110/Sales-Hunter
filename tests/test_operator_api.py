@@ -12,6 +12,8 @@ from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from jsonschema import Draft202012Validator, FormatChecker
+
 from s_n_sales.api.app import make_server
 from s_n_sales.api.store import OperatorStore
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
@@ -318,6 +320,67 @@ class OperatorSqliteIntegrationTests(unittest.TestCase):
         with urlopen(req_list, timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             self.assertEqual(len(data["items"]), 1)
+
+    def test_sqlite_candidate_http_projection_and_standalone_approval(self) -> None:
+        obs = json.loads(
+            (ROOT / "schemas/examples/valid/offer-observation.v1.json").read_text(encoding="utf-8")
+        )
+        rank = observation_to_rank(obs, now=datetime(2026, 9, 11, 6, 0, tzinfo=UTC))
+        candidate = build_publication_candidate(
+            obs,
+            rank,
+            content="SQLite API projection test",
+            affiliate_url="https://example.com/aff/sqlite-api-projection",
+            target_channel="telegram:sales-hunter-demo",
+        )
+        pub_id = candidate["publication_id"]
+        candidate_schema = json.loads(
+            (ROOT / "schemas/publication-candidate.v1.json").read_text(encoding="utf-8")
+        )
+        approval_schema = json.loads(
+            (ROOT / "schemas/approval-record.v1.json").read_text(encoding="utf-8")
+        )
+        candidate_validator = Draft202012Validator(candidate_schema, format_checker=FormatChecker())
+        approval_validator = Draft202012Validator(approval_schema, format_checker=FormatChecker())
+
+        def api(method: str, path: str, body: dict | None = None) -> tuple[int, dict]:
+            request = Request(
+                self.base + path,
+                data=None if body is None else json.dumps(body).encode("utf-8"),
+                headers={"Content-Type": "application/json"} if body is not None else {},
+                method=method,
+            )
+            with urlopen(request, timeout=5) as response:
+                return response.status, json.loads(response.read().decode("utf-8"))
+
+        status_code, created = api("POST", "/api/v1/candidates", candidate)
+        self.assertEqual(status_code, 201)
+        candidate_validator.validate(created)
+        for decision_status in ("approved", "rejected"):
+            with self.subTest(status=decision_status):
+                action = "approve" if decision_status == "approved" else "reject"
+                status_code, record = api(
+                    "POST",
+                    f"/api/v1/candidates/{pub_id}/{action}",
+                    {"decided_by": "operator@example.com", "reason": "Checked"},
+                )
+                self.assertEqual(status_code, 200)
+                approval_validator.validate(record)
+
+                status_code, fetched = api("GET", f"/api/v1/candidates/{pub_id}")
+                self.assertEqual(status_code, 200)
+                candidate_validator.validate(fetched)
+                self.assertEqual(fetched["approval"]["status"], decision_status)
+
+                status_code, listing = api("GET", "/api/v1/candidates")
+                self.assertEqual(status_code, 200)
+                self.assertEqual(len(listing["items"]), 1)
+                candidate_validator.validate(listing["items"][0])
+
+                status_code, standalone = api("GET", f"/api/v1/candidates/{pub_id}/approval")
+                self.assertEqual(status_code, 200)
+                approval_validator.validate(standalone)
+                self.assertEqual(standalone, record)
 
 
 class OperatorEndToEndPipelineTests(unittest.TestCase):
