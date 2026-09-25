@@ -6,13 +6,15 @@ import hmac
 import html
 import ipaddress
 import json
+import re
 import secrets
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Any, Protocol
-from urllib.parse import parse_qs, quote, urlparse
+from typing import Any, Protocol, cast
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
+from s_n_sales.api.contracts import RevisionConflict, RevisionRequired
 from s_n_sales.api.read_model import CandidatePriceView
 from s_n_sales.pipeline.approval import ApprovalError
 
@@ -38,10 +40,16 @@ class OperatorStoreProtocol(Protocol):
     def get_approval(self, publication_id: str) -> dict[str, Any] | None: ...
 
 
-def _json_response(handler: BaseHTTPRequestHandler, status: int, body: Any) -> None:
+def _json_response(
+    handler: BaseHTTPRequestHandler, status: int, body: Any, *, revision: int | None = None
+) -> None:
     payload = json.dumps(body, ensure_ascii=False).encode("utf-8")
     handler.send_response(status)
     handler.send_header("Content-Type", "application/json; charset=utf-8")
+    handler.send_header("Cache-Control", "no-store")
+    handler.send_header("X-Content-Type-Options", "nosniff")
+    if revision is not None:
+        handler.send_header("ETag", f'"{revision}"')
     handler.send_header("Content-Length", str(len(payload)))
     handler.end_headers()
     handler.wfile.write(payload)
@@ -51,6 +59,14 @@ def _html_response(handler: BaseHTTPRequestHandler, status: int, body: str) -> N
     payload = body.encode("utf-8")
     handler.send_response(status)
     handler.send_header("Content-Type", "text/html; charset=utf-8")
+    handler.send_header("Cache-Control", "no-store")
+    handler.send_header("Referrer-Policy", "no-referrer")
+    handler.send_header("X-Content-Type-Options", "nosniff")
+    handler.send_header(
+        "Content-Security-Policy",
+        "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; "
+        "frame-ancestors 'none'; base-uri 'none'",
+    )
     handler.send_header("Content-Length", str(len(payload)))
     handler.end_headers()
     handler.wfile.write(payload)
@@ -237,7 +253,9 @@ def _render_dashboard_list(
 </html>"""
 
 
-def _render_dashboard_detail(candidate: dict[str, Any], csrf_token: str) -> str:
+def _render_dashboard_detail(
+    candidate: dict[str, Any], csrf_token: str, revision: int | None = None
+) -> str:
     pub_id = html.escape(str(candidate.get("publication_id", "")))
     view = CandidatePriceView.from_candidate(candidate)
     platform = html.escape(view.platform)
@@ -254,6 +272,11 @@ def _render_dashboard_detail(candidate: dict[str, Any], csrf_token: str) -> str:
 
     csrf_input = f'<input type="hidden" name="csrf_token" value="{html.escape(csrf_token)}">'
 
+    revision_input = (
+        f'<input type="hidden" name="expected_revision" value="{revision}">'
+        if revision is not None
+        else ""
+    )
     approve_action = f"/dashboard/candidates/{pub_id}/approve"
     reject_action = f"/dashboard/candidates/{pub_id}/reject"
 
@@ -339,6 +362,7 @@ def _render_dashboard_detail(candidate: dict[str, Any], csrf_token: str) -> str:
         <div class="actions">
             <form method="POST" action="{approve_action}">
                 {csrf_input}
+                {revision_input}
                 <div style="font-weight: 600; color: #15803d; margin-bottom: 8px;">Duyệt Deal</div>
                 <label style="font-size: 13px;">Lý do / Ghi chú:</label>
                 <input type="text" name="reason" placeholder="Đã kiểm tra deal hợp lệ">
@@ -347,6 +371,7 @@ def _render_dashboard_detail(candidate: dict[str, Any], csrf_token: str) -> str:
 
             <form method="POST" action="{reject_action}">
                 {csrf_input}
+                {revision_input}
                 <div style="font-weight: 600; color: #b91c1c; margin-bottom: 8px;">Từ chối</div>
                 <label style="font-size: 13px;">Lý do từ chối:</label>
                 <input type="text" name="reason" placeholder="Giá sale không thật hoặc link hỏng">
@@ -356,6 +381,31 @@ def _render_dashboard_detail(candidate: dict[str, Any], csrf_token: str) -> str:
     </div>
 </body>
 </html>"""
+
+
+def _reject_json_constant(value: str) -> None:
+    raise ValueError("non_finite_json")
+
+
+def _viewed_revision(
+    body: dict[str, Any], header: str | None, *, form_mode: bool = False
+) -> int | None:
+    value = body.get("expected_revision")
+    if form_mode:
+        value = value[0] if isinstance(value, list) and len(value) == 1 else None
+        if isinstance(value, str) and value.isascii() and value.isdecimal():
+            value = int(value)
+    if value is not None and (type(value) is not int or value < 1):
+        raise RevisionRequired("expected_revision_required")
+    if header is not None:
+        match = re.fullmatch(r'"([1-9][0-9]{0,18})"', header)
+        if match is None:
+            raise RevisionRequired("strong_revision_etag_required")
+        from_header = int(match.group(1))
+        if value is not None and value != from_header:
+            raise RevisionConflict("ambiguous_revision")
+        value = from_header
+    return value
 
 
 def create_handler_class(
@@ -369,6 +419,25 @@ def create_handler_class(
     session_duration = 8 * 60 * 60
 
     class OperatorHandler(BaseHTTPRequestHandler):
+        def setup(self) -> None:
+            super().setup()
+            self.connection.settimeout(5)
+
+        def _request_boundary(self) -> bool:
+            port = cast(ThreadingHTTPServer, self.server).server_port
+            allowed = {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
+            host = self.headers.get("Host", "").lower()
+            if len(self.headers.get_all("Host", [])) != 1 or host not in allowed:
+                _json_response(self, 400, {"error": "invalid_host"})
+                return False
+            origin = self.headers.get("Origin")
+            if (origin is not None and origin != f"http://{host}") or self.headers.get(
+                "Sec-Fetch-Site"
+            ) == "cross-site":
+                _json_response(self, 403, {"error": "cross_origin_rejected"})
+                return False
+            return True
+
         def log_message(self, format: str, *args: object) -> None:
             return  # quiet in tests
 
@@ -400,6 +469,8 @@ def create_handler_class(
             )
 
         def do_GET(self) -> None:
+            if not self._request_boundary():
+                return
             parsed = urlparse(self.path)
             path = parsed.path.rstrip("/") or "/"
             query_params = parse_qs(parsed.query)
@@ -438,11 +509,13 @@ def create_handler_class(
 
             if path.startswith("/dashboard/candidates/"):
                 pub_id = path[len("/dashboard/candidates/") :]
-                candidate = store.get_candidate(pub_id)
-                if candidate is None:
+                snapshot = store.get_snapshot(unquote(pub_id))
+                if snapshot is None:
                     _html_response(self, 404, "<h1>404 Not Found</h1><p>Không tìm thấy deal.</p>")
                     return
-                html_body = _render_dashboard_detail(candidate, session[1])
+                html_body = _render_dashboard_detail(
+                    snapshot.candidate, session[1], snapshot.revision
+                )
                 _html_response(self, 200, html_body)
                 return
 
@@ -453,19 +526,22 @@ def create_handler_class(
 
             if path.startswith("/api/v1/candidates/"):
                 pub_id = path[len("/api/v1/candidates/") :]
-                if "/approval" in pub_id:
-                    base_id, _, _ = pub_id.partition("/approval")
+                if pub_id.endswith("/history"):
+                    _json_response(self, 200, {"items": store.list_history(unquote(pub_id[:-8]))})
+                    return
+                if pub_id.endswith("/approval"):
+                    base_id = unquote(pub_id[:-9])
                     approval = store.get_approval(base_id)
                     if approval is None:
                         _json_response(self, 404, {"error": "approval_not_found"})
                         return
                     _json_response(self, 200, approval)
                     return
-                candidate = store.get_candidate(pub_id)
-                if candidate is None:
+                snapshot = store.get_snapshot(unquote(pub_id))
+                if snapshot is None:
                     _json_response(self, 404, {"error": "candidate_not_found"})
                     return
-                _json_response(self, 200, candidate)
+                _json_response(self, 200, snapshot.candidate, revision=snapshot.revision)
                 return
 
             if path == "/api/v1/receipts":
@@ -476,6 +552,15 @@ def create_handler_class(
             _json_response(self, 404, {"error": "not_found"})
 
         def do_POST(self) -> None:
+            if not self._request_boundary():
+                return
+            if (
+                self.headers.get("Transfer-Encoding")
+                or len(self.headers.get_all("Content-Length", [])) > 1
+            ):
+                self.close_connection = True
+                _json_response(self, 400, {"error": "invalid_framing"})
+                return
             parsed = urlparse(self.path)
             path = parsed.path.rstrip("/") or "/"
             content_type = self.headers.get("Content-Type", "")
@@ -497,13 +582,25 @@ def create_handler_class(
                 else:
                     _json_response(self, 413, {"error": "payload_too_large"})
                 return
-            raw = self.rfile.read(length) if length else b""
+            try:
+                raw = self.rfile.read(length) if length else b""
+            except TimeoutError:
+                self.close_connection = True
+                _json_response(self, 408, {"error": "request_timeout"})
+                return
+            if len(raw) != length:
+                _json_response(self, 400, {"error": "incomplete_body"})
+                return
 
             if is_dashboard:
                 if "application/x-www-form-urlencoded" not in content_type:
                     _html_response(self, 415, "<h1>415 Unsupported Media Type</h1>")
                     return
-                form = parse_qs(raw.decode("utf-8"))
+                try:
+                    form = parse_qs(raw.decode("utf-8"), errors="strict", max_num_fields=100)
+                except (UnicodeError, ValueError):
+                    _html_response(self, 400, "<h1>Dữ liệu form không hợp lệ</h1>")
+                    return
                 if is_login:
                     supplied = form.get("token", [""])[0]
                     if not auth_token or not hmac.compare_digest(
@@ -534,7 +631,7 @@ def create_handler_class(
                     self._dashboard_unauthorized()
                     return
                 if not allow_unauthenticated_local and not hmac.compare_digest(
-                    form.get("csrf_token", [""])[0], session[1]
+                    form.get("csrf_token", [""])[0].encode("utf-8"), session[1].encode("utf-8")
                 ):
                     _html_response(self, 403, "<h1>403 Forbidden</h1>")
                     return
@@ -552,9 +649,27 @@ def create_handler_class(
                     pub_id = path[len("/dashboard/candidates/") : -len("/approve")]
                     reason = form.get("reason", [""])[0].strip() or None
                     try:
-                        store.approve(pub_id, decided_by=auth_actor, reason=reason)
+                        store.approve(
+                            unquote(pub_id),
+                            decided_by=auth_actor,
+                            reason=reason,
+                            expected_revision=_viewed_revision(form, None, form_mode=True),
+                        )
                     except KeyError:
                         _html_response(self, 404, "<h1>404 Not Found</h1>")
+                        return
+                    except RevisionRequired:
+                        _html_response(
+                            self, 428, "<h1>Thiếu phiên bản đã xem</h1><p>Hãy tải lại bản nháp.</p>"
+                        )
+                        return
+                    except RevisionConflict:
+                        _html_response(
+                            self,
+                            409,
+                            "<h1>Bản nháp đã thay đổi</h1>"
+                            "<p>Tải lại và kiểm tra trước khi duyệt.</p>",
+                        )
                         return
                     except ApprovalError as exc:
                         err_msg = f"<h1>400 Error</h1><p>{html.escape(str(exc))}</p>"
@@ -567,9 +682,27 @@ def create_handler_class(
                     pub_id = path[len("/dashboard/candidates/") : -len("/reject")]
                     reason = form.get("reason", [""])[0].strip() or None
                     try:
-                        store.reject(pub_id, decided_by=auth_actor, reason=reason)
+                        store.reject(
+                            unquote(pub_id),
+                            decided_by=auth_actor,
+                            reason=reason,
+                            expected_revision=_viewed_revision(form, None, form_mode=True),
+                        )
                     except KeyError:
                         _html_response(self, 404, "<h1>404 Not Found</h1>")
+                        return
+                    except RevisionRequired:
+                        _html_response(
+                            self, 428, "<h1>Thiếu phiên bản đã xem</h1><p>Hãy tải lại bản nháp.</p>"
+                        )
+                        return
+                    except RevisionConflict:
+                        _html_response(
+                            self,
+                            409,
+                            "<h1>Bản nháp đã thay đổi</h1>"
+                            "<p>Tải lại và kiểm tra trước khi duyệt.</p>",
+                        )
                         return
                     except ApprovalError as exc:
                         err_msg = f"<h1>400 Error</h1><p>{html.escape(str(exc))}</p>"
@@ -582,9 +715,12 @@ def create_handler_class(
                 return
 
             # JSON REST API POST
+            if content_type.split(";", 1)[0].strip().lower() != "application/json":
+                _json_response(self, 415, {"error": "unsupported_media_type"})
+                return
             try:
-                body = json.loads(raw.decode("utf-8") or "{}")
-            except json.JSONDecodeError:
+                body = json.loads(raw.decode("utf-8") or "{}", parse_constant=_reject_json_constant)
+            except (UnicodeError, ValueError):
                 _json_response(self, 400, {"error": "invalid_json"})
                 return
             if not isinstance(body, dict):
@@ -593,23 +729,41 @@ def create_handler_class(
 
             if path == "/api/v1/candidates":
                 try:
-                    saved = store.upsert_candidate(body)
+                    saved = store.upsert_candidate(
+                        body,
+                        expected_revision=_viewed_revision({}, self.headers.get("If-Match")),
+                        actor=auth_actor,
+                    )
+                except RevisionRequired:
+                    _json_response(self, 428, {"error": "expected_revision_required"})
+                    return
+                except RevisionConflict:
+                    _json_response(self, 409, {"error": "revision_conflict"})
+                    return
                 except ValueError as exc:
                     _json_response(self, 400, {"error": str(exc)})
                     return
-                _json_response(self, 201, saved)
+                snapshot = store.get_snapshot(saved["publication_id"])
+                _json_response(self, 201, snapshot.candidate, revision=snapshot.revision)
                 return
 
             if path.endswith("/approve") and path.startswith("/api/v1/candidates/"):
                 pub_id = path[len("/api/v1/candidates/") : -len("/approve")]
                 try:
                     record = store.approve(
-                        pub_id,
+                        unquote(pub_id),
+                        expected_revision=_viewed_revision(body, self.headers.get("If-Match")),
                         decided_by=auth_actor,
                         reason=body.get("reason") if isinstance(body.get("reason"), str) else None,
                     )
                 except KeyError:
                     _json_response(self, 404, {"error": "candidate_not_found"})
+                    return
+                except RevisionRequired:
+                    _json_response(self, 428, {"error": "expected_revision_required"})
+                    return
+                except RevisionConflict:
+                    _json_response(self, 409, {"error": "revision_conflict"})
                     return
                 except ApprovalError as exc:
                     _json_response(self, 400, {"error": str(exc)})
@@ -621,12 +775,19 @@ def create_handler_class(
                 pub_id = path[len("/api/v1/candidates/") : -len("/reject")]
                 try:
                     record = store.reject(
-                        pub_id,
+                        unquote(pub_id),
+                        expected_revision=_viewed_revision(body, self.headers.get("If-Match")),
                         decided_by=auth_actor,
                         reason=body.get("reason") if isinstance(body.get("reason"), str) else None,
                     )
                 except KeyError:
                     _json_response(self, 404, {"error": "candidate_not_found"})
+                    return
+                except RevisionRequired:
+                    _json_response(self, 428, {"error": "expected_revision_required"})
+                    return
+                except RevisionConflict:
+                    _json_response(self, 409, {"error": "revision_conflict"})
                     return
                 except ApprovalError as exc:
                     _json_response(self, 400, {"error": str(exc)})

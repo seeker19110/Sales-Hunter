@@ -74,6 +74,7 @@ class SqliteStoreTests(unittest.TestCase):
             decided_by="operator@example.com",
             reason="Verified good deal",
             now=clock,
+            expected_revision=self.store.get_revision(pub_id),
         )
 
         self.assertEqual(approval["status"], "approved")
@@ -100,6 +101,7 @@ class SqliteStoreTests(unittest.TestCase):
             pub_id,
             decided_by="operator@example.com",
             reason="Price not verified",
+            expected_revision=self.store.get_revision(pub_id),
         )
         self.assertEqual(rejection["status"], "rejected")
 
@@ -119,7 +121,9 @@ class SqliteStoreTests(unittest.TestCase):
         # Save and approve on first store instance
         self.store.upsert_candidate(self.candidate)
         pub_id = self.candidate["publication_id"]
-        self.store.approve(pub_id, decided_by="op1")
+        self.store.approve(
+            pub_id, decided_by="op1", expected_revision=self.store.get_revision(pub_id)
+        )
         self.store.close()
 
         # Open the exact same SQLite file with a fresh store instance
@@ -156,7 +160,11 @@ class SqliteStoreTests(unittest.TestCase):
             with self.subTest(status=status):
                 clock = datetime(2026, 9, 12, 10, 0, tzinfo=UTC)
                 decision = getattr(self.store, "approve" if status == "approved" else "reject")(
-                    pub_id, decided_by="operator@example.com", reason="Checked", now=clock
+                    pub_id,
+                    decided_by="operator@example.com",
+                    reason="Checked",
+                    now=clock,
+                    expected_revision=self.store.get_revision(pub_id),
                 )
                 approval_validator.validate(decision)
                 self.assertEqual(self.store.get_approval(pub_id), decision)
@@ -181,7 +189,11 @@ class SqliteStoreTests(unittest.TestCase):
         validator = Draft202012Validator(schema, format_checker=FormatChecker())
         pub_id = self.candidate["publication_id"]
         self.store.upsert_candidate(self.candidate)
-        record = self.store.approve(pub_id, decided_by="operator@example.com")
+        record = self.store.approve(
+            pub_id,
+            decided_by="operator@example.com",
+            expected_revision=self.store.get_revision(pub_id),
+        )
         legacy = dict(self.candidate, approval=record)
         with self.store._lock, self.store._conn:
             self.store._conn.execute(
@@ -210,9 +222,12 @@ class SqliteStoreTests(unittest.TestCase):
             "target_channel": "telegram:sales-hunter-demo",
             "idempotency_key": "obs-001:telegram:draft-hash-001",
             "published_at": "2026-09-12T10:00:00Z",
-            "external_post_id": "post-999",
-            "status": "success",
-            "mode": "dry_run",
+            "platform_post_id": "fake-post-999",
+            "platform_post_url": "https://example.com/posts/fake-999",
+            "read_back_at": "2026-09-12T10:00:00Z",
+            "status": "published",
+            "error_code": None,
+            "error_message": None,
         }
         self.store.save_receipt(receipt)
 

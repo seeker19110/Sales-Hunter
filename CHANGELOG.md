@@ -4,6 +4,10 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Dữ liệu và giao dịch (chờ review T4)
+
+- SH-006/008/009/026: nhập pending đúng schema, revision bắt buộc khi sửa/duyệt, transaction SQLite, history chỉ-thêm, vô hiệu approval khi edit và đọc authority nguyên tử. HTTP 409/428, form version, Host/Origin và UTF-8/framing giới hạn. Migration preview chỉ đọc, manifest và rollback khi legacy data lỗi; chưa chọn PostgreSQL/production.
+
 ### Thêm
 
 - Audit 25/09/2026 tại `docs/audits/2026-09-25/`: báo cáo 27 hạng mục, lộ trình A–G ưu tiên chất lượng/dễ vận hành, 12 probe local và JSON bằng chứng có manifest SHA. Đây là bàn giao tài liệu; không phải đã sửa các phát hiện, thay kiến trúc hoặc bật publish thật.
