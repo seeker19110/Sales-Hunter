@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import http.client
 import json
+import re
 import tempfile
 import threading
 import unittest
@@ -26,7 +28,9 @@ ROOT = Path(__file__).resolve().parents[1]
 class OperatorApiTests(unittest.TestCase):
     def setUp(self) -> None:
         self.store = OperatorStore()
-        self.server = make_server(self.store, host="127.0.0.1", port=0)
+        self.server = make_server(
+            self.store, host="127.0.0.1", port=0, allow_unauthenticated_local=True
+        )
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -98,6 +102,7 @@ class OperatorApiTests(unittest.TestCase):
         )
         self.assertEqual(status, 200)
         self.assertEqual(approval["status"], "approved")
+        self.assertEqual(approval["decided_by"], "operator")
         self.assertEqual(approval["draft_sha256"], self.candidate["draft_sha256"])
 
         status, stored = self._json("GET", f"/api/v1/candidates/{pub_id}/approval")
@@ -114,6 +119,7 @@ class OperatorApiTests(unittest.TestCase):
         )
         self.assertEqual(status, 200)
         self.assertEqual(approval["status"], "rejected")
+        self.assertEqual(approval["decided_by"], "operator")
 
 
 class OperatorAuthTests(unittest.TestCase):
@@ -163,16 +169,19 @@ class OperatorAuthTests(unittest.TestCase):
         with urlopen(req, timeout=5) as resp:
             self.assertEqual(resp.status, 200)
 
-    def test_api_allowed_with_query_token(self) -> None:
+    def test_api_denied_with_query_token(self) -> None:
         req = Request(self.base + f"/api/v1/candidates?token={self.token}")
-        with urlopen(req, timeout=5) as resp:
-            self.assertEqual(resp.status, 200)
+        with self.assertRaises(HTTPError) as ctx:
+            urlopen(req, timeout=5)
+        self.assertEqual(ctx.exception.code, 401)
 
 
 class OperatorDashboardTests(unittest.TestCase):
     def setUp(self) -> None:
         self.store = OperatorStore()
-        self.server = make_server(self.store, host="127.0.0.1", port=0)
+        self.server = make_server(
+            self.store, host="127.0.0.1", port=0, allow_unauthenticated_local=True
+        )
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -240,7 +249,7 @@ class OperatorDashboardTests(unittest.TestCase):
         self.assertIsNotNone(approval)
         assert approval is not None
         self.assertEqual(approval["status"], "approved")
-        self.assertEqual(approval["decided_by"], "operator@test.com")
+        self.assertEqual(approval["decided_by"], "operator")
 
     def test_dashboard_form_reject(self) -> None:
         pub_id = self.candidate["publication_id"]
@@ -263,6 +272,7 @@ class OperatorDashboardTests(unittest.TestCase):
         self.assertIsNotNone(approval)
         assert approval is not None
         self.assertEqual(approval["status"], "rejected")
+        self.assertEqual(approval["decided_by"], "operator")
 
 
 class OperatorSqliteIntegrationTests(unittest.TestCase):
@@ -270,7 +280,9 @@ class OperatorSqliteIntegrationTests(unittest.TestCase):
         self.temp_dir = tempfile.TemporaryDirectory()
         db_path = Path(self.temp_dir.name) / "test_api_sqlite.db"
         self.store = SqliteOperatorStore(db_path=db_path)
-        self.server = make_server(self.store, host="127.0.0.1", port=0)
+        self.server = make_server(
+            self.store, host="127.0.0.1", port=0, allow_unauthenticated_local=True
+        )
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -382,6 +394,7 @@ class OperatorEndToEndPipelineTests(unittest.TestCase):
             host="127.0.0.1",
             port=0,
             auth_token=self.token,
+            auth_actor="lead-operator@donghanhcungban.org",
         )
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
@@ -422,26 +435,61 @@ class OperatorEndToEndPipelineTests(unittest.TestCase):
         with urlopen(ingest_req, timeout=5) as resp:
             self.assertEqual(resp.status, 201)
 
-        # 3. Verify deal appears in Web Dashboard HTML
-        dash_req = Request(f"{self.base}/dashboard?token={self.token}")
+        # 3. Exchange the token for an opaque dashboard session and CSRF value.
+        connection = http.client.HTTPConnection("127.0.0.1", self.port, timeout=5)
+        try:
+            login_form = urlencode({"token": self.token})
+            connection.request(
+                "POST",
+                "/dashboard/login",
+                body=login_form,
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+            )
+            login_response = connection.getresponse()
+            self.assertEqual(login_response.status, 303)
+            self.assertEqual(login_response.getheader("Location"), "/dashboard")
+            cookie = login_response.getheader("Set-Cookie", "").split(";", 1)[0]
+            self.assertTrue(cookie)
+            self.assertNotIn(self.token, cookie)
+            login_response.read()
+        finally:
+            connection.close()
+
+        dash_req = Request(f"{self.base}/dashboard", headers={"Cookie": cookie})
         with urlopen(dash_req, timeout=5) as resp:
             self.assertEqual(resp.status, 200)
             html_content = resp.read().decode("utf-8")
             self.assertIn(pub_id, html_content)
             self.assertIn("Chờ duyệt", html_content)
+            self.assertNotIn(self.token, html_content)
+            self.assertNotIn("?token=", html_content)
+
+        detail_req = Request(
+            f"{self.base}/dashboard/candidates/{pub_id}", headers={"Cookie": cookie}
+        )
+        with urlopen(detail_req, timeout=5) as resp:
+            detail = resp.read().decode("utf-8")
+            match = re.search(r'name="csrf_token" value="([^"]+)"', detail)
+            self.assertIsNotNone(match)
+            assert match is not None
+            csrf_token = match.group(1)
+            self.assertNotIn(self.token, detail)
 
         # 4. Operator approves deal via Web Form submission
         approve_form = urlencode(
             {
-                "token": self.token,
-                "decided_by": "lead-operator@donghanhcungban.org",
+                "csrf_token": csrf_token,
+                "decided_by": "forged-reviewer",
                 "reason": "Verified price claim and affiliate disclosure",
             }
         ).encode("utf-8")
         approve_req = Request(
             f"{self.base}/dashboard/candidates/{pub_id}/approve",
             data=approve_form,
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Cookie": cookie,
+            },
             method="POST",
         )
         with urlopen(approve_req, timeout=5) as resp:
