@@ -1,0 +1,31 @@
+[Unit]
+Description=Sales-Hunter isolated read-only platform pilot
+After=network.target
+
+[Service]
+Type=simple
+User=sales-hunter
+Group=sales-hunter
+WorkingDirectory=/opt/sales-hunter/current
+EnvironmentFile=/etc/sales-hunter/pilot.env
+ExecStart=/opt/sales-hunter/current/.venv/bin/gunicorn --bind 127.0.0.1:8093 --workers 1 --threads 1 --timeout 30 --limit-request-line 2048 --limit-request-fields 32 --limit-request-field_size 4096 s_n_sales.platform_web:create_app()
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/var/lib/sales-hunter-pilot
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=256M
+CPUQuota=50%
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target

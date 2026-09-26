@@ -4,6 +4,13 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Tích hợp Đồng Hành — pilot chỉ đọc (chưa triển khai)
+
+- Thêm WSGI view riêng `s_n_sales.platform_web`: xác thực operator riêng, Host cố định, dữ liệu Sales mở chỉ đọc, phân trang/giá chuẩn/escaping; không có endpoint ghi, duyệt hoặc đăng.
+- Thêm mẫu systemd và Cloudflare Access/Tunnel, runbook và ADR0011 đề xuất; không thay API local, DNS, secret, dữ liệu Learning hay bật live publishing.
+- Thêm 12 regression cho auth, Host, phương thức HTTP, cấu hình, lỗi an toàn và tính bất biến DB sau đọc/restart. CI đúng HEAD và human T4 vẫn bắt buộc.
+- Đồng bộ checkpoint: #42/#43 đã merge, base a78da48e; tài liệu audit lịch sử giữ nguyên.
+
 ### Publication bền vững (chờ review T4)
 
 - SH-002/005/011/012/017/023/027: khôi phục implementation đã bàn giao vào PR #43: duyệt payload/revision và scope nguyên tử, intent/attempt/receipt bền vững, lease fencing, retry hữu hạn, outcome_unknown và đối soát, pause/cooldown qua restart, thu hồi có read-back và manual export không giả thành công đăng. Chỉ transport mô phỏng cục bộ; chưa có tích hợp live hoặc production.

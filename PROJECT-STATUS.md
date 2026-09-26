@@ -1,32 +1,40 @@
 # PROJECT STATUS — Sales-Hunter
 
-> **Single source of truth cho tiến độ thực thi.** Đọc trước ROADMAP và đối chiếu GitHub trước mỗi phiên.
+## Snapshot đối chiếu GitHub
 
-## Snapshot hiện tại
-
-- Ngày cập nhật: 2026-09-26
+- Ngày: 2026-09-26
 - Base branch: `bootstrap/base`
-- Base hiện tại: `e458f2130eb661553fb085ae9229a7b04d365c84`
-- #41 đã squash-merge trên GitHub trong lúc sửa CI. Tree `f05cfce7f3a00412e612a961dd5b5c36d724f1e7` khớp HEAD đã sửa `0cff6697`; CI sau merge `36201882276` đạt. Integrator phiên sửa CI không thực hiện merge hoặc ký human approval.
-- Base đã có skeleton Phase 1–6, #35 audit, #36 packaging, #37 giá/dashboard, #38 integrity, #40 projection, #39 local auth và #41 revision/transaction/history.
-- Chưa production/staging thực, chưa client nền tảng thật, chưa đổi DNS/secret hoặc chạy migration dữ liệu người dùng. Dry-run và review vẫn là cổng bắt buộc.
+- Base hiện tại: `a78da48eac625621fd22371563eb5a828db2bf39`
+- #39 AUTH, #41 DATA, #42 DEAL và #43 PUB đã merge. CI push base `36203934535` success.
+- #44 setup-uv và #45 Ruff còn mở tại lần kiểm tra; không replay hoặc tự merge trong đợt này.
+- Chưa có bằng chứng deploy staging/production, DNS/TLS, quyền API nền tảng hoặc đăng thật.
 
-## PR còn mở và sửa CI
+## Nhánh tích hợp Đồng Hành
 
-- #42 DEAL: target `bootstrap/base`; sửa UTF-8 fixture và thêm hai test mô phỏng locale Windows. CI `36201165521`/metadata `36201165470` đã đạt ở `28fbd8ce`; đang đồng bộ ancestry với squash #41 bằng merge không force. Mã nghiệp vụ/test không đổi trong lần đồng bộ này; phải kiểm CI trên HEAD mới và human T4 trước merge.
-- #43 PUB: target nhánh #42; implementation handoff đã được đẩy tại `0fc86ec9f36aa66df1bb8378edafe1ff426c3af9`, không còn chỉ test/spec. Có queue/scope/reconcile/pause/cooldown/recall và ba test chống stale/expired/unleased recall confirmation. Diagnostic 197 tests đạt; đang kiểm CI remote và tiếp tục đồng bộ theo #42. Chưa merge/T4.
-- #44 setup-uv: bản sửa metadata/base `23bc6bfb`, CI `36201277638`/metadata `36201277627` đạt. Bump 10.2.0 được giữ; cần kiểm lại với base mới sau #41.
-- #45 Ruff: bản sửa metadata/base `41f6821e`, CI `36201323368`/metadata `36201323328` đạt. Bump 0.16.8 cùng lockfile được giữ; cần kiểm lại với base mới sau #41.
-- Không miễn kiểm tra CHANGELOG, không skip/xfail/giảm validation, không tự merge PR T4. HEAD/run mới nhất phải đọc GitHub.
+- `feat/dhcb-platform-pilot-20260926`: WSGI pilot riêng, dashboard chỉ đọc với xác thực
+  độc lập, cấu hình systemd/Access và hợp đồng lối vào từ website Đồng Hành.
+- Đây là implementation nguồn trên nhánh, không phải đã merge hoặc đã online.
+- 12 test mới; bản chạy chẩn đoán local phải đối chiếu session. CI khóa dependency,
+  human T4 trên diff cuối và ADR0011 chưa được thay bằng kết quả local.
+- Xem [runbook](docs/PLATFORM-PILOT.md), [ADR0011](docs/adr/0011-platform-read-only-pilot.md)
+  và [task pack](docs/task-packs/2026-09-26-platform-pilot.md).
+- Pilot mở snapshot Sales bằng SQLite read-only; không migration/ghi DB, không endpoint
+  approve/publish, không cấp quyền từ cookie/identity/billing Learning. API operator cũ
+  tiếp tục loopback-only. Không gọi view này là operator production đầy đủ.
 
-## Bằng chứng và điểm tiếp tục
+## Việc còn lại
 
-- [Task pack CI](docs/task-packs/2026-09-26-ci-repair.md), [checkpoint DATA](docs/sessions/2026-09-26-ci-repair.md), [UTF-8 repair](docs/sessions/2026-09-26-quality-ci-repair.md), [đồng bộ sau merge DATA](docs/sessions/2026-09-26-post-data-merge-sync.md).
-- [Ma trận 27 mục](docs/implementation/2026-09-25/execution-matrix.md) là checkpoint lịch sử theo nhánh; session mới và GitHub xác định trạng thái PR/CI hiện hành. [Audit gốc](docs/audits/2026-09-25/README.md) giữ nguyên.
-- Tiếp tục kiểm tất cả PR trên HEAD mới; sau human T4 từng diff mới tích hợp tuần tự, refresh stack sau squash và kiểm lại CI base.
-- Analytics/ledger, operator form/CSV/inbox/bulk workflow, lịch sử giá, identity nhiều người dùng, server/TLS production và restore drill chưa hoàn tất. #42/#43 dùng manual/fake; không suy quyền API/account từ test mô phỏng.
-- Django/PostgreSQL cần ADR được chấp nhận; chưa tự thay stdlib/SQLite. ADR0003/0004 có điều kiện, checklist/evidence vẫn bắt buộc trước cutover.
+Human review, khóa/audit dependency triển khai, xác nhận VPS/Cloudflare, cài staging,
+HTTPS/Access read-back và restore/rollback drill còn là cổng trước kích hoạt. Lối vào
+website mặc định chưa mở. Mở subdomain không đồng nghĩa bật publisher.
 
-## Quy tắc resume
+Analytics/ledger, operator form/CSV/inbox/bulk workflow, lịch sử giá, identity nhiều người,
+full production operator và connector nền tảng thật chưa hoàn tất. Django/PostgreSQL
+vẫn cần ADR riêng; không viết lại lõi trong đợt tích hợp này.
 
-Đọc file này trước, đối chiếu base/PR/CI rồi đọc AGENTS/TRAPS/ARCHITECTURE/CODEMAP và quy ước subtask. Bảo toàn worktree; không push trực tiếp hoặc force base, không bypass test/review. Sau mỗi thay đổi cập nhật checkpoint và ghi session. Không dùng CI xanh thay human review, không gọi PR mở là đã merge hay fake receipt là live success.
+## Bằng chứng lịch sử và resume
+
+[Ma trận audit](docs/implementation/2026-09-25/execution-matrix.md) và
+[audit gốc](docs/audits/2026-09-25/README.md) là lịch sử theo checkpoint, không dùng trạng
+thái PR cũ trong đó thay GitHub hiện hành. Đọc AGENTS/TRAPS/ARCHITECTURE/CODEMAP trước khi
+đổi code. Không push/force base, không bypass test/human review, không giả live receipt.

@@ -1,0 +1,16 @@
+# TEMPLATE ONLY. Create an Access application and allow policy BEFORE routing this hostname.
+# Replace tunnel, credentials-file, teamName and audTag using approved staging configuration.
+# Do not commit credentials JSON, Access service tokens or operator token.
+tunnel: REPLACE_WITH_STAGING_TUNNEL_ID
+credentials-file: /etc/cloudflared/REPLACE_WITH_TUNNEL_CREDENTIALS.json
+ingress:
+  - hostname: sales-staging.donghanhcungban.org
+    service: http://127.0.0.1:8093
+    originRequest:
+      httpHostHeader: sales-staging.donghanhcungban.org
+      access:
+        required: true
+        teamName: REPLACE_WITH_ACCESS_TEAM
+        audTag:
+          - REPLACE_WITH_APPLICATION_AUD
+  - service: http_status:404
