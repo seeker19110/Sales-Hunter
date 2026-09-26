@@ -96,7 +96,9 @@ class PlatformPilot:
             ("Permissions-Policy", "camera=(), microphone=(), geolocation=()"),
         ]
         if challenge:
-            headers.append(("WWW-Authenticate", 'Basic realm="Sales-Hunter pilot", charset="UTF-8"'))
+            headers.append(
+                ("WWW-Authenticate", 'Basic realm="Sales-Hunter pilot", charset="UTF-8"')
+            )
         if status.startswith("405"):
             headers.append(("Allow", "GET"))
         start_response(status, headers)
@@ -204,8 +206,8 @@ Giá và điều kiện có thể đã thay đổi; đây là ảnh chụp dữ 
 <div class="scroll" role="region" aria-label="Danh sách bản nháp" tabindex="0">
 <table><thead><tr><th>ID</th><th>Nền tảng</th><th>Giá đã ghi nhận</th>
 <th>Thời điểm quan sát</th><th>Duyệt bản nháp</th><th>Trích đoạn nội dung</th></tr></thead>
-<tbody>{''.join(rows)}</tbody></table></div>
-<nav aria-label="Phân trang">{' '.join(links)}</nav></main>
+<tbody>{"".join(rows)}</tbody></table></div>
+<nav aria-label="Phân trang">{" ".join(links)}</nav></main>
 <footer><p>Không chia sẻ dữ liệu, cookie đăng nhập hay quyền thanh toán của Learning.</p></footer>
 </body></html>"""
 

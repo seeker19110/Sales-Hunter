@@ -7,6 +7,7 @@ import json
 import sqlite3
 import tempfile
 import unittest
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -80,17 +81,23 @@ class PlatformWebTests(unittest.TestCase):
         if extra:
             environ.update(extra)
         captured: list[Any] = []
+        written: list[bytes] = []
 
         def start_response(
             status: str, headers: list[tuple[str, str]], exc_info: Any = None
-        ) -> None:
+        ) -> Callable[[bytes], object]:
             captured.extend([status, headers])
+            return written.append
 
         output = validator(self.app)(environ, start_response)
         try:
-            body = b"".join(output).decode()
+            written.extend(output)
+            body = b"".join(written).decode()
         finally:
-            output.close()
+            close = getattr(output, "close", None)
+            if not callable(close):
+                raise AssertionError("WSGI validator must expose close()")
+            close()
         return int(captured[0].split()[0]), dict(captured[1]), body
 
     def test_health_has_no_data_and_explicit_read_only_mode(self) -> None:
@@ -205,7 +212,9 @@ class PlatformWebTests(unittest.TestCase):
             create_app()
 
     def test_failed_read_exposes_no_database_error_details(self) -> None:
-        with patch.object(self.app, "_read_page", side_effect=sqlite3.OperationalError("secret path")):
+        with patch.object(
+            self.app, "_read_page", side_effect=sqlite3.OperationalError("secret path")
+        ):
             for path in ("/healthz", "/dashboard"):
                 code, _, body = self.request(path)
                 self.assertEqual(code, 503)
