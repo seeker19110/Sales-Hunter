@@ -140,6 +140,9 @@ class Publisher:
         if self.client is None:
             raise PublishError("thiếu PlatformClient khi dry_run=False")
 
+        if not isinstance(self.client, FakePlatformClient):
+            raise PublishError("legacy_direct_publish_disabled_use_verified_durable_transport")
+
         content = publication_candidate["content"]
         target_channel = publication_candidate["target_channel"]
         read = self.client.publish_and_read_back(

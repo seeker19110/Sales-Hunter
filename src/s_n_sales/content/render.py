@@ -112,7 +112,15 @@ def render_candidate(
         content=composition.text,
         affiliate_url=affiliate_url,
         target_channel=target_channel,
-        publication_id=publication_id,
+        publication_id=publication_id
+        or "pub-"
+        + digest(
+            {
+                "facts_id": facts["facts_id"],
+                "target_channel": target_channel,
+                "content": composition.text,
+            }
+        )[:48],
     )
     payload: dict[str, Any] = {
         "schema_version": "publication-payload.v1",

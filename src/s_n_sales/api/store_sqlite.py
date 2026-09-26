@@ -332,60 +332,84 @@ class SqliteOperatorStore:
         reason: str | None,
         now: datetime | None,
     ) -> dict[str, Any]:
+        with self.transaction() as connection:
+            return self._decide_in_transaction(
+                connection,
+                publication_id,
+                status=status,
+                decided_by=decided_by,
+                expected_revision=expected_revision,
+                reason=reason,
+                now=now,
+            )
+
+    def _decide_in_transaction(
+        self,
+        connection: sqlite3.Connection,
+        publication_id: str,
+        *,
+        status: str,
+        decided_by: str,
+        expected_revision: int | None,
+        reason: str | None,
+        now: datetime | None,
+    ) -> dict[str, Any]:
+        """Internal coordinator hook: caller owns this store's short write transaction."""
+        if connection is not self._conn or not connection.in_transaction:
+            raise RuntimeError("decision_requires_owned_transaction")
         clock = now if now is not None else datetime.now(UTC)
         actor, at = require_actor(decided_by), timestamp(clock)
-        with self.transaction() as connection:
-            row = connection.execute(
-                "SELECT * FROM candidates WHERE publication_id=?", (publication_id,)
-            ).fetchone()
-            if row is None:
-                raise KeyError(publication_id)
-            require_revision(expected_revision, row["revision"])
-            candidate = candidate_from_json(row["candidate_json"])
-            validate_candidate(candidate)
-            record = decide_approval(
-                candidate,
-                status=status,
-                decided_by=actor,
-                decided_at=clock,
-                reason=reason,
-            )
-            candidate["approval"] = approval_projection(record)
-            validate_candidate(candidate)
-            revision = row["revision"] + 1
-            connection.execute(
-                """UPDATE candidates SET status=?, candidate_json=?, updated_at=?, revision=?
-                   WHERE publication_id=? AND revision=?""",
-                (status, canonical_json(candidate), at, revision, publication_id, row["revision"]),
-            )
-            connection.execute(
-                """INSERT INTO approvals VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                   ON CONFLICT(publication_id) DO UPDATE SET
-                       draft_sha256=excluded.draft_sha256, status=excluded.status,
-                       decided_by=excluded.decided_by, decided_at=excluded.decided_at,
-                       reason=excluded.reason, approval_json=excluded.approval_json,
-                       revision=excluded.revision""",
-                (
-                    publication_id,
-                    record["draft_sha256"],
-                    status,
-                    actor,
-                    record["decided_at"],
-                    reason,
-                    canonical_json(record),
-                    revision,
-                ),
-            )
-            self._append_version(
-                connection,
-                candidate,
+        row = connection.execute(
+            "SELECT * FROM candidates WHERE publication_id=?", (publication_id,)
+        ).fetchone()
+        if row is None:
+            raise KeyError(publication_id)
+        require_revision(expected_revision, row["revision"])
+        candidate = candidate_from_json(row["candidate_json"])
+        validate_candidate(candidate)
+        record = decide_approval(
+            candidate,
+            status=status,
+            decided_by=actor,
+            decided_at=clock,
+            reason=reason,
+        )
+        candidate["approval"] = approval_projection(record)
+        validate_candidate(candidate)
+        revision = row["revision"] + 1
+        connection.execute(
+            """UPDATE candidates SET status=?, candidate_json=?, updated_at=?, revision=?
+               WHERE publication_id=? AND revision=?""",
+            (status, canonical_json(candidate), at, revision, publication_id, row["revision"]),
+        )
+        connection.execute(
+            """INSERT INTO approvals VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(publication_id) DO UPDATE SET
+                   draft_sha256=excluded.draft_sha256, status=excluded.status,
+                   decided_by=excluded.decided_by, decided_at=excluded.decided_at,
+                   reason=excluded.reason, approval_json=excluded.approval_json,
+                   revision=excluded.revision""",
+            (
+                publication_id,
+                record["draft_sha256"],
+                status,
+                actor,
+                record["decided_at"],
+                reason,
+                canonical_json(record),
                 revision,
-                kind=status,
-                actor=actor,
-                at=at,
-                reviewed_revision=row["revision"],
-                record=record,
-            )
+            ),
+        )
+        self._append_version(
+            connection,
+            candidate,
+            revision,
+            kind=status,
+            actor=actor,
+            at=at,
+            reviewed_revision=row["revision"],
+            record=record,
+        )
         return deepcopy(record)
 
     def approve(
