@@ -11,6 +11,7 @@ import re
 import secrets
 import threading
 import time
+from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, cast
 from urllib.parse import parse_qs, quote, unquote, urlparse
@@ -21,6 +22,10 @@ from s_n_sales.domain.json_value import json_object
 from s_n_sales.pipeline.approval import ApprovalError
 
 _STATUS_FILTERS = (None, "pending", "approved", "rejected")
+# Loopback-only brute-force brake: after this many wrong tokens in the window, every login
+# attempt (including a correct one) waits for the window to clear.
+_LOGIN_FAILURE_LIMIT = 10
+_LOGIN_FAILURE_WINDOW_SECONDS = 300
 
 
 def _json_response(
@@ -38,9 +43,17 @@ def _json_response(
     handler.wfile.write(payload)
 
 
-def _html_response(handler: BaseHTTPRequestHandler, status: int, body: str) -> None:
+def _html_response(
+    handler: BaseHTTPRequestHandler,
+    status: int,
+    body: str,
+    *,
+    headers: dict[str, str] | None = None,
+) -> None:
     payload = body.encode("utf-8")
     handler.send_response(status)
+    for name, value in (headers or {}).items():
+        handler.send_header(name, value)
     handler.send_header("Content-Type", "text/html; charset=utf-8")
     handler.send_header("Cache-Control", "no-store")
     handler.send_header("Referrer-Policy", "no-referrer")
@@ -130,6 +143,18 @@ input[type="text"] {
     .tab { margin-right: 0; }
 }
 """
+
+
+_LOGIN_PAGE = (
+    '<!doctype html><html lang="vi"><head><meta charset="utf-8">'
+    '<meta name="viewport" content="width=device-width, initial-scale=1">'
+    f"<title>Đăng nhập operator — Sales-Hunter</title><style>{_CSS_COMMON}</style></head>"
+    '<body><div class="container"><h1>Đăng nhập operator</h1>'
+    '<form method="POST" action="/dashboard/login">'
+    '<label>Token <input type="password" name="token" required '
+    'autocomplete="current-password"></label>'
+    '<button type="submit" class="btn-approve">Đăng nhập</button></form></div></body></html>'
+)
 
 
 def _render_dashboard_list(
@@ -396,6 +421,7 @@ def create_handler_class(
 ) -> type[BaseHTTPRequestHandler]:
     sessions: dict[str, tuple[float, str]] = {}
     sessions_lock = threading.Lock()
+    login_failures: deque[float] = deque()
     session_duration = 8 * 60 * 60
 
     class OperatorHandler(BaseHTTPRequestHandler):
@@ -482,14 +508,7 @@ def create_handler_class(
                 return
 
             if path == "/dashboard/login":
-                _html_response(
-                    self,
-                    200,
-                    '<!doctype html><html lang="vi"><meta charset="utf-8">'
-                    '<h1>Đăng nhập operator</h1><form method="POST" action="/dashboard/login">'
-                    '<label>Token <input type="password" name="token" required></label>'
-                    '<button type="submit">Đăng nhập</button></form></html>',
-                )
+                _html_response(self, 200, _LOGIN_PAGE)
                 return
 
             if path.startswith("/dashboard"):
@@ -612,9 +631,32 @@ def create_handler_class(
                     return
                 if is_login:
                     supplied = form.get("token", [""])[0]
-                    if not auth_token or not hmac.compare_digest(
-                        supplied.encode("utf-8"), auth_token.encode("utf-8")
-                    ):
+                    with sessions_lock:
+                        clock = time.monotonic()
+                        while (
+                            login_failures
+                            and login_failures[0] <= clock - _LOGIN_FAILURE_WINDOW_SECONDS
+                        ):
+                            login_failures.popleft()
+                        if len(login_failures) >= _LOGIN_FAILURE_LIMIT:
+                            retry = int(login_failures[0] + _LOGIN_FAILURE_WINDOW_SECONDS - clock)
+                            throttled = max(1, retry)
+                        else:
+                            throttled = 0
+                        valid = bool(auth_token) and hmac.compare_digest(
+                            supplied.encode("utf-8"), (auth_token or "").encode("utf-8")
+                        )
+                        if not throttled and not valid:
+                            login_failures.append(clock)
+                    if throttled:
+                        _html_response(
+                            self,
+                            429,
+                            "<h1>429 Quá nhiều lần đăng nhập sai</h1>",
+                            headers={"Retry-After": str(throttled)},
+                        )
+                        return
+                    if not valid:
                         self._dashboard_unauthorized()
                         return
                     session_id, csrf_token = secrets.token_urlsafe(32), secrets.token_urlsafe(32)

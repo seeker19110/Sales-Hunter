@@ -16,10 +16,11 @@ from s_n_sales.adapters.manual import ManualAdapterError, load_manual_observatio
 from s_n_sales.api.app import _render_dashboard_detail, make_server
 from s_n_sales.api.store import OperatorStore
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
-from s_n_sales.domain.json_value import canonical, json_object
+from s_n_sales.domain.json_value import canonical, iso, json_object
 from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.publication import build_publication_candidate
 from s_n_sales.pipeline.publisher import FakePlatformClient, Publisher
+from s_n_sales.publishing.contracts import QueuePolicy
 from s_n_sales.publishing.fake import FakeTransport
 from s_n_sales.publishing.queue import PublicationQueue
 from s_n_sales.publishing.recall import RecallService
@@ -46,7 +47,7 @@ def _candidate(publication_id: str | None = None, content: str = "Audit candidat
     )
 
 
-class OperatorHttpBoundaryTests(unittest.TestCase):
+class _OperatorServerCase(unittest.TestCase):
     def setUp(self) -> None:
         self.store, self.publication_id = seeded_store()
         self.addCleanup(self.store.close)
@@ -82,6 +83,8 @@ class OperatorHttpBoundaryTests(unittest.TestCase):
         self.assertEqual(status, 303)
         return headers["Set-Cookie"].split(";", 1)[0]
 
+
+class OperatorHttpBoundaryTests(_OperatorServerCase):
     def test_invalid_dashboard_filter_returns_400_instead_of_dropping_connection(self) -> None:
         status, headers, _ = self.request(
             "GET", "/dashboard?status=bogus", headers={"Cookie": self.session_cookie()}
@@ -224,7 +227,7 @@ class _ProxyTransport:
         return self.inner.withdraw(idempotency_key, now=now)
 
 
-class DurableWorkerFencingTests(unittest.TestCase):
+class _DurableCase(unittest.TestCase):
     def setUp(self) -> None:
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
@@ -257,6 +260,8 @@ class DurableWorkerFencingTests(unittest.TestCase):
             now=NOW,
         )
 
+
+class DurableWorkerFencingTests(_DurableCase):
     def test_lease_lost_after_acceptance_is_reported_not_raised(self) -> None:
         self.transport.before_publish = lambda now: self.queue.recover_leases(
             now=now + timedelta(minutes=5)
@@ -306,3 +311,77 @@ class DurableWorkerFencingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LoginThrottleTests(_OperatorServerCase):
+    def login_status(self, token: str) -> tuple[int, dict[str, str]]:
+        status, headers, _ = self.request(
+            "POST",
+            "/dashboard/login",
+            body=urlencode({"token": token}).encode(),
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        return status, headers
+
+    def test_repeated_wrong_tokens_are_throttled_even_for_the_right_token(self) -> None:
+        for _ in range(10):
+            self.assertEqual(self.login_status("wrong")[0], 401)
+        status, headers = self.login_status("audit-secret")
+        self.assertEqual(status, 429)
+        self.assertIn("Retry-After", headers)
+        self.assertNotIn("Set-Cookie", headers)
+
+    def test_a_few_typos_do_not_block_the_operator(self) -> None:
+        for _ in range(3):
+            self.assertEqual(self.login_status("typo")[0], 401)
+        self.assertEqual(self.login_status("audit-secret")[0], 303)
+
+    def test_login_page_is_mobile_ready(self) -> None:
+        status, _, page = self.request("GET", "/dashboard/login")
+        self.assertEqual(status, 200)
+        self.assertIn('name="viewport"', page)
+        self.assertIn("<title>", page)
+
+
+class EncapsulationTests(unittest.TestCase):
+    def test_modules_outside_the_store_do_not_touch_its_private_state(self) -> None:
+        offenders = []
+        for path in sorted((ROOT / "src/s_n_sales").rglob("*.py")):
+            if path.parent.name == "api":
+                continue  # The store and its migration helper own the connection.
+            text = path.read_text(encoding="utf-8")
+            for marker in ("store._lock", "store._conn", "store._decide_in_transaction"):
+                if marker in text:
+                    offenders.append(f"{path.relative_to(ROOT)}: {marker}")
+        self.assertEqual(offenders, [])
+
+
+class ProvenanceNormalizationTests(unittest.TestCase):
+    def test_manual_import_records_the_normalized_actor(self) -> None:
+        store = SqliteOperatorStore(":memory:")
+        self.addCleanup(store.close)
+        repo = DealRepository(store, url_policy=UrlPolicy(frozenset({"example.com"})))
+        saved = repo.import_manual(canonical(manual_request()).encode(), actor="  op  ", now=NOW)
+        self.assertEqual(saved.facts["captured_by"], "op")
+
+
+class RecallLeasePolicyTests(_DurableCase):
+    def test_withdrawal_lease_follows_queue_policy(self) -> None:
+        worker = PublicationWorker(self.queue, self.transport, dry_run=False)
+        self.assertEqual(worker.run_once(now=NOW)["status"], "confirmed")
+        self.queue.policy = QueuePolicy(lease_seconds=120)
+        service = RecallService(self.queue)
+        identifier = self.intent["intent_id"]
+        service.request(identifier, actor="op", reason="audit", now=NOW)
+        seen: list[str] = []
+        inner_withdraw = self.transport.withdraw
+
+        def observing(key: str, *, now: datetime) -> dict:
+            seen.append(service.get(identifier)["lease_until"])
+            return inner_withdraw(key, now=now)
+
+        self.transport.withdraw = observing  # type: ignore[method-assign]
+        self.assertEqual(
+            service.run_once(self.transport, now=NOW, dry_run=False)["status"], "confirmed"
+        )
+        self.assertEqual(seen, [iso(NOW + timedelta(seconds=120))])
