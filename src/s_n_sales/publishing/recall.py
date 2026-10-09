@@ -50,7 +50,17 @@ class RecallService:
 
     def scan(self, *, now: datetime) -> int:
         count = 0
-        for intent in self.queue.list_intents(limit=1000, status="confirmed"):
+        with self.store._lock:
+            # Every confirmed publication is checked; a page limit would skip older posts.
+            identifiers = [
+                row["intent_id"]
+                for row in self.store._conn.execute(
+                    "SELECT intent_id FROM publish_intents WHERE status='confirmed' "
+                    "ORDER BY created_at,intent_id"
+                ).fetchall()
+            ]
+        for identifier in identifiers:
+            intent = self.queue.get(identifier)
             valid = True
             with self.store.transaction():
                 try:
@@ -126,10 +136,9 @@ class RecallService:
             validate_proof(
                 proof, original["payload"], key=original["logical_key"], now=now, withdrawn=True
             )
-        except (ValueError, TypeError):
-            return self.get(intent_id)
-        if proof is not None:
-            self._confirm(intent_id, proof, actor=actor, now=now)
+        except Exception:
+            return self.get(intent_id)  # Transport output is untrusted; keep outcome_unknown.
+        self._confirm(intent_id, proof, actor=actor, now=now)
         return self.get(intent_id)
 
     def run_once(

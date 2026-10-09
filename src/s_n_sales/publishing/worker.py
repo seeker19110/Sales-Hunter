@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from s_n_sales.publishing.contracts import (
     DeliveryTransport,
+    Lease,
     LeaseLost,
     Paused,
     RetryableNotSent,
@@ -52,13 +53,33 @@ class PublicationWorker:
             )
             validate_proof(proof, intent["payload"], key=intent["logical_key"], now=now)
         except RetryableNotSent:
-            return self.queue.failed(claim, retryable_not_sent=True, now=now)
+            return self._record(claim, retryable_not_sent=True, now=now)
         except TerminalNotSent:
-            return self.queue.failed(
-                claim, retryable_not_sent=False, terminal_not_sent=True, now=now
-            )
+            return self._record(claim, retryable_not_sent=False, terminal_not_sent=True, now=now)
         except Exception:
-            return self.queue.failed(claim, retryable_not_sent=False, now=now)
+            return self._record(claim, retryable_not_sent=False, now=now)
         # A DB failure after acceptance must remain SENDING until recovery -> UNKNOWN.
         # Do not classify it as a provider rejection or automatically resend.
-        return self.queue.confirmed(claim, proof, now=now)
+        try:
+            return self.queue.confirmed(claim, proof, now=now)
+        except LeaseLost:
+            # Lease recovery already moved the intent to outcome_unknown; reconcile reads back.
+            return {"status": "lease_lost", "intent_id": claim.intent_id}
+
+    def _record(
+        self,
+        claim: Lease,
+        *,
+        retryable_not_sent: bool,
+        terminal_not_sent: bool = False,
+        now: datetime,
+    ) -> dict[str, Any]:
+        try:
+            return self.queue.failed(
+                claim,
+                retryable_not_sent=retryable_not_sent,
+                terminal_not_sent=terminal_not_sent,
+                now=now,
+            )
+        except LeaseLost:
+            return {"status": "lease_lost", "intent_id": claim.intent_id}
