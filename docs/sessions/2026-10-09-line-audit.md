@@ -4,7 +4,7 @@ Task pack: [2026-10-09-audit-hardening](../task-packs/2026-10-09-audit-hardening
 
 ## Đã hoàn thành
 
-Đọc toàn bộ `src/s_n_sales` (domain, adapters, pipeline, quality, evidence, content, publishing, api, analytics), `tools/` và workflow CI. Mỗi phát hiện dưới đây được tái hiện bằng probe hoặc test đỏ trước khi sửa (`tests/test_audit_hardening.py`, 13 test).
+Đọc toàn bộ `src/s_n_sales` (domain, adapters, pipeline, quality, evidence, content, publishing, api, analytics), `tools/` và workflow CI. Mỗi phát hiện dưới đây được tái hiện bằng probe hoặc test đỏ trước khi sửa (`tests/test_audit_hardening.py`, 13 test vòng 1, 6 test vòng 2).
 
 | # | Phát hiện | Tái hiện trước sửa | Sửa |
 |---|---|---|---|
@@ -23,17 +23,27 @@ Task pack: [2026-10-09-audit-hardening](../task-packs/2026-10-09-audit-hardening
 
 Kiểm định cục bộ: ruff, format, pyright 0 lỗi, 210 unit test, `validate_repo.py`, `pip_audit` sạch, `browser_dashboard_smoke.py` (8 trang, Chromium cục bộ), wheel runtime-only ngoài checkout OK. CI GitHub trên HEAD cuối là bằng chứng chính thức.
 
-## Đã rà nhưng không đổi (ghi lại, ngoài phạm vi hoặc cần quyết định)
+## Vòng 2 (cùng ngày, theo "hoàn thiện tiếp")
 
-- `quality/repository.py`, `evidence/vault.py`, `publishing/*` đọc thẳng `store._lock`/`store._conn`. Hoạt động đúng nhờ `RLock`, nhưng nên có API đọc công khai của store trước khi đổi sang PostgreSQL (cần ADR).
-- `pipeline/publication.build_publication_candidate` (luồng legacy) chỉ kiểm HTTPS cho `affiliate_url`; luồng grounded (`content/render.py`) mới áp `UrlPolicy`. Legacy publisher đã khóa ở `FakePlatformClient`, nên chưa có rủi ro gửi thật; khi bỏ luồng legacy cần ADR.
-- Đăng nhập dashboard chưa có giới hạn số lần thử; chấp nhận được vì server bắt buộc loopback (ADR-0007). Bắt buộc trước staging ngoài.
-- `analytics` vẫn in-memory, recall lease 30 giây hard-code (bằng `QueuePolicy.lease_seconds` mặc định). Không đổi để tránh mở rộng PR.
+| # | Việc | Test |
+|---|---|---|
+| 13 | Store có API công khai `read()`, `in_transaction`, `decide_in_transaction`; `quality`, `evidence`, `publishing` thôi đọc `store._lock`/`store._conn` | `EncapsulationTests` quét `src/` |
+| 14 | Đăng nhập dashboard: 10 token sai trong 5 phút → mọi lần thử trả 429 + `Retry-After` tới khi cửa sổ trôi; vài lần gõ sai không chặn | `LoginThrottleTests` |
+| 15 | Trang đăng nhập có `viewport`, tiêu đề, CSS chung | `test_login_page_is_mobile_ready` |
+| 16 | Lease thu hồi dùng `QueuePolicy.lease_seconds` thay vì 30 giây cố định | `RecallLeasePolicyTests` |
+| 17 | `import_manual` chuẩn hóa actor trước khi ghi `captured_by` | `ProvenanceNormalizationTests` |
+| 18 | `scheduled-audit.yml`: `pip_audit` hàng tuần trên `bootstrap/base`, quyền `contents: read` | chạy được bằng `workflow_dispatch` sau merge |
+
+## Còn lại (cần ADR hoặc quyết định owner)
+
+- Luồng legacy `pipeline/publication.build_publication_candidate` và `POST /api/v1/candidates` chỉ kiểm HTTPS cho `affiliate_url`; luồng grounded mới áp `UrlPolicy`. Publisher legacy đã khóa ở `FakePlatformClient`, queue bền vững chỉ nhận package đã qua `UrlPolicy`, nên chưa có đường gửi link ngoài allowlist. Bỏ hoặc siết luồng legacy là đổi hợp đồng API → cần ADR.
+- `analytics` vẫn in-memory; lưu bền cần bảng/schema mới → ADR.
+- Throttle đăng nhập nằm trong bộ nhớ tiến trình, đủ cho loopback; staging ngoài cần identity/roles theo ADR-0007.
 - `upsert_candidate` lặp lại cùng nội dung vẫn đòi `expected_revision` (quyết định #41); giữ nguyên.
 
 ## PR đang mở
 
-- Nhánh audit này (chưa mở PR, target dự kiến `bootstrap/base`); AUD-PUB là T4 → cần người duyệt trước merge.
+- [#47](https://github.com/seeker19110/Sales-Hunter/pull/47) target `bootstrap/base`; CI vòng 1 xanh trên `9cbdc15`. AUD-PUB/AUD-LOGIN/AUD-RECALL-LEASE là T4 → cần người duyệt trước merge.
 - #44, #45 (dependabot) và #46 (DHCB pilot) không bị chạm.
 
 ## Bẫy mới

@@ -11,7 +11,8 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 - Publishing: worker trả `lease_lost` thay vì crash khi lease hết hạn sau khi provider nhận (intent ở `outcome_unknown`, reconcile đọc lại, không gửi lại); recall reconcile giữ `outcome_unknown` khi transport lỗi; quét recall không còn giới hạn 1000; publisher trả bản sao receipt cache.
 - Store: timestamp cố định micro giây để `ORDER BY created_at` đúng thứ tự.
 - Bảo mật dependency: urllib3 2.7.0 → 2.8.0 (PYSEC-2026-4175/4176/4177) để cổng `pip_audit` xanh lại.
-- 13 test hồi quy `tests/test_audit_hardening.py`; bốn bẫy mới trong `TRAPS.md`; báo cáo tại `docs/sessions/2026-10-09-line-audit.md`.
+- Vòng 2: store có API `read()`/`in_transaction`/`decide_in_transaction` công khai, mọi module ngoài `api/` thôi chạm `_lock`/`_conn` (có test chặn tái phạm); đăng nhập dashboard tạm khóa 5 phút sau 10 token sai (429 + `Retry-After`); trang đăng nhập có viewport/tiêu đề; lease thu hồi theo `QueuePolicy.lease_seconds` thay vì 30 giây cố định; `import_manual` ghi `captured_by` đã chuẩn hóa; workflow `scheduled-audit.yml` chạy `pip_audit` hàng tuần trên `bootstrap/base` (chỉ đọc).
+- 19 test hồi quy `tests/test_audit_hardening.py`; bốn bẫy mới trong `TRAPS.md`; báo cáo tại `docs/sessions/2026-10-09-line-audit.md`.
 
 ### Publication bền vững (chờ review T4)
 

@@ -11,6 +11,11 @@ Baseline: `bootstrap/base` `a78da48eac625621fd22371563eb5a828db2bf39` (#43 đã 
 | AUD-PUB | T4 | AUD-READ | `publishing/worker.py`, `publishing/recall.py`, `pipeline/publisher.py` | mất lease sau khi provider nhận không làm worker crash và không gửi lại; recall giữ `outcome_unknown` khi transport lỗi; quét recall không bị giới hạn trang |
 | AUD-STORE | T2 | AUD-READ | `api/contracts.py::timestamp` | timestamp lưu trữ sắp xếp được theo chuỗi |
 | AUD-DEPS | T1 | baseline | `uv.lock` | `pip_audit` sạch, không đổi dependency trực tiếp |
+| AUD-STORE-API | T2 | AUD-PUB | `api/store_sqlite.py`, các module đọc store | không module nào ngoài `api/` chạm `_lock`/`_conn`; hành vi giữ nguyên |
+| AUD-LOGIN | T4 | AUD-HTTP | `api/app.py` đăng nhập dashboard | 10 token sai/5 phút → 429 cho mọi lần thử; trang login mobile |
+| AUD-RECALL-LEASE | T4 | AUD-PUB | `publishing/recall.py` | lease thu hồi theo `QueuePolicy.lease_seconds` |
+| AUD-PROVENANCE | T1 | AUD-READ | `quality/repository.py::import_manual` | `captured_by` đã chuẩn hóa |
+| AUD-SCHED | T1 | AUD-DEPS | `.github/workflows/scheduled-audit.yml` | `pip_audit` hàng tuần trên base, chỉ quyền đọc |
 | AUD-DOCS | T0 | preceding | CHANGELOG, TRAPS, CODEMAP, PROJECT-STATUS, session | trạng thái khớp GitHub; bẫy mới có bằng chứng |
 
 Cấm: đổi schema/ADR/ranh giới module, nới allowlist, bật transport thật, đổi cổng CI, skip/xfail test, sửa PR đang mở khác (#44, #45, #46).
