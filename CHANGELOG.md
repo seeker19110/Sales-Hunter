@@ -4,6 +4,15 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Audit từng dòng và vá cứng (chờ review T4)
+
+- HTTP operator: ranh giới exception trả 500 `internal_error` thay vì đóng kết nối, bộ lọc trạng thái sai trả 400, history của ID không tồn tại trả 404; body JSON parse chặt (từ chối khóa trùng/NaN); form/redirect dashboard URL-encode `publication_id` đúng một lần.
+- Adapter manual/fake parse JSON chặt qua `json_object`; `json_object` trả mã `invalid_json` ổn định.
+- Publishing: worker trả `lease_lost` thay vì crash khi lease hết hạn sau khi provider nhận (intent ở `outcome_unknown`, reconcile đọc lại, không gửi lại); recall reconcile giữ `outcome_unknown` khi transport lỗi; quét recall không còn giới hạn 1000; publisher trả bản sao receipt cache.
+- Store: timestamp cố định micro giây để `ORDER BY created_at` đúng thứ tự.
+- Bảo mật dependency: urllib3 2.7.0 → 2.8.0 (PYSEC-2026-4175/4176/4177) để cổng `pip_audit` xanh lại.
+- 13 test hồi quy `tests/test_audit_hardening.py`; bốn bẫy mới trong `TRAPS.md`; báo cáo tại `docs/sessions/2026-10-09-line-audit.md`.
+
 ### Publication bền vững (chờ review T4)
 
 - SH-002/005/011/012/017/023/027: khôi phục implementation đã bàn giao vào PR #43: duyệt payload/revision và scope nguyên tử, intent/attempt/receipt bền vững, lease fencing, retry hữu hạn, outcome_unknown và đối soát, pause/cooldown qua restart, thu hồi có read-back và manual export không giả thành công đăng. Chỉ transport mô phỏng cục bộ; chưa có tích hợp live hoặc production.

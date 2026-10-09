@@ -29,5 +29,6 @@
 | Lộ trình phát triển | `docs/ROADMAP.md`, `docs/PHASES.md`, `docs/impl/` | task pack + subtask theo convention |
 | Thêm cổng CI | `.github/workflows/ci.yml`; nối vào `needs` của `quality` | PR thật phải chạy cổng đó |
 | Đối chiếu `PROJECT-STATUS.md` với git thật | `tools/check_status_freshness.py`, job `status-freshness` (chạy khi push `bootstrap/base`) | SHA là tổ tiên của HEAD; nhánh nêu tên còn tồn tại trên remote |
+| Ranh giới lỗi HTTP, JSON chặt, fencing worker/recall | `api/app.py`, `domain/json_value.py::json_object`, `publishing/worker.py`, `publishing/recall.py` | `tests/test_audit_hardening.py`; không echo exception, không `json.loads` trên input ngoài |
 | Ghi bẫy tái diễn | `TRAPS.md` | ngày, triệu chứng, nguyên nhân, cách rà, PR |
 | Giao việc phiên mới | `docs/TASK-PACK.md` / `docs/task-packs/` | đủ mục tiêu, phạm vi, nghiệm thu; việc lớn → subtask |
