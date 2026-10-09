@@ -9,6 +9,7 @@ from pathlib import Path
 from s_n_sales.adapters.kill_switch import KillSwitch
 from s_n_sales.adapters.manual import ManualAdapterError, load_manual_observation
 from s_n_sales.pipeline.manual_draft_flow import run_manual_to_publication_candidate
+from s_n_sales.quality.urls import UrlPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -47,6 +48,7 @@ class ManualAdapterTests(unittest.TestCase):
                 target_channel="telegram:demo",
                 now=self.now,
                 kill_switch=switch,
+                url_policy=UrlPolicy(frozenset({"example.com"})),
             )
 
     def test_e2e_manual_to_publication_candidate(self) -> None:
@@ -56,6 +58,7 @@ class ManualAdapterTests(unittest.TestCase):
             affiliate_url="https://example.com/aff/item-demo-001",
             target_channel="telegram:sales-hunter-demo",
             now=self.now,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.assertEqual(candidate["schema_version"], "publication-candidate.v1")
         self.assertEqual(candidate["approval"]["status"], "pending")

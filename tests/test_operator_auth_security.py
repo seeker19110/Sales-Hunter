@@ -16,6 +16,7 @@ from s_n_sales.api.app import make_server
 from s_n_sales.api.store import OperatorStore
 from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.publication import build_publication_candidate
+from s_n_sales.quality.urls import UrlPolicy
 
 
 def seeded_store() -> tuple[OperatorStore, str]:
@@ -31,6 +32,7 @@ def seeded_store() -> tuple[OperatorStore, str]:
         content="Security test candidate",
         affiliate_url="https://example.com/aff/security-test",
         target_channel="telegram:security-test",
+        url_policy=UrlPolicy(frozenset({"example.com"})),
     )
     store.upsert_candidate(candidate)
     return store, candidate["publication_id"]
@@ -39,7 +41,9 @@ def seeded_store() -> tuple[OperatorStore, str]:
 class OperatorAuthSecurityTests(unittest.TestCase):
     def setUp(self) -> None:
         self.store, self.publication_id = seeded_store()
-        self.server = make_server(self.store, auth_token="test-secret")
+        self.server = make_server(
+            self.store, auth_token="test-secret", url_policy=UrlPolicy(frozenset({"example.com"}))
+        )
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
         self.port = self.server.server_address[1]
@@ -181,23 +185,43 @@ class OperatorAuthSecurityTests(unittest.TestCase):
 class OperatorAuthConfigurationTests(unittest.TestCase):
     def test_missing_auth_configuration_fails_closed(self) -> None:
         with self.assertRaises(ValueError):
-            server = make_server(OperatorStore(), host="127.0.0.1", port=0)
+            server = make_server(
+                OperatorStore(),
+                host="127.0.0.1",
+                port=0,
+                url_policy=UrlPolicy(frozenset({"example.com"})),
+            )
             server.server_close()
 
     def test_remote_bind_refused_in_all_modes(self) -> None:
         with self.assertRaises(ValueError):
             server = make_server(
-                OperatorStore(), host="0.0.0.0", port=0, allow_unauthenticated_local=True
+                OperatorStore(),
+                host="0.0.0.0",
+                port=0,
+                allow_unauthenticated_local=True,
+                url_policy=UrlPolicy(frozenset({"example.com"})),
             )
             server.server_close()
         with self.assertRaises(ValueError):
-            server = make_server(OperatorStore(), host="0.0.0.0", port=0, auth_token="secret")
+            server = make_server(
+                OperatorStore(),
+                host="0.0.0.0",
+                port=0,
+                auth_token="secret",
+                url_policy=UrlPolicy(frozenset({"example.com"})),
+            )
             server.server_close()
 
     def test_authenticated_actor_cannot_be_forged_by_api_caller(self) -> None:
         store, publication_id = seeded_store()
         server: ThreadingHTTPServer = make_server(
-            store, host="127.0.0.1", port=0, auth_token="secret", auth_actor="reviewer"
+            store,
+            host="127.0.0.1",
+            port=0,
+            auth_token="secret",
+            auth_actor="reviewer",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         try:
             thread = threading.Thread(target=server.serve_forever, daemon=True)

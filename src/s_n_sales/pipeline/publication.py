@@ -7,10 +7,13 @@ import json
 from functools import lru_cache
 from hmac import compare_digest
 from importlib.resources import files
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 from jsonschema import Draft202012Validator, FormatChecker
+
+if TYPE_CHECKING:
+    from s_n_sales.quality.urls import UrlPolicy
 
 DISCLOSURE_TEMPLATE = (
     "#affiliate — Bài viết có thể chứa liên kết tiếp thị liên kết. "
@@ -107,6 +110,13 @@ def _require_https(url: str, *, field: str) -> None:
         raise PublicationBuildError(f"{field} phải dùng HTTPS")
 
 
+def _require_allowed(url: str, *, field: str, url_policy: UrlPolicy) -> None:
+    try:
+        url_policy.validate(url)
+    except ValueError as exc:
+        raise PublicationBuildError(f"{field} không thuộc allowlist URL") from exc
+
+
 def build_publication_candidate(
     observation: dict[str, Any],
     rank_result: dict[str, Any],
@@ -114,11 +124,15 @@ def build_publication_candidate(
     content: str,
     affiliate_url: str,
     target_channel: str,
+    url_policy: UrlPolicy,
     disclosure: str | None = None,
     publication_id: str | None = None,
     idempotency_key: str | None = None,
 ) -> dict[str, Any]:
-    """Tạo publication-candidate.v1 từ observation + rank (draft-only)."""
+    """Tạo publication-candidate.v1 từ observation + rank (draft-only).
+
+    ADR-0011: affiliate_url và evidence.source_url phải thuộc allowlist version hóa.
+    """
     del rank_result  # reserved for future metadata; schema v1 không bắt buộc score
 
     if not isinstance(content, str) or not content.strip():
@@ -139,6 +153,10 @@ def build_publication_candidate(
         resolved_disclosure = DISCLOSURE_TEMPLATE
 
     claim_snapshot = _claim_snapshot_from_observation(observation)
+    _require_allowed(affiliate_url, field="affiliate_url", url_policy=url_policy)
+    _require_allowed(
+        claim_snapshot["source_url"], field="evidence.source_url", url_policy=url_policy
+    )
     draft_sha256 = compute_draft_sha256(
         content=content,
         affiliate_url=affiliate_url,

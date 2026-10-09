@@ -11,6 +11,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
 from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.publication import build_publication_candidate
+from s_n_sales.quality.urls import UrlPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -32,6 +33,7 @@ class SqliteStoreTests(unittest.TestCase):
             content="SQLite store test content",
             affiliate_url="https://example.com/aff/sqlite-test-001",
             target_channel="telegram:sales-hunter-demo",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
 
     def tearDown(self) -> None:

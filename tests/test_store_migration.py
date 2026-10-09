@@ -12,6 +12,7 @@ from pathlib import Path
 
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
 from s_n_sales.pipeline.publication import build_publication_candidate
+from s_n_sales.quality.urls import UrlPolicy
 
 
 class MigrationTests(unittest.TestCase):
@@ -30,6 +31,7 @@ class MigrationTests(unittest.TestCase):
             content="Migration fixture",
             affiliate_url="https://example.com/aff",
             target_channel="manual_export",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
 
     def tearDown(self) -> None:

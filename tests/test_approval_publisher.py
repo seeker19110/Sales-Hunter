@@ -16,6 +16,7 @@ from s_n_sales.pipeline.approval import (
 from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.publication import build_publication_candidate
 from s_n_sales.pipeline.publisher import FakePlatformClient, Publisher, PublishError
+from s_n_sales.quality.urls import UrlPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -33,6 +34,7 @@ class ApprovalPublisherTests(unittest.TestCase):
             content="Deal demo approved path",
             affiliate_url="https://example.com/aff/item-demo-001",
             target_channel="telegram:sales-hunter-demo",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
 
     def test_decide_approval_approved(self) -> None:

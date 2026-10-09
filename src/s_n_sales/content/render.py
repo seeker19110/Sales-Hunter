@@ -112,6 +112,7 @@ def render_candidate(
         content=composition.text,
         affiliate_url=affiliate_url,
         target_channel=target_channel,
+        url_policy=url_policy,
         publication_id=publication_id
         or "pub-"
         + digest(
