@@ -17,8 +17,11 @@ _SECRET = re.compile(
 class UrlPolicy:
     allowed_hosts: frozenset[str] = frozenset()
     max_redirects: int = 3
+    version: str = "inline"
 
     def __post_init__(self) -> None:
+        if not isinstance(self.version, str) or not self.version.strip():
+            raise ValueError("invalid_allowlist_version")
         if type(self.max_redirects) is not int or not 0 <= self.max_redirects <= 5:
             raise ValueError("invalid_redirect_limit")
         if any(not _HOST.fullmatch(host) for host in self.allowed_hosts):

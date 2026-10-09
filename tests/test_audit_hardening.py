@@ -44,6 +44,7 @@ def _candidate(publication_id: str | None = None, content: str = "Audit candidat
         affiliate_url="https://example.com/aff/audit",
         target_channel="telegram:audit",
         publication_id=publication_id,
+        url_policy=UrlPolicy(frozenset({"example.com"})),
     )
 
 
@@ -51,7 +52,9 @@ class _OperatorServerCase(unittest.TestCase):
     def setUp(self) -> None:
         self.store, self.publication_id = seeded_store()
         self.addCleanup(self.store.close)
-        self.server = make_server(self.store, auth_token="audit-secret")
+        self.server = make_server(
+            self.store, auth_token="audit-secret", url_policy=UrlPolicy(frozenset({"example.com"}))
+        )
         thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         thread.start()
         self.addCleanup(thread.join, 5)

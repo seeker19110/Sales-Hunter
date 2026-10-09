@@ -15,6 +15,7 @@ from s_n_sales.pipeline.publication import (
     build_publication_candidate,
     compute_draft_sha256,
 )
+from s_n_sales.quality.urls import UrlPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -150,6 +151,7 @@ class BuildPublicationCandidateTests(unittest.TestCase):
             content=self.content,
             affiliate_url=self.affiliate_url,
             target_channel=self.channel,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.assertEqual(candidate["approval"]["status"], "pending")
         self.assertEqual(candidate["approval"]["draft_sha256"], candidate["draft_sha256"])
@@ -163,6 +165,7 @@ class BuildPublicationCandidateTests(unittest.TestCase):
             affiliate_url=self.affiliate_url,
             target_channel=self.channel,
             disclosure=None,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.assertEqual(candidate["affiliate_disclosure"], DISCLOSURE_TEMPLATE)
         self.assertTrue(len(candidate["affiliate_disclosure"]) > 0)
@@ -175,6 +178,7 @@ class BuildPublicationCandidateTests(unittest.TestCase):
             affiliate_url=self.affiliate_url,
             target_channel=self.channel,
             disclosure="   ",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.assertEqual(candidate["affiliate_disclosure"], DISCLOSURE_TEMPLATE)
 
@@ -186,6 +190,7 @@ class BuildPublicationCandidateTests(unittest.TestCase):
                 content="  ",
                 affiliate_url=self.affiliate_url,
                 target_channel=self.channel,
+                url_policy=UrlPolicy(frozenset({"example.com"})),
             )
 
     def test_build_claim_snapshot_matches_observation(self) -> None:
@@ -195,6 +200,7 @@ class BuildPublicationCandidateTests(unittest.TestCase):
             content=self.content,
             affiliate_url=self.affiliate_url,
             target_channel=self.channel,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         snap = candidate["claim_snapshot"]
         self.assertEqual(snap["platform"], self.observation["platform"])
@@ -212,6 +218,7 @@ class BuildPublicationCandidateTests(unittest.TestCase):
                 content=self.content,
                 affiliate_url="http://example.com/aff",
                 target_channel=self.channel,
+                url_policy=UrlPolicy(frozenset({"example.com"})),
             )
 
     def test_build_passes_publication_schema(self) -> None:
@@ -221,6 +228,7 @@ class BuildPublicationCandidateTests(unittest.TestCase):
             content=self.content,
             affiliate_url=self.affiliate_url,
             target_channel=self.channel,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         schema = json.loads(
             (ROOT / "schemas/publication-candidate.v1.json").read_text(encoding="utf-8")
@@ -234,6 +242,7 @@ class BuildPublicationCandidateTests(unittest.TestCase):
             content=self.content,
             affiliate_url=self.affiliate_url,
             target_channel=self.channel,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         expected = compute_draft_sha256(
             content=self.content,

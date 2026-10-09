@@ -11,6 +11,7 @@ from typing import Any
 from s_n_sales.api.store import OperatorStore
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
 from s_n_sales.pipeline.publication import build_publication_candidate, compute_draft_sha256
+from s_n_sales.quality.urls import UrlPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -25,6 +26,7 @@ def draft() -> dict[str, Any]:
         content="Nội dung thử nghiệm",
         affiliate_url="https://example.com/aff",
         target_channel="manual_export",
+        url_policy=UrlPolicy(frozenset({"example.com"})),
     )
 
 
@@ -229,7 +231,11 @@ class RevisionHttpTests(unittest.TestCase):
         self.candidate = draft()
         self.pub_id = self.candidate["publication_id"]
         self.store.upsert_candidate(self.candidate)
-        self.server = make_server(self.store, allow_unauthenticated_local=True)
+        self.server = make_server(
+            self.store,
+            allow_unauthenticated_local=True,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
+        )
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
 

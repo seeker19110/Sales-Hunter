@@ -22,6 +22,7 @@ from s_n_sales.publishing.fake import FakeTransport
 from s_n_sales.publishing.queue import PublicationQueue
 from s_n_sales.publishing.recall import RecallService
 from s_n_sales.publishing.worker import PublicationWorker
+from s_n_sales.quality.allowlist import load_url_policy
 from s_n_sales.quality.repository import DealRepository
 from s_n_sales.quality.urls import UrlPolicy
 
@@ -38,6 +39,11 @@ def main() -> None:
         except PackageNotFoundError:
             continue
         raise AssertionError(f"dev/build dependency installed in runtime: {dependency}")
+
+    # ADR-0011: the committed allowlist parses with the packaged schema and fails closed.
+    default_policy = load_url_policy(checkout / "config/url-allowlist.v1.json")
+    if default_policy.allowed_hosts:
+        raise AssertionError("committed URL allowlist must stay empty until hosts are verified")
 
     now = datetime(2026, 9, 25, tzinfo=UTC)
     observation = {
@@ -73,6 +79,7 @@ def main() -> None:
         content="Fixture: 199.000 VND, chưa gồm phí vận chuyển.",
         affiliate_url="https://example.com/affiliate",
         target_channel="manual_export",
+        url_policy=UrlPolicy(frozenset({"example.com"})),
     )
     store = OperatorStore()
     store.upsert_candidate(candidate)
@@ -161,7 +168,10 @@ def main() -> None:
         finally:
             transport.close()
     store.close()
-    print("runtime-only wheel: grounded draft, scoped approval, durable fake send and recall OK")
+    print(
+        "runtime-only wheel: allowlist, grounded draft, scoped approval, "
+        "durable fake send and recall OK"
+    )
 
 
 if __name__ == "__main__":

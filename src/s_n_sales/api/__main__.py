@@ -9,6 +9,7 @@ from pathlib import Path
 from s_n_sales.api.app import make_server
 from s_n_sales.api.store import OperatorStore
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
+from s_n_sales.quality.allowlist import load_url_policy
 
 
 def main() -> None:
@@ -26,6 +27,11 @@ def main() -> None:
         "--allow-unauthenticated-local",
         action="store_true",
         help="Chỉ dùng phát triển/kiểm thử trên loopback; không có xác thực",
+    )
+    parser.add_argument(
+        "--url-allowlist",
+        default=os.environ.get("OPERATOR_URL_ALLOWLIST"),
+        help="File url-allowlist.v1.json (ADR-0011); thiếu thì tắt nhập candidate qua API",
     )
     parser.add_argument(
         "--in-memory",
@@ -47,6 +53,11 @@ def main() -> None:
         except ValueError:
             parser.error("--host must be loopback")
 
+    try:
+        url_policy = load_url_policy(args.url_allowlist) if args.url_allowlist else None
+    except ValueError as exc:
+        parser.error(f"--url-allowlist không hợp lệ: {exc}")
+
     if args.in_memory:
         store = OperatorStore()
         store_desc = "in-memory"
@@ -62,9 +73,12 @@ def main() -> None:
         auth_token=auth_token,
         auth_actor=auth_actor,
         allow_unauthenticated_local=args.allow_unauthenticated_local,
+        url_policy=url_policy,
     )
     print(f"Sales-Hunter Operator listening on http://{args.host}:{args.port}")
     print(f"  Store:     {store_desc}")
+    allowlist_desc = url_policy.version if url_policy else "không cấu hình (tắt nhập candidate)"
+    print(f"  Allowlist: {allowlist_desc}")
     print(f"  Health:    http://{args.host}:{args.port}/healthz")
     print(f"  Dashboard: http://{args.host}:{args.port}/dashboard/login")
     try:

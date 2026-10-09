@@ -20,6 +20,7 @@ from s_n_sales.api.contracts import RevisionConflict, RevisionRequired
 from s_n_sales.api.read_model import CandidatePriceView
 from s_n_sales.domain.json_value import json_object
 from s_n_sales.pipeline.approval import ApprovalError
+from s_n_sales.quality.urls import UrlPolicy
 
 _STATUS_FILTERS = (None, "pending", "approved", "rejected")
 # Loopback-only brute-force brake: after this many wrong tokens in the window, every login
@@ -418,6 +419,7 @@ def create_handler_class(
     auth_token: str | None = None,
     auth_actor: str = "operator",
     allow_unauthenticated_local: bool = False,
+    url_policy: UrlPolicy | None = None,
 ) -> type[BaseHTTPRequestHandler]:
     sessions: dict[str, tuple[float, str]] = {}
     sessions_lock = threading.Lock()
@@ -782,6 +784,23 @@ def create_handler_class(
                 return
 
             if path == "/api/v1/candidates":
+                # ADR-0011: importing drafts requires the server's versioned URL allowlist.
+                if url_policy is None:
+                    _json_response(self, 403, {"error": "url_allowlist_not_configured"})
+                    return
+                claim = body.get("claim_snapshot")
+                urls = (
+                    body.get("affiliate_url"),
+                    claim.get("source_url") if isinstance(claim, dict) else None,
+                )
+                try:
+                    for url in urls:
+                        if not isinstance(url, str):
+                            raise ValueError("url_invalid")
+                        url_policy.validate(url)
+                except ValueError:
+                    _json_response(self, 400, {"error": "url_not_allowed"})
+                    return
                 try:
                     saved = store.upsert_candidate(
                         body,
@@ -861,6 +880,7 @@ def make_server(
     auth_token: str | None = None,
     auth_actor: str = "operator",
     allow_unauthenticated_local: bool = False,
+    url_policy: UrlPolicy | None = None,
 ) -> ThreadingHTTPServer:
     try:
         local_bind = host == "localhost" or ipaddress.ip_address(host).is_loopback
@@ -879,5 +899,6 @@ def make_server(
         auth_token=auth_token,
         auth_actor=auth_actor,
         allow_unauthenticated_local=allow_unauthenticated_local,
+        url_policy=url_policy,
     )
     return ThreadingHTTPServer((host, port), handler)

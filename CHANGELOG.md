@@ -4,6 +4,12 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Allowlist URL version hóa — ADR-0011 (chờ review T4)
+
+- Hợp đồng `url-allowlist.v1` và `config/url-allowlist.v1.json` (rỗng, fail-closed; mỗi host bắt buộc tài liệu chính thức và ngày kiểm chứng). `quality/allowlist.py::load_url_policy` parse chặt và gắn `version` vào `UrlPolicy`.
+- `build_publication_candidate` và `run_manual_to_publication_candidate` bắt buộc `url_policy`, kiểm `affiliate_url` và `evidence.source_url`. `POST /api/v1/candidates` trả 403 `url_allowlist_not_configured` khi server không có `--url-allowlist`/`OPERATOR_URL_ALLOWLIST` và 400 `url_not_allowed` với URL ngoài allowlist.
+- `validate_repo.py` kiểm mọi `config/*.json` theo schema cùng tên; smoke wheel runtime-only nạp allowlist commit sẵn. Không thêm domain nền tảng thật.
+
 ### Audit từng dòng và vá cứng (chờ review T4)
 
 - HTTP operator: ranh giới exception trả 500 `internal_error` thay vì đóng kết nối, bộ lọc trạng thái sai trả 400, history của ID không tồn tại trả 404; body JSON parse chặt (từ chối khóa trùng/NaN); form/redirect dashboard URL-encode `publication_id` đúng một lần.

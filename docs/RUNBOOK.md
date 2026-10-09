@@ -40,6 +40,15 @@ curl -sS "http://127.0.0.1:8080/healthz"
 # kỳ vọng: {"status":"ok",...}
 ```
 
+Nhập candidate qua `POST /api/v1/candidates` cần allowlist URL (ADR-0011):
+
+```bash
+uv run python -m s_n_sales.api --url-allowlist config/url-allowlist.v1.json
+# hoặc OPERATOR_URL_ALLOWLIST=config/url-allowlist.v1.json
+```
+
+Không cấu hình → endpoint trả 403 `url_allowlist_not_configured`; URL ngoài allowlist → 400 `url_not_allowed`. File sai schema làm server từ chối khởi động. Allowlist commit sẵn đang rỗng nên mọi URL bị từ chối cho tới khi owner duyệt domain có bằng chứng.
+
 Staging/production URL thật chỉ ghi trong PR deploy (không hard-code secret).
 
 ## 6. Rollback
