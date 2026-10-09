@@ -12,7 +12,7 @@
 
 ## Nhánh và PR còn mở
 
-- PR allowlist URL ADR-0011 (nhánh `claude/affectionate-bohr-pk3fsx`, làm lại từ base `7e00135`, target `bootstrap/base`): hợp đồng `url-allowlist.v1`, `config/url-allowlist.v1.json` rỗng (fail-closed), builder/manual flow/`POST /api/v1/candidates` bắt buộc policy. T4 → cần người duyệt trước merge. Xem [session](docs/sessions/2026-10-09-url-allowlist.md).
+- [#48](https://github.com/seeker19110/Sales-Hunter/pull/48) allowlist URL ADR-0011 (nhánh `claude/affectionate-bohr-pk3fsx`, làm lại từ base `7e00135`, target `bootstrap/base`): hợp đồng `url-allowlist.v1`, `config/url-allowlist.v1.json` rỗng (fail-closed), builder/manual flow/`POST /api/v1/candidates` bắt buộc policy. T4 → cần người duyệt trước merge. Xem [session](docs/sessions/2026-10-09-url-allowlist.md).
 - #46 DHCB read-only pilot [T4]: target `bootstrap/base` `a78da48`; chưa merge, cần human T4.
 - #44 setup-uv 10.2.0 và #45 Ruff 0.16.8 (dependabot): base cũ `e458f21`, cần đồng bộ base mới và kiểm lại CI; nhãn `no-changelog` theo TRAPS.
 - Không miễn kiểm tra CHANGELOG, không skip/xfail/giảm validation, không tự merge PR T4. HEAD/run mới nhất phải đọc GitHub.
@@ -20,7 +20,7 @@
 ## Bằng chứng và điểm tiếp tục
 
 - [Audit từng dòng 2026-10-09](docs/sessions/2026-10-09-line-audit.md) với [task pack](docs/task-packs/2026-10-09-audit-hardening.md); [audit gốc 2026-09-25](docs/audits/2026-09-25/README.md) giữ nguyên; [ma trận 27 mục](docs/implementation/2026-09-25/execution-matrix.md) là checkpoint lịch sử.
-- Việc còn lại cần ADR/owner: analytics bền vững, identity/roles trước staging ngoài; thêm domain nền tảng thật vào allowlist cần nguồn chính thức + ngày kiểm chứng (owner). Luồng legacy chỉ kiểm HTTPS được xử lý bởi ADR-0011 (PR đang mở).
+- Việc còn lại cần ADR/owner: analytics bền vững, identity/roles trước staging ngoài; thêm domain nền tảng thật vào allowlist cần nguồn chính thức + ngày kiểm chứng (owner). Luồng legacy chỉ kiểm HTTPS được xử lý bởi ADR-0011 ([#48](https://github.com/seeker19110/Sales-Hunter/pull/48), đang mở).
 - Analytics/ledger, operator form/CSV/inbox/bulk workflow, lịch sử giá, identity nhiều người dùng, server/TLS production và restore drill chưa hoàn tất. Publishing dùng manual/fake; không suy quyền API/account từ test mô phỏng.
 - Django/PostgreSQL cần ADR được chấp nhận; chưa tự thay stdlib/SQLite. ADR0003/0004 có điều kiện, checklist/evidence vẫn bắt buộc trước cutover.
 
