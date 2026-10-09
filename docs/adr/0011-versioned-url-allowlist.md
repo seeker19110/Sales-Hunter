@@ -1,6 +1,6 @@
 # ADR-0011 — Allowlist URL version hóa bắt buộc cho mọi đường tạo candidate
 
-Trạng thái: đề xuất; T4, cần người duyệt trước merge. Phụ thuộc ADR0005/0009. Không thêm domain nền tảng thật.
+Trạng thái: chấp nhận — owner merge #48 ngày 2026-10-09 sau review T4. Phụ thuộc ADR0005/0009. Không thêm domain nền tảng thật.
 
 ## Bối cảnh
 

@@ -17,7 +17,7 @@ Tiếp theo [audit từng dòng](2026-10-09-line-audit.md) sau khi [#47](https:/
 
 - Owner thêm domain thật: một PR riêng, mỗi host có `reference` tới tài liệu/điều khoản chính thức và `verified_on`; tới lúc đó API không nhập được candidate thật (fail-closed có chủ ý).
 - `analytics` bền vững và identity/roles trước staging ngoài vẫn cần ADR riêng.
-- PR: [#48](https://github.com/seeker19110/Sales-Hunter/pull/48), T4 → cần người duyệt trước merge.
+- PR: [#48](https://github.com/seeker19110/Sales-Hunter/pull/48), đã merge vào `bootstrap/base` (`98c4677`).
 - #44, #45, #46 không bị chạm.
 
 ## Không được quên
