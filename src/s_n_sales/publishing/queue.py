@@ -116,8 +116,8 @@ class PublicationQueue:
             )
 
     def pauses(self) -> list[dict[str, Any]]:
-        with self.store._lock:
-            return [dict(row) for row in self.store._conn.execute("SELECT * FROM publish_pauses")]
+        with self.store.read() as connection:
+            return [dict(row) for row in connection.execute("SELECT * FROM publish_pauses")]
 
     @staticmethod
     def _is_paused(connection: sqlite3.Connection, source: str, channel: str) -> bool:
@@ -155,7 +155,7 @@ class PublicationQueue:
             if package.payload["payload_sha256"] != expected_payload_sha256:
                 raise ValueError("viewed_payload_hash_mismatch")
             self._eligible(package, now=now)
-            record = self.store._decide_in_transaction(
+            record = self.store.decide_in_transaction(
                 connection,
                 publication_id,
                 status="approved",
@@ -195,7 +195,7 @@ class PublicationQueue:
     def _current_scope(
         self, publication_id: str, *, expected_revision: int, payload_hash: str, now: datetime
     ) -> tuple[DealPackage, str]:
-        if not self.store._conn.in_transaction:
+        if not self.store.in_transaction:
             raise RuntimeError("scope_check_requires_owned_transaction")
         package = self.repository.get(publication_id)
         require_revision(expected_revision, package.snapshot.revision)
@@ -203,9 +203,10 @@ class PublicationQueue:
         if record is None:
             raise ValueError("approval_missing")
         assert_approval_matches_draft(record, package.snapshot.candidate)
-        row = self.store._conn.execute(
-            "SELECT * FROM payload_approvals WHERE approval_id=?", (record["approval_id"],)
-        ).fetchone()
+        with self.store.read() as connection:
+            row = connection.execute(
+                "SELECT * FROM payload_approvals WHERE approval_id=?", (record["approval_id"],)
+            ).fetchone()
         if row is None:
             raise ValueError("payload_scoped_approval_missing")
         scope = json.loads(row["scope_json"])
@@ -317,8 +318,8 @@ class PublicationQueue:
         return [self.get(identifier) for identifier in identifiers]
 
     def get(self, intent_id: str) -> dict[str, Any]:
-        with self.store._lock:
-            row = self.store._conn.execute(
+        with self.store.read() as connection:
+            row = connection.execute(
                 "SELECT * FROM publish_intents WHERE intent_id=?", (intent_id,)
             ).fetchone()
         if row is None:
@@ -333,8 +334,8 @@ class PublicationQueue:
     def list_intents(self, *, limit: int = 100, status: str | None = None) -> list[dict[str, Any]]:
         if type(limit) is not int or not 1 <= limit <= 1000:
             raise ValueError("intent_limit_invalid")
-        with self.store._lock:
-            rows = self.store._conn.execute(
+        with self.store.read() as connection:
+            rows = connection.execute(
                 "SELECT intent_id FROM publish_intents WHERE (? IS NULL OR status=?) "
                 "ORDER BY created_at DESC,intent_id LIMIT ?",
                 (status, status, limit),
