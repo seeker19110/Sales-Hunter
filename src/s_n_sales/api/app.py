@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import hmac
 import html
 import ipaddress
@@ -11,33 +12,15 @@ import secrets
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Any, Protocol, cast
+from typing import Any, cast
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
 from s_n_sales.api.contracts import RevisionConflict, RevisionRequired
 from s_n_sales.api.read_model import CandidatePriceView
+from s_n_sales.domain.json_value import json_object
 from s_n_sales.pipeline.approval import ApprovalError
 
-
-class OperatorStoreProtocol(Protocol):
-    def upsert_candidate(self, candidate: dict[str, Any]) -> dict[str, Any]: ...
-    def list_candidates(self, status: str | None = None) -> list[dict[str, Any]]: ...
-    def get_candidate(self, publication_id: str) -> dict[str, Any] | None: ...
-    def approve(
-        self,
-        publication_id: str,
-        *,
-        decided_by: str,
-        reason: str | None = None,
-    ) -> dict[str, Any]: ...
-    def reject(
-        self,
-        publication_id: str,
-        *,
-        decided_by: str,
-        reason: str | None = None,
-    ) -> dict[str, Any]: ...
-    def get_approval(self, publication_id: str) -> dict[str, Any] | None: ...
+_STATUS_FILTERS = (None, "pending", "approved", "rejected")
 
 
 def _json_response(
@@ -257,6 +240,7 @@ def _render_dashboard_detail(
     candidate: dict[str, Any], csrf_token: str, revision: int | None = None
 ) -> str:
     pub_id = html.escape(str(candidate.get("publication_id", "")))
+    path_id = quote(str(candidate.get("publication_id", "")), safe="")
     view = CandidatePriceView.from_candidate(candidate)
     platform = html.escape(view.platform)
     channel = html.escape(str(candidate.get("target_channel", "")))
@@ -277,8 +261,8 @@ def _render_dashboard_detail(
         if revision is not None
         else ""
     )
-    approve_action = f"/dashboard/candidates/{pub_id}/approve"
-    reject_action = f"/dashboard/candidates/{pub_id}/reject"
+    approve_action = f"/dashboard/candidates/{path_id}/approve"
+    reject_action = f"/dashboard/candidates/{path_id}/reject"
 
     history_box = ""
     if decided_by:
@@ -383,10 +367,6 @@ def _render_dashboard_detail(
 </html>"""
 
 
-def _reject_json_constant(value: str) -> None:
-    raise ValueError("non_finite_json")
-
-
 def _viewed_revision(
     body: dict[str, Any], header: str | None, *, form_mode: bool = False
 ) -> int | None:
@@ -468,7 +448,29 @@ def create_handler_class(
                 self, 401, '<h1>401 Unauthorized</h1><a href="/dashboard/login">Đăng nhập</a>'
             )
 
+        def _internal_error(self) -> None:
+            # Never echo exception text: it may contain stored data or internal paths.
+            self.close_connection = True
+            if urlparse(self.path).path.startswith("/dashboard"):
+                _html_response(self, 500, "<h1>500 Internal Server Error</h1>")
+            else:
+                _json_response(self, 500, {"error": "internal_error"})
+
         def do_GET(self) -> None:
+            try:
+                self._do_get()
+            except Exception:
+                with contextlib.suppress(OSError):  # The client may already be gone.
+                    self._internal_error()
+
+        def do_POST(self) -> None:
+            try:
+                self._do_post()
+            except Exception:
+                with contextlib.suppress(OSError):  # The client may already be gone.
+                    self._internal_error()
+
+        def _do_get(self) -> None:
             if not self._request_boundary():
                 return
             parsed = urlparse(self.path)
@@ -502,6 +504,9 @@ def create_handler_class(
             # Dashboard Web UI routes
             if path == "/dashboard":
                 status_filter = query_params.get("status", [None])[0]
+                if status_filter not in _STATUS_FILTERS:
+                    _html_response(self, 400, "<h1>400 Bộ lọc trạng thái không hợp lệ</h1>")
+                    return
                 candidates = store.list_candidates(status=status_filter)
                 html_body = _render_dashboard_list(candidates, status_filter, session[1])
                 _html_response(self, 200, html_body)
@@ -527,7 +532,11 @@ def create_handler_class(
             if path.startswith("/api/v1/candidates/"):
                 pub_id = path[len("/api/v1/candidates/") :]
                 if pub_id.endswith("/history"):
-                    _json_response(self, 200, {"items": store.list_history(unquote(pub_id[:-8]))})
+                    base_id = unquote(pub_id[: -len("/history")])
+                    if store.get_snapshot(base_id) is None:
+                        _json_response(self, 404, {"error": "candidate_not_found"})
+                        return
+                    _json_response(self, 200, {"items": store.list_history(base_id)})
                     return
                 if pub_id.endswith("/approval"):
                     base_id = unquote(pub_id[:-9])
@@ -551,7 +560,7 @@ def create_handler_class(
 
             _json_response(self, 404, {"error": "not_found"})
 
-        def do_POST(self) -> None:
+        def _do_post(self) -> None:
             if not self._request_boundary():
                 return
             if (
@@ -675,7 +684,9 @@ def create_handler_class(
                         err_msg = f"<h1>400 Error</h1><p>{html.escape(str(exc))}</p>"
                         _html_response(self, 400, err_msg)
                         return
-                    _redirect_response(self, f"/dashboard/candidates/{quote(pub_id, safe='')}")
+                    _redirect_response(
+                        self, f"/dashboard/candidates/{quote(unquote(pub_id), safe='')}"
+                    )
                     return
 
                 if path.startswith("/dashboard/candidates/") and path.endswith("/reject"):
@@ -708,7 +719,9 @@ def create_handler_class(
                         err_msg = f"<h1>400 Error</h1><p>{html.escape(str(exc))}</p>"
                         _html_response(self, 400, err_msg)
                         return
-                    _redirect_response(self, f"/dashboard/candidates/{quote(pub_id, safe='')}")
+                    _redirect_response(
+                        self, f"/dashboard/candidates/{quote(unquote(pub_id), safe='')}"
+                    )
                     return
 
                 _html_response(self, 404, "<h1>404 Not Found</h1>")
@@ -719,12 +732,11 @@ def create_handler_class(
                 _json_response(self, 415, {"error": "unsupported_media_type"})
                 return
             try:
-                body = json.loads(raw.decode("utf-8") or "{}", parse_constant=_reject_json_constant)
-            except (UnicodeError, ValueError):
-                _json_response(self, 400, {"error": "invalid_json"})
-                return
-            if not isinstance(body, dict):
-                _json_response(self, 400, {"error": "body_must_be_object"})
+                # Strict parse: duplicate keys are ambiguous across parsers and are rejected.
+                body = json_object(raw) if raw else {}
+            except ValueError as exc:
+                code = "body_must_be_object" if str(exc) == "json_object_required" else ""
+                _json_response(self, 400, {"error": code or "invalid_json"})
                 return
 
             if path == "/api/v1/candidates":
