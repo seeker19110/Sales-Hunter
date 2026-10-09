@@ -5,11 +5,11 @@ source_method phải là \"manual\". Không giả dữ liệu live API.
 
 from __future__ import annotations
 
-import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from s_n_sales.domain.json_value import json_object
 from s_n_sales.pipeline.draft import ObservationValidationError, validate_observation
 
 
@@ -27,11 +27,10 @@ def load_manual_observation(
     if not path.is_file():
         raise ManualAdapterError(f"không tìm thấy file: {path}")
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
+        # Strict parse: duplicate keys, NaN/Infinity and non-objects are ambiguous input.
+        data = json_object(path.read_bytes())
+    except ValueError as exc:
         raise ManualAdapterError(f"JSON không hợp lệ: {exc}") from exc
-    if not isinstance(data, dict):
-        raise ManualAdapterError("observation phải là object JSON")
 
     if require_source_method_manual and data.get("source_method") != "manual":
         raise ManualAdapterError(

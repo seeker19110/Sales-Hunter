@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
+from s_n_sales.domain.json_value import json_object
+
 
 def load_observation_fixture(path: Path) -> dict[str, Any]:
-    data = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
-        raise ValueError("fixture phải là object JSON")
-    return data
+    try:
+        return json_object(path.read_bytes())
+    except ValueError as exc:
+        raise ValueError(f"fixture phải là object JSON hợp lệ: {exc}") from exc

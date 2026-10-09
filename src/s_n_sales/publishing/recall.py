@@ -37,8 +37,8 @@ class RecallService:
         return self.get(intent_id)
 
     def get(self, intent_id: str) -> dict[str, Any]:
-        with self.store._lock:
-            row = self.store._conn.execute(
+        with self.store.read() as connection:
+            row = connection.execute(
                 "SELECT * FROM recall_intents WHERE intent_id=?", (intent_id,)
             ).fetchone()
         if row is None:
@@ -50,9 +50,19 @@ class RecallService:
 
     def scan(self, *, now: datetime) -> int:
         count = 0
-        for intent in self.queue.list_intents(limit=1000, status="confirmed"):
+        with self.store.read() as connection:
+            # Every confirmed publication is checked; a page limit would skip older posts.
+            identifiers = [
+                row["intent_id"]
+                for row in connection.execute(
+                    "SELECT intent_id FROM publish_intents WHERE status='confirmed' "
+                    "ORDER BY created_at,intent_id"
+                ).fetchall()
+            ]
+        for identifier in identifiers:
+            intent = self.queue.get(identifier)
             valid = True
-            with self.store.transaction():
+            with self.store.transaction() as connection:
                 try:
                     self.queue._current_scope(
                         intent["publication_id"],
@@ -62,7 +72,7 @@ class RecallService:
                     )
                 except (ValueError, KeyError):
                     valid = False
-                existed = self.store._conn.execute(
+                existed = connection.execute(
                     "SELECT 1 FROM recall_intents WHERE intent_id=?", (intent["intent_id"],)
                 ).fetchone()
             if not valid:
@@ -126,10 +136,9 @@ class RecallService:
             validate_proof(
                 proof, original["payload"], key=original["logical_key"], now=now, withdrawn=True
             )
-        except (ValueError, TypeError):
-            return self.get(intent_id)
-        if proof is not None:
-            self._confirm(intent_id, proof, actor=actor, now=now)
+        except Exception:
+            return self.get(intent_id)  # Transport output is untrusted; keep outcome_unknown.
+        self._confirm(intent_id, proof, actor=actor, now=now)
         return self.get(intent_id)
 
     def run_once(
@@ -175,7 +184,12 @@ class RecallService:
             connection.execute(
                 "UPDATE recall_intents SET status='withdrawing',attempts=attempts+1,"
                 "lease_token=?,worker_id=?,lease_until=? WHERE intent_id=?",
-                (token, worker_id, iso(utc(now) + timedelta(seconds=30)), intent_id),
+                (
+                    token,
+                    worker_id,
+                    iso(utc(now) + timedelta(seconds=self.queue.policy.lease_seconds)),
+                    intent_id,
+                ),
             )
             self.queue._event(connection, intent_id, "withdrawal_started", worker_id, now)
         original = self.queue.get(intent_id)

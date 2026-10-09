@@ -172,8 +172,8 @@ class DealRepository:
         current = snapshot if snapshot is not None else self.store.get_snapshot(publication_id)
         if current is None or current.candidate["publication_id"] != publication_id:
             raise KeyError(publication_id)
-        with self.store._lock:
-            row = self.store._conn.execute(
+        with self.store.read() as connection:
+            row = connection.execute(
                 (
                     "SELECT f.facts_json, p.payload_json FROM candidate_payloads p "
                     "JOIN deal_facts f USING(facts_id) WHERE p.publication_id=? "
@@ -188,8 +188,8 @@ class DealRepository:
         return DealPackage(current, facts, payload)
 
     def get_rankings(self, facts_id: str) -> list[dict[str, Any]]:
-        with self.store._lock:
-            rows = self.store._conn.execute(
+        with self.store.read() as connection:
+            rows = connection.execute(
                 (
                     "SELECT rank_json FROM deal_rank_results WHERE facts_id=? "
                     "ORDER BY ranked_at DESC, rank_version"
@@ -199,6 +199,7 @@ class DealRepository:
         return [json.loads(row["rank_json"]) for row in rows]
 
     def import_manual(self, raw: bytes, *, actor: str, now: datetime) -> DealPackage:
+        actor = require_actor(actor)
         request = json_object(raw)
         if set(request) != _REQUEST_FIELDS:
             raise ValueError("manual_request_fields_invalid")

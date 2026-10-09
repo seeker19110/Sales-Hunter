@@ -33,7 +33,8 @@ def timestamp(now: datetime | None = None) -> str:
     clock = now if now is not None else datetime.now(UTC)
     if clock.tzinfo is None or clock.utcoffset() is None:
         raise ValueError("timezone_required")
-    return clock.astimezone(UTC).isoformat().replace("+00:00", "Z")
+    # Fixed precision keeps stored timestamps lexicographically sortable.
+    return clock.astimezone(UTC).isoformat(timespec="microseconds").replace("+00:00", "Z")
 
 
 def require_actor(actor: str) -> str:

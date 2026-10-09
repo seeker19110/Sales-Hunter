@@ -51,7 +51,7 @@ def json_object(raw: bytes, *, max_bytes: int = 1024 * 1024) -> dict[str, Any]:
         raise ValueError("json_size_limit")
     try:
         obj = json.loads(raw.decode("utf-8"), parse_constant=_constant, object_pairs_hook=_pairs)
-    except (UnicodeError, RecursionError) as exc:
+    except (UnicodeError, RecursionError, json.JSONDecodeError) as exc:
         raise ValueError("invalid_json") from exc
     if not isinstance(obj, dict):
         raise ValueError("json_object_required")

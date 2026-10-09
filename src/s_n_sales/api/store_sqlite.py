@@ -72,6 +72,17 @@ class SqliteOperatorStore:
                 self._conn.rollback()
                 raise
 
+    @contextlib.contextmanager
+    def read(self) -> Iterator[sqlite3.Connection]:
+        """Serialized access for reads; inside transaction() it sees the uncommitted state."""
+        with self._lock:
+            yield self._conn
+
+    @property
+    def in_transaction(self) -> bool:
+        with self._lock:
+            return self._conn.in_transaction
+
     def _init_schema(self) -> None:
         with self.transaction() as connection:
             for statement in (
@@ -333,7 +344,7 @@ class SqliteOperatorStore:
         now: datetime | None,
     ) -> dict[str, Any]:
         with self.transaction() as connection:
-            return self._decide_in_transaction(
+            return self.decide_in_transaction(
                 connection,
                 publication_id,
                 status=status,
@@ -343,7 +354,7 @@ class SqliteOperatorStore:
                 now=now,
             )
 
-    def _decide_in_transaction(
+    def decide_in_transaction(
         self,
         connection: sqlite3.Connection,
         publication_id: str,

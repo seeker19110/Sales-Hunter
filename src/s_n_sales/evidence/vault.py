@@ -160,8 +160,8 @@ class EvidenceVault:
         return {"evidence_id": evidence_id, **manifest}
 
     def read(self, evidence_id: str, *, now: datetime) -> dict[str, Any]:
-        with self.store._lock:
-            row = self.store._conn.execute(
+        with self.store.read() as connection:
+            row = connection.execute(
                 (
                     "SELECT m.manifest_json, p.body_json, t.retired_at FROM "
                     "evidence_manifests m LEFT JOIN evidence_payloads p "
@@ -199,8 +199,8 @@ class EvidenceVault:
         return bool(changed)
 
     def expire(self, *, now: datetime) -> int:
-        with self.store._lock:
-            rows = self.store._conn.execute(
+        with self.store.read() as connection:
+            rows = connection.execute(
                 "SELECT m.* FROM evidence_manifests m LEFT JOIN "
                 "evidence_tombstones t USING(evidence_id) WHERE t.evidence_id "
                 "IS NULL"
