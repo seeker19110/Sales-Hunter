@@ -20,7 +20,7 @@ packages = ["src/s_n_sales"]
 dev = [
     "pip-audit>=2.10.1",
     "pyright>=1.1.414",
-    "ruff==0.16.7",
+    "ruff==0.16.8",
 ]
 
 [tool.ruff]
