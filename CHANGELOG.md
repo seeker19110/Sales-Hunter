@@ -4,6 +4,10 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Gợi ý nâng cấp từ đợt rà soát chéo 2026-10-13
+
+- Thêm `docs/audits/2026-10-13-goi-y-nang-cap.md`: hiện trạng đo được, đề xuất có ưu tiên + tiêu chí xong, gợi ý tích hợp từ catalog `seeker19110/stored`. Chỉ tài liệu, không đổi hành vi.
+
 ### Allowlist URL version hóa — ADR-0011 (#48)
 
 - Hợp đồng `url-allowlist.v1` và `config/url-allowlist.v1.json` (rỗng, fail-closed; mỗi host bắt buộc tài liệu chính thức và ngày kiểm chứng). `quality/allowlist.py::load_url_policy` parse chặt và gắn `version` vào `UrlPolicy`.
