@@ -136,7 +136,7 @@ jobs:
           uv export --locked --no-dev --no-emit-project --format requirements-txt > dist/runtime-requirements.txt
           sha256sum dist/* > dist/SHA256SUMS
       - name: Retain distribution for review (not a deployment)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: dist-${{ github.event.pull_request.head.sha || github.sha }}
           path: dist/
@@ -144,7 +144,7 @@ jobs:
           retention-days: 7
       - name: Retain locked Ruff for offline review
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ruff-review-${{ github.event.pull_request.head.sha }}
           path: .venv/bin/ruff
