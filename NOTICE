@@ -1,5 +1,5 @@
 Sales-Hunter
-Copyright 2026 seeker19110
+Copyright 2026 www-donghanhcungban-org
 
 Phạm vi giấy phép
 -----------------
@@ -8,8 +8,8 @@ Apache License 2.0 (xem LICENSE).
 
 Thành phần bên thứ ba
 ---------------------
-Phần khung vận hành phát triển được điều chỉnh từ dự án Claude-Agents:
-https://github.com/seeker19110/Claude-Agents
+Phần khung vận hành phát triển được điều chỉnh từ dự án Claude-Agents (nay là X-Agents):
+https://github.com/www-donghanhcungban-org/X-Agents
 
 Claude-Agents được phân phối theo Apache License 2.0. Các file đã được viết lại và thu gọn cho miền săn sale/affiliate; lịch sử sự cố và runtime đa-agent của nguồn không được sao chép.
 

@@ -19,7 +19,7 @@
 ## Bằng chứng và điểm tiếp tục
 
 - [Audit từng dòng 2026-10-09](docs/sessions/2026-10-09-line-audit.md) với [task pack](docs/task-packs/2026-10-09-audit-hardening.md); [audit gốc 2026-09-25](docs/audits/2026-09-25/README.md) giữ nguyên; [ma trận 27 mục](docs/implementation/2026-09-25/execution-matrix.md) là checkpoint lịch sử.
-- Việc còn lại cần ADR/owner: analytics bền vững, identity/roles trước staging ngoài; thêm domain nền tảng thật vào allowlist cần nguồn chính thức + ngày kiểm chứng (owner). Luồng legacy chỉ kiểm HTTPS đã đóng bởi ADR-0011 ([#48](https://github.com/seeker19110/Sales-Hunter/pull/48), đã merge); [session](docs/sessions/2026-10-09-url-allowlist.md).
+- Việc còn lại cần ADR/owner: analytics bền vững, identity/roles trước staging ngoài; thêm domain nền tảng thật vào allowlist cần nguồn chính thức + ngày kiểm chứng (owner). Luồng legacy chỉ kiểm HTTPS đã đóng bởi ADR-0011 ([#48](https://github.com/www-donghanhcungban-org/Sales-Hunter/pull/48), đã merge); [session](docs/sessions/2026-10-09-url-allowlist.md).
 - Analytics/ledger, operator form/CSV/inbox/bulk workflow, lịch sử giá, identity nhiều người dùng, server/TLS production và restore drill chưa hoàn tất. Publishing dùng manual/fake; không suy quyền API/account từ test mô phỏng.
 - Django/PostgreSQL cần ADR được chấp nhận; chưa tự thay stdlib/SQLite. ADR0003/0004 có điều kiện, checklist/evidence vẫn bắt buộc trước cutover.
 

@@ -4,6 +4,10 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Chuyển chủ repo sang `www-donghanhcungban-org`
+
+- Link repo đang dùng (`.github/FUNDING.yml`, `NOTICE`, `PROJECT-STATUS.md`) và dòng copyright trong `NOTICE` trỏ về chủ mới; link cũ redirect 301. ADR, audit và nhật ký phiên cũ giữ nguyên. Chỉ tài liệu, không đổi hành vi.
+
 ### Mục ủng hộ và hỗ trợ triển khai
 
 - README thêm mục "Ủng hộ và liên hệ" (VietQR Techcombank, liên hệ, hỗ trợ triển khai tại TP. Hồ Chí Minh hoặc online); ảnh `docs/assets/donate-vietqr-techcombank.png`; `.github/FUNDING.yml`.
