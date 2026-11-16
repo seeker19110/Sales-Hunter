@@ -4,6 +4,15 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Chuyển chủ repo sang `www-donghanhcungban-org`
+
+- Link repo đang dùng (`.github/FUNDING.yml`, `NOTICE`, `PROJECT-STATUS.md`) và dòng copyright trong `NOTICE` trỏ về chủ mới; link cũ redirect 301. ADR, audit và nhật ký phiên cũ giữ nguyên. Chỉ tài liệu, không đổi hành vi.
+
+### Mục ủng hộ và hỗ trợ triển khai
+
+- README thêm mục "Ủng hộ và liên hệ" (VietQR Techcombank, liên hệ, hỗ trợ triển khai tại TP. Hồ Chí Minh hoặc online); ảnh `docs/assets/donate-vietqr-techcombank.png`; `.github/FUNDING.yml`.
+- `NOTICE` bổ sung phạm vi giấy phép (giữ Apache-2.0), thành phần bên thứ ba và câu nhãn hiệu. Chỉ tài liệu, không đổi hành vi.
+
 ### Vá lỗ hổng phụ thuộc dev (pip-audit)
 
 - `uv.lock`: certifi 2026.7.22 → 2026.10.23 (PYSEC-2026-4320), filelock 3.32.6 → 4.2.10 (13 CVE-2026-1129xx), msgpack 1.2.2 → 1.2.4 (CVE-2026-114613). Cả ba chỉ là phụ thuộc bắc cầu của `pip-audit[filecache]` (nhóm dev, qua `cachecontrol`); mã dự án không import. filelock 4 đổi định dạng `SoftReadWriteLock` và siết kiểm tham số — không ảnh hưởng `FileLock` mà `cachecontrol` dùng. `make check` và `tools/validate_repo.py` xanh.
