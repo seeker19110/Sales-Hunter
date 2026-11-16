@@ -4,6 +4,10 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Vá lỗ hổng phụ thuộc dev (pip-audit)
+
+- `uv.lock`: certifi 2026.7.22 → 2026.10.23 (PYSEC-2026-4320), filelock 3.32.6 → 4.2.10 (13 CVE-2026-1129xx), msgpack 1.2.2 → 1.2.4 (CVE-2026-114613). Cả ba chỉ là phụ thuộc bắc cầu của `pip-audit[filecache]` (nhóm dev, qua `cachecontrol`); mã dự án không import. filelock 4 đổi định dạng `SoftReadWriteLock` và siết kiểm tham số — không ảnh hưởng `FileLock` mà `cachecontrol` dùng. `make check` và `tools/validate_repo.py` xanh.
+
 ### Gợi ý nâng cấp từ đợt rà soát chéo 2026-10-13
 
 - Thêm `docs/audits/2026-10-13-goi-y-nang-cap.md`: hiện trạng đo được, đề xuất có ưu tiên + tiêu chí xong, gợi ý tích hợp từ catalog `seeker19110/stored`. Chỉ tài liệu, không đổi hành vi.
