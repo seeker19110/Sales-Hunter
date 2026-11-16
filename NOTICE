@@ -1,6 +1,25 @@
 Sales-Hunter
+Copyright 2026 seeker19110
 
+Phạm vi giấy phép
+-----------------
+Toàn bộ mã nguồn, schema, cấu hình và tài liệu trong repo này phát hành theo
+Apache License 2.0 (xem LICENSE).
+
+Thành phần bên thứ ba
+---------------------
 Phần khung vận hành phát triển được điều chỉnh từ dự án Claude-Agents:
 https://github.com/seeker19110/Claude-Agents
 
 Claude-Agents được phân phối theo Apache License 2.0. Các file đã được viết lại và thu gọn cho miền săn sale/affiliate; lịch sử sự cố và runtime đa-agent của nguồn không được sao chép.
+
+Các phụ thuộc Python (pyproject.toml / uv.lock) không được chép vào repo; mỗi gói
+giữ giấy phép riêng của nó. Không tìm thấy nội dung bên thứ ba nào khác được chép
+vào repo (rà ngày 2026-11-16).
+
+Nhãn hiệu
+---------
+Techcombank, VietQR và NAPAS 247 xuất hiện trên ảnh mã QR ủng hộ
+(docs/assets/donate-vietqr-techcombank.png); Shopee, TikTok, TikTok Shop và các tên
+sản phẩm khác được nhắc đến là nhãn hiệu của chủ sở hữu tương ứng. Dự án không liên
+kết với, và không được bảo trợ bởi, các chủ sở hữu đó.

@@ -4,6 +4,11 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Mục ủng hộ và hỗ trợ triển khai
+
+- README thêm mục "Ủng hộ và liên hệ" (VietQR Techcombank, liên hệ, hỗ trợ triển khai tại TP. Hồ Chí Minh hoặc online); ảnh `docs/assets/donate-vietqr-techcombank.png`; `.github/FUNDING.yml`.
+- `NOTICE` bổ sung phạm vi giấy phép (giữ Apache-2.0), thành phần bên thứ ba và câu nhãn hiệu. Chỉ tài liệu, không đổi hành vi.
+
 ### Gợi ý nâng cấp từ đợt rà soát chéo 2026-10-13
 
 - Thêm `docs/audits/2026-10-13-goi-y-nang-cap.md`: hiện trạng đo được, đề xuất có ưu tiên + tiêu chí xong, gợi ý tích hợp từ catalog `seeker19110/stored`. Chỉ tài liệu, không đổi hành vi.
