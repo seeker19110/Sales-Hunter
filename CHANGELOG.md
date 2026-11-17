@@ -4,6 +4,10 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Nâng `actions/upload-artifact` 7.0.1 → 7.0.2 (#51)
+
+- `.github/workflows/ci.yml`: bản patch, thử lại khi dịch vụ artifact trả HTTP 429 (tôn trọng `Retry-After`), `@actions/artifact` 6.3.1; không có breaking change ([release v7.0.2](https://github.com/actions/upload-artifact/releases/tag/v7.0.2), tra 2026-11-16). Chỉ CI, không đổi hành vi sản phẩm.
+
 ### Chuyển chủ repo sang `www-donghanhcungban-org`
 
 - Link repo đang dùng (`.github/FUNDING.yml`, `NOTICE`, `PROJECT-STATUS.md`) và dòng copyright trong `NOTICE` trỏ về chủ mới; link cũ redirect 301. ADR, audit và nhật ký phiên cũ giữ nguyên. Chỉ tài liệu, không đổi hành vi.
