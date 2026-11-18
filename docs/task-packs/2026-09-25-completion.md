@@ -10,7 +10,7 @@ parent chưa tích hợp hoặc thiếu human T4. Audit lịch sử giữ nguyê
 | Epic/parent_branch | Subtask/tier | Dependency | File được sửa | Nghiệm thu |
 |---|---|---|---|---|
 | feat/audit-revision-transactions-20260925 | DATA-SPEC T4, DATA-RED T1, DATA-STORE T3, DATA-HTTP T4, DATA-CHECK T1, DATA-TOOLS T2 | #39 trước tích hợp | api/contracts.py, store*.py, app.py, pipeline/approval/publisher, tests data/API, docs ADR-0008, CI artifact | input không tự duyệt, schema, revision/CAS, history immutable, race/restart, migration rollback/manifest |
-| feat/audit-deal-quality-20260925 | DEAL-SPEC T4, DEAL-RED T1, DEAL-CORE T3, DEAL-CONTENT T3, DEAL-CHECK T1 | DATA interface | quality/ + content/, manual import, schemas mới nếu cần, tests | eligibility độc lập score; snapshot/evidence/variant/URL; deterministic final payload; AI không có tool/secret |
+| feat/audit-deal-quality-20260925 | DEAL-SPEC T4, DEAL-RED T1, DEAL-CORE T3, DEAL-CONTENT T3, DEAL-CHECK T1 | DATA interface | quality/ + content/ + evidence/vault.py + domain/json_value.py, manual import, schema/examples/package contracts, tests | eligibility độc lập score; snapshot/evidence/variant/URL; deterministic final payload; AI không có tool/secret |
 | feat/audit-durable-publishing-20260925 | PUB-SPEC T4, PUB-RED T1, PUB-QUEUE T4, PUB-WORKER T4, PUB-CHECK T1 | DATA/DEAL | publishing/, tests worker/lease/crash/pause | intent trước send, atomic claim, unknown không retry mù, revision/payload scope, pause/restart, receipt bền |
 | feat/audit-ledger-evidence-20260925 | LEDGER-SPEC T4, LEDGER-RED T1, LEDGER-CORE T3, LEDGER-CHECK T1 | DB transaction helper | analytics/, evidence/, tests | dedup immutable events, conversion lifecycle, commission; evidence hash/redaction/retention; không doanh thu live |
 | feat/audit-operator-operations-20260925 | OPS-SPEC T4, OPS-RED T1, OPS-CLI T3, OPS-UI T3, OPS-RESTORE T4, OPS-CHECK T1 | DATA/DEAL/PUB/LEDGER | operations/, api UI, tools/, docs runbooks | import preview/errors, inbox/version diff, bulk per-item, command doctor/migrate/pause/reconcile/export/backup/restore; luồng offline hoàn chỉnh |
@@ -33,3 +33,8 @@ Source đang kiểm, staging chưa kiểm, production chưa triển khai. Không
 DATA-TOOLS T2: lưu binary Ruff đã cài từ lockfile trong artifact review của PR để format
 trong môi trường không có DNS. Không thêm quyền repo, không thay gate, không xuất secret
 hay toàn bộ môi trường. Artifact công cụ giữ 1 ngày, runtime wheel gate giữ nguyên.
+
+DEAL triển khai evidence value/store trước PUB để mọi approval có chứng cứ thực và scope
+ổn định. LEDGER sẽ thêm price/conversion events, không sửa lại payload evidence. Runtime
+smoke và docs chung do một integrator quản lý, không có parallel overlap. DDL additive
+chỉ chạy fixture; không chạy migration hoặc delete payload của người dùng thật.

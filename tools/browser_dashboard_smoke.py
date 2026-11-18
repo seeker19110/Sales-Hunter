@@ -17,6 +17,7 @@ from tempfile import TemporaryDirectory
 from s_n_sales.api.app import make_server
 from s_n_sales.api.store_sqlite import SqliteOperatorStore
 from s_n_sales.pipeline.publication import build_publication_candidate
+from s_n_sales.quality.urls import UrlPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -50,7 +51,11 @@ def main() -> None:
     )
     with TemporaryDirectory(prefix="sales-hunter-browser-") as directory:
         store = SqliteOperatorStore(Path(directory) / "operator.db")
-        server = make_server(store, allow_unauthenticated_local=True)
+        server = make_server(
+            store,
+            allow_unauthenticated_local=True,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
+        )
         worker = threading.Thread(target=server.serve_forever, daemon=True)
         worker.start()
         browser_cases = []
@@ -69,6 +74,7 @@ def main() -> None:
                     affiliate_url="https://example.com/affiliate",
                     target_channel="manual_export",
                     publication_id=f"browser-case-{index}",
+                    url_policy=UrlPolicy(frozenset({"example.com"})),
                 )
                 store.upsert_candidate(candidate)
                 for route in ("/dashboard", f"/dashboard/candidates/browser-case-{index}"):

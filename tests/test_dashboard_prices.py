@@ -9,6 +9,7 @@ from typing import Any
 
 from s_n_sales.api.app import _render_dashboard_detail, _render_dashboard_list
 from s_n_sales.pipeline.publication import build_publication_candidate
+from s_n_sales.quality.urls import UrlPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,6 +25,7 @@ def candidate_for_prices(sale: int = 80000, listed: int | None = 100000) -> dict
         content="Minh họa <script>alert(1)</script>",
         affiliate_url="https://example.com/affiliate",
         target_channel="manual_export",
+        url_policy=UrlPolicy(frozenset({"example.com"})),
     )
 
 

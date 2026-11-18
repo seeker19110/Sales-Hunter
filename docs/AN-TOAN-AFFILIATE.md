@@ -22,7 +22,7 @@ Checklist này là baseline kỹ thuật, không thay thế điều khoản củ
 ## Link và attribution
 
 - [ ] Link chỉ do API/công cụ được ủy quyền hoặc thao tác manual có receipt tạo ra.
-- [ ] Kiểm HTTPS, hostname allowlist và đích sau redirect.
+- [ ] Kiểm HTTPS, hostname allowlist ([`config/url-allowlist.v1.json`](../config/url-allowlist.v1.json), [ADR-0011](adr/0011-versioned-url-allowlist.md)) và đích sau redirect.
 - [ ] Không cloaking, cookie stuffing, click giả hoặc tự ghép tham số tracking chưa được phép.
 - [ ] Link hết hạn/revoked không được đăng lại.
 - [ ] Không đổi destination sau approval mà không duyệt lại.

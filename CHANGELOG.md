@@ -4,6 +4,54 @@ Mọi thay đổi đáng kể của dự án được ghi tại đây theo [Keep
 
 ## Chưa phát hành
 
+### Nâng `actions/upload-artifact` 7.0.1 → 7.0.2 (#51)
+
+- `.github/workflows/ci.yml`: bản patch, thử lại khi dịch vụ artifact trả HTTP 429 (tôn trọng `Retry-After`), `@actions/artifact` 6.3.1; không có breaking change ([release v7.0.2](https://github.com/actions/upload-artifact/releases/tag/v7.0.2), tra 2026-11-16). Chỉ CI, không đổi hành vi sản phẩm.
+
+### Chuyển chủ repo sang `www-donghanhcungban-org`
+
+- Link repo đang dùng (`.github/FUNDING.yml`, `NOTICE`, `PROJECT-STATUS.md`) và dòng copyright trong `NOTICE` trỏ về chủ mới; link cũ redirect 301. ADR, audit và nhật ký phiên cũ giữ nguyên. Chỉ tài liệu, không đổi hành vi.
+
+### Mục ủng hộ và hỗ trợ triển khai
+
+- README thêm mục "Ủng hộ và liên hệ" (VietQR Techcombank, liên hệ, hỗ trợ triển khai tại TP. Hồ Chí Minh hoặc online); ảnh `docs/assets/donate-vietqr-techcombank.png`; `.github/FUNDING.yml`.
+- `NOTICE` bổ sung phạm vi giấy phép (giữ Apache-2.0), thành phần bên thứ ba và câu nhãn hiệu. Chỉ tài liệu, không đổi hành vi.
+
+### Vá lỗ hổng phụ thuộc dev (pip-audit)
+
+- `uv.lock`: certifi 2026.7.22 → 2026.10.23 (PYSEC-2026-4320), filelock 3.32.6 → 4.2.10 (13 CVE-2026-1129xx), msgpack 1.2.2 → 1.2.4 (CVE-2026-114613). Cả ba chỉ là phụ thuộc bắc cầu của `pip-audit[filecache]` (nhóm dev, qua `cachecontrol`); mã dự án không import. filelock 4 đổi định dạng `SoftReadWriteLock` và siết kiểm tham số — không ảnh hưởng `FileLock` mà `cachecontrol` dùng. `make check` và `tools/validate_repo.py` xanh.
+
+### Gợi ý nâng cấp từ đợt rà soát chéo 2026-10-13
+
+- Thêm `docs/audits/2026-10-13-goi-y-nang-cap.md`: hiện trạng đo được, đề xuất có ưu tiên + tiêu chí xong, gợi ý tích hợp từ catalog `seeker19110/stored`. Chỉ tài liệu, không đổi hành vi.
+
+### Allowlist URL version hóa — ADR-0011 (#48)
+
+- Hợp đồng `url-allowlist.v1` và `config/url-allowlist.v1.json` (rỗng, fail-closed; mỗi host bắt buộc tài liệu chính thức và ngày kiểm chứng). `quality/allowlist.py::load_url_policy` parse chặt và gắn `version` vào `UrlPolicy`.
+- `build_publication_candidate` và `run_manual_to_publication_candidate` bắt buộc `url_policy`, kiểm `affiliate_url` và `evidence.source_url`. `POST /api/v1/candidates` trả 403 `url_allowlist_not_configured` khi server không có `--url-allowlist`/`OPERATOR_URL_ALLOWLIST` và 400 `url_not_allowed` với URL ngoài allowlist.
+- `validate_repo.py` kiểm mọi `config/*.json` theo schema cùng tên; smoke wheel runtime-only nạp allowlist commit sẵn. Không thêm domain nền tảng thật.
+- Đồng bộ trạng thái sau merge: `PROJECT-STATUS.md` trỏ base `98c4677`, ADR-0011 chuyển sang chấp nhận.
+
+### Audit từng dòng và vá cứng (chờ review T4)
+
+- HTTP operator: ranh giới exception trả 500 `internal_error` thay vì đóng kết nối, bộ lọc trạng thái sai trả 400, history của ID không tồn tại trả 404; body JSON parse chặt (từ chối khóa trùng/NaN); form/redirect dashboard URL-encode `publication_id` đúng một lần.
+- Adapter manual/fake parse JSON chặt qua `json_object`; `json_object` trả mã `invalid_json` ổn định.
+- Publishing: worker trả `lease_lost` thay vì crash khi lease hết hạn sau khi provider nhận (intent ở `outcome_unknown`, reconcile đọc lại, không gửi lại); recall reconcile giữ `outcome_unknown` khi transport lỗi; quét recall không còn giới hạn 1000; publisher trả bản sao receipt cache.
+- Store: timestamp cố định micro giây để `ORDER BY created_at` đúng thứ tự.
+- Bảo mật dependency: urllib3 2.7.0 → 2.8.0 (PYSEC-2026-4175/4176/4177) để cổng `pip_audit` xanh lại.
+- Vòng 2: store có API `read()`/`in_transaction`/`decide_in_transaction` công khai, mọi module ngoài `api/` thôi chạm `_lock`/`_conn` (có test chặn tái phạm); đăng nhập dashboard tạm khóa 5 phút sau 10 token sai (429 + `Retry-After`); trang đăng nhập có viewport/tiêu đề; lease thu hồi theo `QueuePolicy.lease_seconds` thay vì 30 giây cố định; `import_manual` ghi `captured_by` đã chuẩn hóa; workflow `scheduled-audit.yml` chạy `pip_audit` hàng tuần trên `bootstrap/base` (chỉ đọc).
+- 19 test hồi quy `tests/test_audit_hardening.py`; bốn bẫy mới trong `TRAPS.md`; báo cáo tại `docs/sessions/2026-10-09-line-audit.md`.
+
+### Publication bền vững (chờ review T4)
+
+- SH-002/005/011/012/017/023/027: khôi phục implementation đã bàn giao vào PR #43: duyệt payload/revision và scope nguyên tử, intent/attempt/receipt bền vững, lease fencing, retry hữu hạn, outcome_unknown và đối soát, pause/cooldown qua restart, thu hồi có read-back và manual export không giả thành công đăng. Chỉ transport mô phỏng cục bộ; chưa có tích hợp live hoặc production.
+- Sửa CI #43 bằng implementation thực, giữ nguyên các test đỏ; đồng bộ stack #41/#42 đã sửa xung đột và UTF-8. Sửa tham số expected_token bị thiếu trong luồng thu hồi, chặn token cũ/lease hết hạn/xác nhận không có quyền lease; thêm regression và mở rộng smoke wheel qua durable fake send/recall. CI và human T4 trên HEAD cuối vẫn là cổng riêng.
+
+### Deal chất lượng và nội dung có chứng cứ (chờ T4)
+
+- SH-011–015/025/026/027: facts v1 chứa toàn observation và provenance; retained evidence được phép lưu, khử nhạy cảm, expiry/thu hồi; eligibility tách ranking; final payload có link/disclosure và scope/hash/version; manual input tạo ID/hash server, preview read-only và binding bất biến. Giữ schema v1 cũ.
+- Grounded composer tùy chọn chỉ chọn introduction/order fact IDs, có budget/cache/version và fallback template; không tự sinh số/link/claims hoặc gọi API trả phí. Cổng runtime-only smoke mở rộng cho luồng mới; chưa có durable publish hoặc live connector.
+
 ### Dữ liệu và giao dịch (chờ review T4)
 
 - SH-006/008/009/026: nhập pending đúng schema, revision bắt buộc khi sửa/duyệt, transaction SQLite, history chỉ-thêm, vô hiệu approval khi edit và đọc authority nguyên tử. HTTP 409/428, form version, Host/Origin và UTF-8/framing giới hạn. Migration preview chỉ đọc, manifest và rollback khi legacy data lỗi; chưa chọn PostgreSQL/production.

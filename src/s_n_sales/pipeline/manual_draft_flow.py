@@ -10,6 +10,7 @@ from s_n_sales.adapters.kill_switch import KillSwitch
 from s_n_sales.adapters.manual import load_manual_observation
 from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.publication import build_publication_candidate
+from s_n_sales.quality.urls import UrlPolicy
 
 ADAPTER_NAME = "manual"
 
@@ -21,6 +22,7 @@ def run_manual_to_publication_candidate(
     affiliate_url: str,
     target_channel: str,
     now: datetime,
+    url_policy: UrlPolicy,
     kill_switch: KillSwitch | None = None,
     disclosure: str | None = None,
 ) -> dict[str, Any]:
@@ -36,5 +38,6 @@ def run_manual_to_publication_candidate(
         content=content,
         affiliate_url=affiliate_url,
         target_channel=target_channel,
+        url_policy=url_policy,
         disclosure=disclosure,
     )

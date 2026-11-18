@@ -39,6 +39,10 @@ Bằng chứng đăng thành công do **publisher đọc lại** từ nền tả
 
 Kết quả xếp hạng **xác định**. `score` và `reasons` phải tái tạo được từ observation + `rank_version`. Không dùng model để sinh điểm số.
 
+## `url-allowlist.v1`
+
+Cấu hình allowlist hostname (ADR-0011), file thật ở `config/url-allowlist.v1.json`. Mỗi mục `hosts` phải có `host`, `purpose` (`affiliate`/`product`/`evidence`), `reference` HTTPS tới tài liệu/điều khoản chính thức và `verified_on`. `version` dạng `YYYY-MM-DD.N` được gắn vào `UrlPolicy`. File commit mặc định `hosts: []` (fail-closed); thêm domain nền tảng thật cần PR riêng có bằng chứng nguồn.
+
 ## Versioning
 
 Thay đổi làm consumer cũ hiểu sai dữ liệu phải tạo `*.v2.json`; không sửa semantics âm thầm trong v1. Thêm trường optional vẫn phải cập nhật fixture/contract test và changelog.

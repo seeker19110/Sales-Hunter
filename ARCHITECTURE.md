@@ -43,6 +43,7 @@ Hợp đồng hiện có:
 - [`offer-observation.v1.json`](schemas/offer-observation.v1.json): quan sát ưu đãi từ adapter.
 - [`rank-result.v1.json`](schemas/rank-result.v1.json): kết quả ranking từ observation đã validate.
 - [`publication-candidate.v1.json`](schemas/publication-candidate.v1.json): bản nháp chuẩn bị duyệt/đăng.
+- [`url-allowlist.v1.json`](schemas/url-allowlist.v1.json): allowlist hostname version hóa; mọi đường tạo candidate kiểm `affiliate_url` và URL bằng chứng qua [`config/url-allowlist.v1.json`](config/url-allowlist.v1.json) (ADR-0011).
 
 ## Yêu cầu xuyên suốt
 

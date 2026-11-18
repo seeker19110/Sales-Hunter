@@ -1,0 +1,12 @@
+{
+  "schema_version": "url-allowlist.v1",
+  "version": "2026-10-09.0",
+  "max_redirects": 3,
+  "hosts": [
+    {
+      "host": "example.com",
+      "purpose": "affiliate",
+      "reference": "https://www.rfc-editor.org/rfc/rfc2606"
+    }
+  ]
+}

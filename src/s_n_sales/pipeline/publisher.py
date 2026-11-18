@@ -130,7 +130,7 @@ class Publisher:
             raise PublishError("idempotency_key bắt buộc")
 
         if idempotency_key in self._receipts_by_key:
-            return self._receipts_by_key[idempotency_key]
+            return deepcopy(self._receipts_by_key[idempotency_key])
 
         if self.dry_run:
             raise PublishError(
@@ -139,6 +139,9 @@ class Publisher:
 
         if self.client is None:
             raise PublishError("thiếu PlatformClient khi dry_run=False")
+
+        if not isinstance(self.client, FakePlatformClient):
+            raise PublishError("legacy_direct_publish_disabled_use_verified_durable_transport")
 
         content = publication_candidate["content"]
         target_channel = publication_candidate["target_channel"]
@@ -167,5 +170,5 @@ class Publisher:
         if errors:
             raise PublishError(f"receipt không khớp schema: {errors[0].message}")
 
-        self._receipts_by_key[idempotency_key] = receipt
+        self._receipts_by_key[idempotency_key] = deepcopy(receipt)
         return receipt

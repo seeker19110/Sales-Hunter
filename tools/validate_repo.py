@@ -35,6 +35,8 @@ REQUIRED_FILES = (
     "uv.lock",
     "schemas/offer-observation.v1.json",
     "schemas/publication-candidate.v1.json",
+    "schemas/url-allowlist.v1.json",
+    "config/url-allowlist.v1.json",
 )
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*]\(([^)]+)\)")
 IGNORED_DIRECTORIES = {".git", ".venv", "__pycache__"}
@@ -150,6 +152,28 @@ def _validate_schemas(root: Path) -> list[str]:
     return errors
 
 
+def _validate_configs(root: Path) -> list[str]:
+    """Mỗi config/<tên>.v1.json phải khớp schemas/<tên>.v1.json (ADR-0011)."""
+    errors: list[str] = []
+    for config_path in sorted((root / "config").glob("*.json")):
+        relative = config_path.relative_to(root).as_posix()
+        schema_path = root / "schemas" / config_path.name
+        if not schema_path.is_file():
+            errors.append(f"{relative}: không có schema cùng tên trong schemas/")
+            continue
+        try:
+            schema = json.loads(schema_path.read_text(encoding="utf-8"))
+            instance = json.loads(config_path.read_text(encoding="utf-8"))
+            validator = Draft202012Validator(schema, format_checker=FormatChecker())
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, SchemaError) as exc:
+            errors.append(f"{relative}: không đọc/kiểm được: {exc}")
+            continue
+        problems = list(validator.iter_errors(instance))
+        if problems:
+            errors.append(f"{relative}: không khớp schema: {problems[0].message}")
+    return errors
+
+
 def validate_repository(root: Path) -> list[str]:
     """Trả về danh sách lỗi; danh sách rỗng nghĩa là đạt cổng."""
     root = root.resolve()
@@ -160,6 +184,7 @@ def validate_repository(root: Path) -> list[str]:
     ]
     errors.extend(_validate_markdown_links(root))
     errors.extend(_validate_schemas(root))
+    errors.extend(_validate_configs(root))
     return sorted(errors)
 
 

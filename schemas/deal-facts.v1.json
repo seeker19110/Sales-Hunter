@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.s-n-sales.local/deal-facts.v1.json",
+  "title": "Complete evidence-bound deal facts v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "facts_id",
+    "observation",
+    "evidence_id",
+    "variant_scope",
+    "valid_until",
+    "captured_by",
+    "adapter_version",
+    "normalizer_version",
+    "sale_price_scope",
+    "verified_total"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "deal-facts.v1"
+    },
+    "facts_id": {
+      "type": "string",
+      "pattern": "^fact-[0-9a-f]{64}$"
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "observation_id",
+        "platform",
+        "external_offer_id",
+        "item_id",
+        "merchant_id",
+        "market",
+        "source_method",
+        "title",
+        "product_url",
+        "observed_at",
+        "currency",
+        "list_price_minor",
+        "sale_price_minor",
+        "shipping_price_minor",
+        "stock_status",
+        "coupon_codes",
+        "eligibility",
+        "evidence"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "offer-observation.v1"
+        },
+        "observation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "platform": {
+          "enum": [
+            "shopee",
+            "tiktok_shop"
+          ]
+        },
+        "external_offer_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "item_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "variant_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "merchant_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "market": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "source_method": {
+          "enum": [
+            "official_api",
+            "authorized_export",
+            "manual"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "product_url": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 4096
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "currency": {
+          "const": "VND"
+        },
+        "list_price_minor": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "sale_price_minor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "shipping_price_minor": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "stock_status": {
+          "enum": [
+            "in_stock",
+            "out_of_stock",
+            "unknown"
+          ]
+        },
+        "coupon_codes": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "uniqueItems": true,
+          "default": []
+        },
+        "eligibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scope",
+            "notes"
+          ],
+          "properties": {
+            "scope": {
+              "enum": [
+                "all_users",
+                "account_or_region_dependent",
+                "unknown"
+              ]
+            },
+            "notes": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            }
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source_url",
+            "fetched_at",
+            "payload_sha256"
+          ],
+          "properties": {
+            "source_url": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 4096
+            },
+            "fetched_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "payload_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^ev-[0-9a-f]{64}$"
+    },
+    "variant_scope": {
+      "enum": [
+        "explicit_variant",
+        "single_variant_verified",
+        "unknown"
+      ]
+    },
+    "valid_until": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "captured_by": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "adapter_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "normalizer_version": {
+      "const": "normalizer-v1"
+    },
+    "sale_price_scope": {
+      "enum": [
+        "unconditional",
+        "conditional",
+        "unknown"
+      ]
+    },
+    "verified_total": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "amount_minor",
+            "evidence_id"
+          ],
+          "properties": {
+            "amount_minor": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "evidence_id": {
+              "type": "string",
+              "pattern": "^ev-[0-9a-f]{64}$"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

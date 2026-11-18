@@ -20,6 +20,7 @@ from s_n_sales.pipeline.approval import (
 from s_n_sales.pipeline.multi_channel import publish_multi_channel
 from s_n_sales.pipeline.publication import build_publication_candidate, compute_draft_sha256
 from s_n_sales.pipeline.publisher import FakePlatformClient, Publisher, PublishError
+from s_n_sales.quality.urls import UrlPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -36,6 +37,7 @@ class IntegrityBoundaryTests(unittest.TestCase):
             content="Nội dung đã xem",
             affiliate_url="https://example.com/affiliate",
             target_channel="manual_export",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.store = OperatorStore()
         self.store.upsert_candidate(self.candidate)

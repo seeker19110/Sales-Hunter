@@ -21,6 +21,7 @@ from s_n_sales.pipeline.draft import observation_to_rank
 from s_n_sales.pipeline.manual_draft_flow import run_manual_to_publication_candidate
 from s_n_sales.pipeline.publication import build_publication_candidate
 from s_n_sales.pipeline.publisher import FakePlatformClient, Publisher, PublishError
+from s_n_sales.quality.urls import UrlPolicy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -29,7 +30,11 @@ class OperatorApiTests(unittest.TestCase):
     def setUp(self) -> None:
         self.store = OperatorStore()
         self.server = make_server(
-            self.store, host="127.0.0.1", port=0, allow_unauthenticated_local=True
+            self.store,
+            host="127.0.0.1",
+            port=0,
+            allow_unauthenticated_local=True,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
@@ -47,6 +52,7 @@ class OperatorApiTests(unittest.TestCase):
             content="API staging demo",
             affiliate_url="https://example.com/aff/item-demo-001",
             target_channel="telegram:sales-hunter-demo",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
 
     def tearDown(self) -> None:
@@ -138,6 +144,7 @@ class OperatorAuthTests(unittest.TestCase):
             host="127.0.0.1",
             port=0,
             auth_token=self.token,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
@@ -187,7 +194,11 @@ class OperatorDashboardTests(unittest.TestCase):
     def setUp(self) -> None:
         self.store = OperatorStore()
         self.server = make_server(
-            self.store, host="127.0.0.1", port=0, allow_unauthenticated_local=True
+            self.store,
+            host="127.0.0.1",
+            port=0,
+            allow_unauthenticated_local=True,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
@@ -205,6 +216,7 @@ class OperatorDashboardTests(unittest.TestCase):
             content="Dashboard preview test item",
             affiliate_url="https://example.com/aff/dash-item-001",
             target_channel="telegram:sales-hunter-dash",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.store.upsert_candidate(self.candidate)
 
@@ -290,7 +302,11 @@ class OperatorSqliteIntegrationTests(unittest.TestCase):
         db_path = Path(self.temp_dir.name) / "test_api_sqlite.db"
         self.store = SqliteOperatorStore(db_path=db_path)
         self.server = make_server(
-            self.store, host="127.0.0.1", port=0, allow_unauthenticated_local=True
+            self.store,
+            host="127.0.0.1",
+            port=0,
+            allow_unauthenticated_local=True,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
@@ -315,6 +331,7 @@ class OperatorSqliteIntegrationTests(unittest.TestCase):
             content="SQLite API integration test",
             affiliate_url="https://example.com/aff/sqlite-api-001",
             target_channel="telegram:sales-hunter-demo",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         req = Request(
             self.base + "/api/v1/candidates",
@@ -341,6 +358,7 @@ class OperatorSqliteIntegrationTests(unittest.TestCase):
             content="SQLite API projection test",
             affiliate_url="https://example.com/aff/sqlite-api-projection",
             target_channel="telegram:sales-hunter-demo",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         pub_id = candidate["publication_id"]
         candidate_schema = json.loads(
@@ -408,6 +426,7 @@ class OperatorEndToEndPipelineTests(unittest.TestCase):
             port=0,
             auth_token=self.token,
             auth_actor="lead-operator@donghanhcungban.org",
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         self.port = self.server.server_address[1]
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
@@ -431,6 +450,7 @@ class OperatorEndToEndPipelineTests(unittest.TestCase):
             affiliate_url="https://example.com/aff/e2e-deal-001",
             target_channel="telegram:sales-hunter-channel",
             now=now,
+            url_policy=UrlPolicy(frozenset({"example.com"})),
         )
         pub_id = candidate["publication_id"]
         draft_sha = candidate["draft_sha256"]
